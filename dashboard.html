@@ -7,89 +7,146 @@
 <title>Dashboard — MDS Visit</title>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0e14;color:#e0e6f0;min-height:100vh;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#080c12;color:#e0e6f0;min-height:100vh;}
 
-/* PIN */
-#pin-screen{position:fixed;inset:0;background:#0a0e14;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:100;}
+/* ── PIN ── */
+#pin-screen{position:fixed;inset:0;background:#080c12;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:200;}
 #pin-screen.hidden{display:none;}
-.pin-logo{font-size:32px;margin-bottom:8px;}
+.pin-logo{width:56px;height:56px;background:linear-gradient(135deg,#3ECF6D,#27ae60);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:4px;}
 .pin-title{font-size:22px;font-weight:700;color:#fff;}
-.pin-sub{font-size:13px;color:rgba(255,255,255,.35);}
-#pin-input{margin-top:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:12px 20px;color:#fff;font-size:16px;text-align:center;letter-spacing:4px;width:260px;outline:none;}
-#pin-input:focus{border-color:rgba(62,207,109,.5);}
+.pin-sub{font-size:13px;color:rgba(255,255,255,.3);}
+#pin-input{margin-top:4px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:13px 20px;color:#fff;font-size:16px;text-align:center;letter-spacing:6px;width:260px;outline:none;transition:border-color .2s;}
+#pin-input:focus{border-color:rgba(62,207,109,.5);background:rgba(62,207,109,.04);}
 .pin-err{color:#ff6b6b;font-size:12px;min-height:16px;}
-.pin-btn{background:#3ECF6D;color:#000;font-weight:700;font-size:14px;padding:12px 0;border-radius:10px;border:none;cursor:pointer;width:260px;transition:opacity .2s;}
-.pin-btn:hover{opacity:.85;}
+.pin-btn{background:linear-gradient(135deg,#3ECF6D,#27ae60);color:#000;font-weight:700;font-size:14px;padding:13px 0;border-radius:12px;border:none;cursor:pointer;width:260px;transition:opacity .2s;}
+.pin-btn:hover{opacity:.88;}
 
-/* LAYOUT */
+/* ── LAYOUT ── */
 #app{display:none;}
 #app.visible{display:block;}
-.topbar{background:#111720;border-bottom:1px solid rgba(255,255,255,.06);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:56px;}
+.topbar{background:#0d1117;border-bottom:1px solid rgba(255,255,255,.06);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:10;}
 .tb-left{display:flex;align-items:center;gap:12px;}
-.tb-logo{font-size:20px;}
-.tb-title{font-size:15px;font-weight:700;color:#fff;}
+.tb-icon{width:34px;height:34px;background:linear-gradient(135deg,#3ECF6D,#27ae60);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.tb-title{font-size:14px;font-weight:700;color:#fff;}
 .tb-sub{font-size:11px;color:rgba(255,255,255,.3);margin-top:1px;}
-.tb-right{display:flex;align-items:center;gap:8px;}
+.tb-right{display:flex;align-items:center;gap:16px;}
 .tb-date{font-size:12px;color:rgba(255,255,255,.3);}
+.live-dot{width:6px;height:6px;background:#3ECF6D;border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.8);}}
 
-.main{max-width:1400px;margin:0 auto;padding:28px 32px;}
+.main{max-width:1440px;margin:0 auto;padding:24px 28px;}
 
-/* STATS */
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
-.stat-card{background:#111720;border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:20px 22px;}
-.stat-label{font-size:11px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
-.stat-val{font-size:32px;font-weight:700;color:#3ECF6D;line-height:1.1;}
-.stat-sub{font-size:11px;color:rgba(255,255,255,.25);margin-top:4px;}
+/* ── STATS ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
+.stat-card{background:#0d1117;border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:20px 22px;position:relative;overflow:hidden;transition:border-color .2s;}
+.stat-card:hover{border-color:rgba(62,207,109,.2);}
+.stat-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(62,207,109,.04),transparent);pointer-events:none;}
+.stat-label{font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;}
+.stat-val{font-size:34px;font-weight:700;color:#3ECF6D;line-height:1;font-variant-numeric:tabular-nums;}
+.stat-sub{font-size:11px;color:rgba(255,255,255,.2);margin-top:6px;}
+.stat-trend{position:absolute;top:18px;right:18px;font-size:11px;padding:3px 8px;border-radius:20px;font-weight:600;}
+.stat-trend.up{background:rgba(62,207,109,.12);color:#3ECF6D;}
+.stat-trend.down{background:rgba(255,80,80,.1);color:#ff7070;}
 
-/* FILTERS */
-.filter-bar{background:#111720;border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:16px 20px;display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
-.filter-label{font-size:11px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.06em;}
-.date-pills{display:flex;gap:6px;}
-.date-pill{padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,.1);background:transparent;color:rgba(255,255,255,.4);font-size:12px;cursor:pointer;transition:all .15s;}
+/* ── FILTERS ── */
+.filter-bar{background:#0d1117;border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:14px 18px;display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
+.filter-label{font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;}
+.date-pills{display:flex;gap:5px;}
+.date-pill{padding:6px 13px;border-radius:20px;border:1px solid rgba(255,255,255,.08);background:transparent;color:rgba(255,255,255,.35);font-size:12px;cursor:pointer;transition:all .15s;white-space:nowrap;}
 .date-pill.active{background:#3ECF6D;border-color:#3ECF6D;color:#000;font-weight:600;}
-.filter-sep{width:1px;height:24px;background:rgba(255,255,255,.08);}
-.filter-input{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:7px 12px;color:#fff;font-size:13px;outline:none;width:180px;}
-.filter-input:focus{border-color:rgba(62,207,109,.4);}
-.filter-input::placeholder{color:rgba(255,255,255,.2);}
-.filter-clear{font-size:12px;color:rgba(255,255,255,.3);cursor:pointer;text-decoration:underline;white-space:nowrap;}
+.date-pill:hover:not(.active){border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.6);}
+.filter-sep{width:1px;height:22px;background:rgba(255,255,255,.07);flex-shrink:0;}
+.filter-input{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:9px;padding:7px 12px;color:#fff;font-size:12px;outline:none;transition:all .15s;}
+.filter-input:focus{border-color:rgba(62,207,109,.4);background:rgba(62,207,109,.03);}
+.filter-input::placeholder{color:rgba(255,255,255,.18);}
+.month-select{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:9px;padding:7px 12px;color:#fff;font-size:12px;outline:none;cursor:pointer;transition:all .15s;}
+.month-select:focus{border-color:rgba(62,207,109,.4);}
+.month-select option{background:#0d1117;color:#fff;}
+.filter-clear{font-size:11px;color:rgba(255,255,255,.25);cursor:pointer;white-space:nowrap;padding:4px 0;}
+.filter-clear:hover{color:rgba(255,255,255,.5);}
+.export-btn{margin-left:auto;background:rgba(62,207,109,.08);border:1px solid rgba(62,207,109,.2);color:#3ECF6D;padding:7px 14px;border-radius:9px;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.export-btn:hover{background:rgba(62,207,109,.15);}
 
-/* TABS + TABLE */
-.panel{background:#111720;border:1px solid rgba(255,255,255,.07);border-radius:14px;overflow:hidden;}
-.panel-tabs{display:flex;border-bottom:1px solid rgba(255,255,255,.07);}
-.panel-tab{padding:14px 24px;font-size:13px;font-weight:600;color:rgba(255,255,255,.35);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;}
+/* ── CHARTS ROW ── */
+.charts-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:22px;}
+.chart-card{background:#0d1117;border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:18px 20px;}
+.chart-title{font-size:11px;font-weight:600;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;}
+.chart-wrap{position:relative;height:180px;}
+
+/* ── PANEL / TABLE ── */
+.panel{background:#0d1117;border:1px solid rgba(255,255,255,.07);border-radius:16px;overflow:hidden;}
+.panel-header{display:flex;align-items:center;border-bottom:1px solid rgba(255,255,255,.06);}
+.panel-tab{padding:14px 22px;font-size:12px;font-weight:600;color:rgba(255,255,255,.3);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;}
 .panel-tab.active{color:#3ECF6D;border-bottom-color:#3ECF6D;}
+.panel-tab:hover:not(.active){color:rgba(255,255,255,.6);}
 .panel-body{overflow-x:auto;}
 
-table{width:100%;border-collapse:collapse;font-size:13px;}
-thead{background:rgba(255,255,255,.03);}
-th{text-align:left;padding:12px 16px;font-size:11px;font-weight:600;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.07em;white-space:nowrap;cursor:pointer;user-select:none;}
-th:hover{color:rgba(255,255,255,.6);}
-th .sort-arrow{margin-left:4px;opacity:.4;}
-td{padding:12px 16px;border-top:1px solid rgba(255,255,255,.04);vertical-align:middle;}
-tr:hover td{background:rgba(255,255,255,.02);}
-.td-id{font-weight:700;color:#3ECF6D;font-size:11px;letter-spacing:.04em;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+thead{background:rgba(255,255,255,.025);}
+th{text-align:left;padding:11px 14px;font-size:10px;font-weight:600;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;cursor:pointer;user-select:none;transition:color .15s;}
+th:hover{color:rgba(255,255,255,.55);}
+td{padding:11px 14px;border-top:1px solid rgba(255,255,255,.035);vertical-align:middle;}
+tr:hover td{background:rgba(255,255,255,.018);}
+.td-id{font-weight:700;color:#3ECF6D;font-size:10px;letter-spacing:.05em;}
 .td-mds{font-weight:600;color:#fff;}
-.td-area{color:rgba(255,255,255,.45);font-size:12px;}
-.td-store{color:rgba(255,255,255,.6);}
-.tag{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;}
-.tag.green{background:rgba(62,207,109,.15);color:#3ECF6D;}
-.tag.red{background:rgba(255,80,80,.12);color:#ff7070;}
+.td-area{color:rgba(255,255,255,.4);font-size:11px;}
+.td-store{color:rgba(255,255,255,.55);}
+.tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;line-height:1.5;}
+.tag.green{background:rgba(62,207,109,.13);color:#3ECF6D;}
+.tag.red{background:rgba(255,80,80,.1);color:#ff7070;}
 .tag.blue{background:rgba(80,140,255,.12);color:#7eb3ff;}
-.tag.gold{background:rgba(255,195,50,.12);color:#ffc532;}
+.tag.gold{background:rgba(255,195,50,.1);color:#ffc532;}
+.tag.purple{background:rgba(160,90,255,.12);color:#b57bff;}
 
-.tfoot-row{padding:14px 16px;font-size:12px;color:rgba(255,255,255,.25);border-top:1px solid rgba(255,255,255,.06);}
-.empty-state{text-align:center;padding:60px 20px;color:rgba(255,255,255,.2);font-size:14px;}
+.tfoot-row{padding:12px 14px;font-size:11px;color:rgba(255,255,255,.2);border-top:1px solid rgba(255,255,255,.05);}
+.empty-state{text-align:center;padding:56px 20px;color:rgba(255,255,255,.18);font-size:13px;}
 
-/* EXPORT */
-.export-btn{margin-left:auto;background:rgba(62,207,109,.1);border:1px solid rgba(62,207,109,.25);color:#3ECF6D;padding:7px 16px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;}
-.export-btn:hover{background:rgba(62,207,109,.2);}
+/* MDS EVAL TABLE special columns */
+.mds-eval-row{cursor:pointer;}
+.mds-eval-row:hover td{background:rgba(62,207,109,.04) !important;}
+.av-bar-wrap{display:flex;align-items:center;gap:8px;}
+.av-bar-bg{flex:1;height:5px;background:rgba(255,255,255,.06);border-radius:3px;min-width:60px;}
+.av-bar-fill{height:5px;border-radius:3px;transition:width .4s;}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.hidden{display:none;}
+.modal{background:#0d1117;border:1px solid rgba(255,255,255,.1);border-radius:20px;width:100%;max-width:720px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;}
+.modal-header{padding:22px 24px 0;display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0;}
+.modal-name{font-size:20px;font-weight:700;color:#fff;}
+.modal-sub{font-size:12px;color:rgba(255,255,255,.3);margin-top:3px;}
+.modal-close{width:32px;height:32px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:rgba(255,255,255,.5);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
+.modal-close:hover{background:rgba(255,255,255,.08);color:#fff;}
+.modal-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:18px 24px;flex-shrink:0;}
+.m-stat{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:14px 14px;}
+.m-stat-label{font-size:9px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
+.m-stat-val{font-size:22px;font-weight:700;color:#3ECF6D;}
+.m-stat-sub{font-size:10px;color:rgba(255,255,255,.2);margin-top:3px;}
+.modal-chart-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 24px 18px;flex-shrink:0;}
+.modal-chart-card{background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.05);border-radius:12px;padding:14px;}
+.modal-chart-title{font-size:10px;font-weight:600;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;}
+.modal-chart-wrap{position:relative;height:130px;}
+.modal-body{overflow-y:auto;padding:0 24px 24px;flex:1;}
+.modal-section{margin-bottom:18px;}
+.modal-section-title{font-size:10px;font-weight:600;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;}
+.modal-table{width:100%;border-collapse:collapse;font-size:11px;}
+.modal-table th{text-align:left;padding:8px 10px;font-size:9px;font-weight:600;color:rgba(255,255,255,.2);text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid rgba(255,255,255,.06);}
+.modal-table td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.03);color:rgba(255,255,255,.6);}
+.modal-table tr:last-child td{border-bottom:none;}
+.modal-table tr:hover td{background:rgba(255,255,255,.02);}
+
+/* scrollbar */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px;}
 </style>
 </head>
 <body>
 
-<!-- PIN SCREEN -->
+<!-- PIN -->
 <div id="pin-screen">
   <div class="pin-logo">📊</div>
   <div class="pin-title">MDS Visit Dashboard</div>
@@ -103,13 +160,14 @@ tr:hover td{background:rgba(255,255,255,.02);}
 <div id="app">
   <div class="topbar">
     <div class="tb-left">
-      <div class="tb-logo">📊</div>
+      <div class="tb-icon">📊</div>
       <div>
         <div class="tb-title">MDS Visit — Dashboard</div>
         <div class="tb-sub">Nutrifood Sulawesi</div>
       </div>
     </div>
     <div class="tb-right">
+      <div class="live-dot" title="Live data"></div>
       <div class="tb-date" id="tb-date"></div>
     </div>
   </div>
@@ -123,9 +181,9 @@ tr:hover td{background:rgba(255,255,255,.02);}
         <div class="stat-sub" id="ds-rka-sub">kunjungan</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">Beli Barang</div>
-        <div class="stat-val" id="ds-beli">—</div>
-        <div class="stat-sub" id="ds-beli-sub">transaksi</div>
+        <div class="stat-label">Rata-rata AV%</div>
+        <div class="stat-val" id="ds-av">—</div>
+        <div class="stat-sub">availability produk</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">MDS Aktif</div>
@@ -134,8 +192,8 @@ tr:hover td{background:rgba(255,255,255,.02);}
       </div>
       <div class="stat-card">
         <div class="stat-label">Total Pembelian</div>
-        <div class="stat-val" id="ds-nom" style="font-size:22px;padding-top:6px">—</div>
-        <div class="stat-sub">periode terpilih</div>
+        <div class="stat-val" id="ds-nom" style="font-size:20px;padding-top:8px">—</div>
+        <div class="stat-sub" id="ds-beli-sub">transaksi</div>
       </div>
     </div>
 
@@ -143,24 +201,46 @@ tr:hover td{background:rgba(255,255,255,.02);}
     <div class="filter-bar">
       <span class="filter-label">Periode</span>
       <div class="date-pills">
-        <div class="date-pill active" onclick="setDateFilter('today')">Hari Ini</div>
-        <div class="date-pill" onclick="setDateFilter('week')">7 Hari</div>
-        <div class="date-pill" onclick="setDateFilter('month')">30 Hari</div>
-        <div class="date-pill" onclick="setDateFilter('all')">Semua</div>
+        <div class="date-pill active" data-f="today" onclick="setDateFilter('today',this)">Hari Ini</div>
+        <div class="date-pill" data-f="week" onclick="setDateFilter('week',this)">7 Hari</div>
+        <div class="date-pill" data-f="month" onclick="setDateFilter('month',this)">30 Hari</div>
+        <div class="date-pill" data-f="all" onclick="setDateFilter('all',this)">Semua</div>
       </div>
       <div class="filter-sep"></div>
-      <input class="filter-input" id="f-area" placeholder="Filter area…" oninput="applyFilters()">
-      <input class="filter-input" id="f-mds" placeholder="Filter MDS…" oninput="applyFilters()">
-      <input class="filter-input" id="f-store" placeholder="Filter toko…" oninput="applyFilters()">
+      <span class="filter-label">Bulan</span>
+      <select class="month-select" id="f-month" onchange="setMonthFilter()">
+        <option value="">Semua Bulan</option>
+      </select>
+      <div class="filter-sep"></div>
+      <input class="filter-input" id="f-area" placeholder="Filter area…" style="width:130px" oninput="render()">
+      <input class="filter-input" id="f-mds" placeholder="Filter MDS…" style="width:130px" oninput="render()">
+      <input class="filter-input" id="f-store" placeholder="Filter toko…" style="width:140px" oninput="render()">
       <span class="filter-clear" onclick="clearFilters()">Reset</span>
       <button class="export-btn" onclick="exportCSV()">⬇ Export CSV</button>
     </div>
 
+    <!-- CHARTS -->
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">AV% per MDS (Top 8)</div>
+        <div class="chart-wrap"><canvas id="chart-av"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Trend Kunjungan Harian</div>
+        <div class="chart-wrap"><canvas id="chart-trend"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Pembelian per MDS (Top 8)</div>
+        <div class="chart-wrap"><canvas id="chart-beli"></canvas></div>
+      </div>
+    </div>
+
     <!-- TABLE PANEL -->
     <div class="panel">
-      <div class="panel-tabs">
+      <div class="panel-header">
         <div class="panel-tab active" id="ptab-rka" onclick="switchTab('rka')">Visit RKA</div>
         <div class="panel-tab" id="ptab-beli" onclick="switchTab('beli')">Beli Barang</div>
+        <div class="panel-tab" id="ptab-eval" onclick="switchTab('eval')">📋 Evaluasi MDS</div>
       </div>
       <div class="panel-body">
         <table id="data-table">
@@ -173,72 +253,138 @@ tr:hover td{background:rgba(255,255,255,.02);}
   </div>
 </div>
 
+<!-- MDS MODAL -->
+<div class="modal-overlay hidden" id="mds-modal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-name" id="modal-name">—</div>
+        <div class="modal-sub" id="modal-sub">—</div>
+      </div>
+      <button class="modal-close" onclick="document.getElementById('mds-modal').classList.add('hidden')">✕</button>
+    </div>
+    <div class="modal-stats">
+      <div class="m-stat"><div class="m-stat-label">Total Visit</div><div class="m-stat-val" id="m-visits">—</div><div class="m-stat-sub">kunjungan</div></div>
+      <div class="m-stat"><div class="m-stat-label">Avg AV%</div><div class="m-stat-val" id="m-av">—</div><div class="m-stat-sub">availability</div></div>
+      <div class="m-stat"><div class="m-stat-label">Toko Dikunjungi</div><div class="m-stat-val" id="m-stores">—</div><div class="m-stat-sub">unique store</div></div>
+      <div class="m-stat"><div class="m-stat-label">Total Nominal</div><div class="m-stat-val" id="m-nom" style="font-size:16px;padding-top:4px">—</div><div class="m-stat-sub" id="m-beli-count">—</div></div>
+    </div>
+    <div class="modal-chart-row">
+      <div class="modal-chart-card">
+        <div class="modal-chart-title">AV% per Hari</div>
+        <div class="modal-chart-wrap"><canvas id="modal-chart-av"></canvas></div>
+      </div>
+      <div class="modal-chart-card">
+        <div class="modal-chart-title">Kunjungan per Area</div>
+        <div class="modal-chart-wrap"><canvas id="modal-chart-area"></canvas></div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">
+        <div class="modal-section-title">Log Kunjungan Terakhir</div>
+        <table class="modal-table">
+          <thead><tr><th>Waktu</th><th>Toko</th><th>Area</th><th>Ada</th><th>Tdk</th><th>AV%</th></tr></thead>
+          <tbody id="modal-rka-body"></tbody>
+        </table>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-title">Log Pembelian Terakhir</div>
+        <table class="modal-table">
+          <thead><tr><th>Waktu</th><th>Toko</th><th>Area</th><th>Nominal</th><th>Renceng</th></tr></thead>
+          <tbody id="modal-beli-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
-const DASH_PIN = 'Nutrifood2026';
-const firebaseConfig = {
-  apiKey:"AIzaSyCtYc8uZICLzQrA1b7l00Yo_9V_rqNVOu0",
-  authDomain:"mds-visit.firebaseapp.com",
-  projectId:"mds-visit",
-  storageBucket:"mds-visit.firebasestorage.app",
-  messagingSenderId:"732603054928",
-  appId:"1:732603054928:web:9f946bfa13d56d860a8a55"
-};
+const DASH_PIN='Nutrifood2026';
+const firebaseConfig={apiKey:"AIzaSyCtYc8uZICLzQrA1b7l00Yo_9V_rqNVOu0",authDomain:"mds-visit.firebaseapp.com",projectId:"mds-visit",storageBucket:"mds-visit.firebasestorage.app",messagingSenderId:"732603054928",appId:"1:732603054928:web:9f946bfa13d56d860a8a55"};
 firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+const db=firebase.firestore();
 
-let RKA_ALL=[], BELI_ALL=[], ACTIVE_TAB='rka', DATE_FILTER='today', SORT_COL='timestamp', SORT_DIR=-1;
+let RKA_ALL=[],BELI_ALL=[],ACTIVE_TAB='rka',DATE_FILTER='today',MONTH_FILTER='',SORT_COL='timestamp',SORT_DIR=-1;
+let chartAV=null,chartTrend=null,chartBeli=null,modalChartAV=null,modalChartArea=null;
 
-// ── PIN ──────────────────────────────────────────────────────────────────────
+// ── PIN ───────────────────────────────────────────────────────────────────
 function checkPin(){
-  if(document.getElementById('pin-input').value === DASH_PIN){
+  if(document.getElementById('pin-input').value===DASH_PIN){
     document.getElementById('pin-screen').classList.add('hidden');
     document.getElementById('app').classList.add('visible');
     initDash();
   } else {
-    document.getElementById('pin-err').textContent = 'PIN salah, coba lagi.';
-    document.getElementById('pin-input').value = '';
+    document.getElementById('pin-err').textContent='PIN salah, coba lagi.';
+    document.getElementById('pin-input').value='';
   }
 }
 document.getElementById('pin-input').focus();
 
-// ── INIT ─────────────────────────────────────────────────────────────────────
+// ── INIT ─────────────────────────────────────────────────────────────────
 function initDash(){
-  document.getElementById('tb-date').textContent = new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('tb-date').textContent=new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 
-  db.collection('rka_logs').orderBy('timestamp','desc').limit(1000)
-    .onSnapshot(snap=>{
-      RKA_ALL=[];
-      snap.forEach(doc=>{ const d=doc.data(); RKA_ALL.push({...d,timestamp:d.timestamp?d.timestamp.toDate():new Date()}); });
-      render();
-    });
+  db.collection('rka_logs').orderBy('timestamp','desc').limit(2000).onSnapshot(snap=>{
+    RKA_ALL=[];
+    snap.forEach(doc=>{const d=doc.data();RKA_ALL.push({...d,timestamp:d.timestamp?d.timestamp.toDate():new Date()});});
+    buildMonthOptions();
+    render();
+  });
 
-  db.collection('beli_logs').orderBy('timestamp','desc').limit(1000)
-    .onSnapshot(snap=>{
-      BELI_ALL=[];
-      snap.forEach(doc=>{ const d=doc.data(); BELI_ALL.push({...d,timestamp:d.timestamp?d.timestamp.toDate():new Date()}); });
-      render();
-    });
+  db.collection('beli_logs').orderBy('timestamp','desc').limit(2000).onSnapshot(snap=>{
+    BELI_ALL=[];
+    snap.forEach(doc=>{const d=doc.data();BELI_ALL.push({...d,timestamp:d.timestamp?d.timestamp.toDate():new Date()});});
+    buildMonthOptions();
+    render();
+  });
 }
 
-// ── FILTERS ──────────────────────────────────────────────────────────────────
+function buildMonthOptions(){
+  const all=[...RKA_ALL,...BELI_ALL];
+  const months=new Set();
+  all.forEach(r=>{
+    const d=r.timestamp instanceof Date?r.timestamp:new Date(r.timestamp);
+    months.add(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`);
+  });
+  const sel=document.getElementById('f-month');
+  const cur=sel.value;
+  const sorted=[...months].sort().reverse();
+  sel.innerHTML='<option value="">Semua Bulan</option>';
+  sorted.forEach(m=>{
+    const [y,mo]=m.split('-');
+    const label=new Date(+y,+mo-1,1).toLocaleDateString('id-ID',{month:'long',year:'numeric'});
+    sel.innerHTML+=`<option value="${m}">${label}</option>`;
+  });
+  if(cur) sel.value=cur;
+}
+
+// ── FILTERS ──────────────────────────────────────────────────────────────
 function getDateCutoff(){
   const now=new Date();
-  if(DATE_FILTER==='today'){ const d=new Date(now); d.setHours(0,0,0,0); return d; }
-  if(DATE_FILTER==='week'){ const d=new Date(now); d.setDate(d.getDate()-7); return d; }
-  if(DATE_FILTER==='month'){ const d=new Date(now); d.setDate(d.getDate()-30); return d; }
+  if(DATE_FILTER==='today'){const d=new Date(now);d.setHours(0,0,0,0);return d;}
+  if(DATE_FILTER==='week'){const d=new Date(now);d.setDate(d.getDate()-7);return d;}
+  if(DATE_FILTER==='month'){const d=new Date(now);d.setDate(d.getDate()-30);return d;}
   return new Date(0);
 }
-function setDateFilter(f){
-  DATE_FILTER=f;
+function setDateFilter(f,el){
+  DATE_FILTER=f; MONTH_FILTER=''; document.getElementById('f-month').value='';
   document.querySelectorAll('.date-pill').forEach(p=>p.classList.remove('active'));
-  event.target.classList.add('active');
+  el.classList.add('active');
   render();
 }
-function applyFilters(){ render(); }
+function setMonthFilter(){
+  MONTH_FILTER=document.getElementById('f-month').value;
+  DATE_FILTER=''; document.querySelectorAll('.date-pill').forEach(p=>p.classList.remove('active'));
+  render();
+}
 function clearFilters(){
+  DATE_FILTER='today'; MONTH_FILTER='';
+  document.getElementById('f-month').value='';
   document.getElementById('f-area').value='';
   document.getElementById('f-mds').value='';
   document.getElementById('f-store').value='';
+  document.querySelectorAll('.date-pill').forEach(p=>p.classList.remove('active'));
+  document.querySelector('[data-f="today"]').classList.add('active');
   render();
 }
 function filtered(data){
@@ -247,125 +393,307 @@ function filtered(data){
   const fm=document.getElementById('f-mds').value.toLowerCase();
   const fs=document.getElementById('f-store').value.toLowerCase();
   return data.filter(r=>{
-    if(r.timestamp<cutoff) return false;
-    if(fa && !(r.area||'').toLowerCase().includes(fa)) return false;
-    if(fm && !(r.mds||'').toLowerCase().includes(fm)) return false;
-    if(fs && !(r.store||'').toLowerCase().includes(fs)) return false;
+    const ts=r.timestamp instanceof Date?r.timestamp:new Date(r.timestamp);
+    if(MONTH_FILTER){
+      const key=`${ts.getFullYear()}-${String(ts.getMonth()+1).padStart(2,'0')}`;
+      if(key!==MONTH_FILTER) return false;
+    } else {
+      if(ts<cutoff) return false;
+    }
+    if(fa&&!(r.area||'').toLowerCase().includes(fa)) return false;
+    if(fm&&!(r.mds||'').toLowerCase().includes(fm)) return false;
+    if(fs&&!(r.store||'').toLowerCase().includes(fs)) return false;
     return true;
   });
 }
 
-// ── SORT ─────────────────────────────────────────────────────────────────────
+// ── SORT ─────────────────────────────────────────────────────────────────
 function sortBy(col){
-  if(SORT_COL===col) SORT_DIR*=-1; else { SORT_COL=col; SORT_DIR=-1; }
-  render();
+  if(SORT_COL===col)SORT_DIR*=-1;else{SORT_COL=col;SORT_DIR=-1;}render();
 }
 function sorted(data){
-  return [...data].sort((a,b)=>{
-    let av=a[SORT_COL], bv=b[SORT_COL];
-    if(av instanceof Date) return SORT_DIR*(av-bv);
-    if(typeof av==='number') return SORT_DIR*(av-bv);
+  return[...data].sort((a,b)=>{
+    let av=a[SORT_COL],bv=b[SORT_COL];
+    if(av instanceof Date)return SORT_DIR*(av-bv);
+    if(typeof av==='number')return SORT_DIR*(av-bv);
     return SORT_DIR*String(av||'').localeCompare(String(bv||''));
   });
 }
+function arrow(col){return SORT_COL===col?(SORT_DIR>0?'↑':'↓'):'<span style="opacity:.2">↕</span>';}
 
-// ── RENDER ───────────────────────────────────────────────────────────────────
+// ── CHARTS ───────────────────────────────────────────────────────────────
+const CHART_OPTS={
+  responsive:true,maintainAspectRatio:false,
+  plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(13,17,23,.95)',titleColor:'rgba(255,255,255,.7)',bodyColor:'#fff',borderColor:'rgba(255,255,255,.1)',borderWidth:1,padding:10}},
+  scales:{x:{ticks:{color:'rgba(255,255,255,.3)',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'rgba(255,255,255,.3)',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}}}
+};
+
+function buildCharts(rkaF,beliF){
+  // Chart 1: AV% per MDS
+  const mdsAV={};
+  rkaF.forEach(r=>{
+    const m=r.mds||'?';
+    if(!mdsAV[m])mdsAV[m]={avail:0,total:0};
+    mdsAV[m].avail+=(r.avail||0);
+    mdsAV[m].total+=(r.avail||0)+(r.unavail||0);
+  });
+  const avEntries=Object.entries(mdsAV).map(([m,v])=>({m,pct:v.total?Math.round(v.avail/v.total*100):0})).sort((a,b)=>b.pct-a.pct).slice(0,8);
+  const avColors=avEntries.map(e=>e.pct>=80?'rgba(62,207,109,.8)':e.pct>=60?'rgba(126,179,255,.8)':'rgba(255,112,112,.8)');
+  if(chartAV)chartAV.destroy();
+  chartAV=new Chart(document.getElementById('chart-av'),{type:'bar',data:{labels:avEntries.map(e=>shortName(e.m)),datasets:[{data:avEntries.map(e=>e.pct),backgroundColor:avColors,borderRadius:6,borderSkipped:false}]},options:{...CHART_OPTS,scales:{...CHART_OPTS.scales,y:{...CHART_OPTS.scales.y,max:100,ticks:{...CHART_OPTS.scales.y.ticks,callback:v=>v+'%'}}},plugins:{...CHART_OPTS.plugins,tooltip:{...CHART_OPTS.plugins.tooltip,callbacks:{label:c=>c.raw+'%'}}}}});
+
+  // Chart 2: daily trend
+  const dayMap={};
+  rkaF.forEach(r=>{
+    const ts=r.timestamp instanceof Date?r.timestamp:new Date(r.timestamp);
+    const key=ts.toLocaleDateString('id-ID',{day:'numeric',month:'short'});
+    dayMap[key]=(dayMap[key]||0)+1;
+  });
+  const days=Object.entries(dayMap).slice(-14);
+  if(chartTrend)chartTrend.destroy();
+  chartTrend=new Chart(document.getElementById('chart-trend'),{type:'line',data:{labels:days.map(d=>d[0]),datasets:[{data:days.map(d=>d[1]),borderColor:'#3ECF6D',backgroundColor:'rgba(62,207,109,.08)',tension:.4,fill:true,pointBackgroundColor:'#3ECF6D',pointRadius:3,pointHoverRadius:5}]},options:{...CHART_OPTS}});
+
+  // Chart 3: purchase per MDS
+  const mdsNom={};
+  beliF.forEach(r=>{const m=r.mds||'?';mdsNom[m]=(mdsNom[m]||0)+(r.nominal||0);});
+  const nomEntries=Object.entries(mdsNom).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  if(chartBeli)chartBeli.destroy();
+  chartBeli=new Chart(document.getElementById('chart-beli'),{type:'bar',data:{labels:nomEntries.map(e=>shortName(e[0])),datasets:[{data:nomEntries.map(e=>e[1]),backgroundColor:'rgba(255,197,50,.7)',borderRadius:6,borderSkipped:false}]},options:{...CHART_OPTS,scales:{...CHART_OPTS.scales,y:{...CHART_OPTS.scales.y,ticks:{...CHART_OPTS.scales.y.ticks,callback:v=>v>=1e6?'Rp'+(v/1e6).toFixed(0)+'jt':v>=1e3?'Rp'+(v/1e3).toFixed(0)+'rb':'Rp'+v}}},plugins:{...CHART_OPTS.plugins,tooltip:{...CHART_OPTS.plugins.tooltip,callbacks:{label:c=>'Rp '+c.raw.toLocaleString('id-ID')}}}}});
+}
+
+function shortName(n){const p=n.split(' ');return p.length>=2?p.slice(0,2).join(' '):n;}
+
+// ── RENDER ───────────────────────────────────────────────────────────────
 function switchTab(tab){
   ACTIVE_TAB=tab;
-  document.getElementById('ptab-rka').classList.toggle('active',tab==='rka');
-  document.getElementById('ptab-beli').classList.toggle('active',tab==='beli');
+  ['rka','beli','eval'].forEach(t=>document.getElementById('ptab-'+t).classList.toggle('active',t===tab));
   render();
 }
-function arrow(col){ return SORT_COL===col?(SORT_DIR>0?'↑':'↓'):''; }
 
 function render(){
-  const data=ACTIVE_TAB==='rka'?RKA_ALL:BELI_ALL;
-  const rows=sorted(filtered(data));
+  const rkaF=filtered(RKA_ALL),beliF=filtered(BELI_ALL);
 
-  // Stats (always on filtered+all data combined)
-  const rkaF=filtered(RKA_ALL), beliF=filtered(BELI_ALL);
+  // Stats
   document.getElementById('ds-rka').textContent=rkaF.length;
-  document.getElementById('ds-beli').textContent=beliF.length;
+  const totalAV=rkaF.reduce((s,r)=>s+(r.avail||0),0);
+  const totalItems=rkaF.reduce((s,r)=>s+(r.avail||0)+(r.unavail||0),0);
+  document.getElementById('ds-av').textContent=totalItems?Math.round(totalAV/totalItems*100)+'%':'—';
   const mdsSet=new Set([...rkaF.map(r=>r.mds),...beliF.map(r=>r.mds)]);
-  document.getElementById('ds-mds').textContent=mdsSet.size;
+  document.getElementById('ds-mds').textContent=mdsSet.size||'—';
   const totalNom=beliF.reduce((s,r)=>s+(r.nominal||0),0);
   document.getElementById('ds-nom').textContent=totalNom?'Rp '+totalNom.toLocaleString('id-ID'):'—';
+  document.getElementById('ds-beli-sub').textContent=beliF.length+' transaksi';
 
-  if(ACTIVE_TAB==='rka'){
-    document.getElementById('table-head').innerHTML=`<tr>
-      <th onclick="sortBy('id')">ID ${arrow('id')}</th>
-      <th onclick="sortBy('timestamp')">Waktu ${arrow('timestamp')}</th>
-      <th onclick="sortBy('mds')">MDS ${arrow('mds')}</th>
-      <th onclick="sortBy('area')">Area ${arrow('area')}</th>
-      <th onclick="sortBy('store')">Toko ${arrow('store')}</th>
-      <th onclick="sortBy('avail')">Ada ${arrow('avail')}</th>
-      <th onclick="sortBy('unavail')">Tdk ${arrow('unavail')}</th>
-      <th>AV%</th>
-    </tr>`;
-    document.getElementById('table-body').innerHTML = rows.length ? rows.map(r=>{
-      const pct=r.avail+r.unavail>0?Math.round(r.avail/(r.avail+r.unavail)*100):0;
-      const ts=r.timestamp instanceof Date?r.timestamp:new Date(r.timestamp);
-      return `<tr>
-        <td class="td-id">${r.id||'—'}</td>
-        <td style="color:rgba(255,255,255,.5);font-size:12px">${ts.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})} ${ts.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</td>
-        <td class="td-mds">${r.mds||'—'}</td>
-        <td class="td-area">${r.area||'—'}</td>
-        <td class="td-store">${r.store||'—'}</td>
-        <td><span class="tag green">${r.avail||0}</span></td>
-        <td><span class="tag red">${r.unavail||0}</span></td>
-        <td><span class="tag ${pct>=80?'green':pct>=60?'blue':'red'}">${pct}%</span></td>
-      </tr>`;
-    }).join('') : '<tr><td colspan="8"><div class="empty-state">Tidak ada data untuk filter ini.</div></td></tr>';
-  } else {
-    document.getElementById('table-head').innerHTML=`<tr>
-      <th onclick="sortBy('id')">ID ${arrow('id')}</th>
-      <th onclick="sortBy('timestamp')">Waktu ${arrow('timestamp')}</th>
-      <th onclick="sortBy('mds')">MDS ${arrow('mds')}</th>
-      <th onclick="sortBy('area')">Area ${arrow('area')}</th>
-      <th onclick="sortBy('store')">Toko ${arrow('store')}</th>
-      <th onclick="sortBy('nominal')">Nominal ${arrow('nominal')}</th>
-      <th onclick="sortBy('totalRenceng')">Renceng ${arrow('totalRenceng')}</th>
-    </tr>`;
-    document.getElementById('table-body').innerHTML = rows.length ? rows.map(r=>{
-      const ts=r.timestamp instanceof Date?r.timestamp:new Date(r.timestamp);
-      return `<tr>
-        <td class="td-id">${r.id||'—'}</td>
-        <td style="color:rgba(255,255,255,.5);font-size:12px">${ts.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})} ${ts.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</td>
-        <td class="td-mds">${r.mds||'—'}</td>
-        <td class="td-area">${r.area||'—'}</td>
-        <td class="td-store">${r.store||'—'}</td>
-        <td><span class="tag gold">Rp ${(r.nominal||0).toLocaleString('id-ID')}</span></td>
-        <td><span class="tag green">${r.totalRenceng||0}</span></td>
-      </tr>`;
-    }).join('') : '<tr><td colspan="7"><div class="empty-state">Tidak ada data untuk filter ini.</div></td></tr>';
-  }
-  document.getElementById('tfoot').textContent=`Menampilkan ${rows.length} dari ${data.length} data`;
+  buildCharts(rkaF,beliF);
+
+  if(ACTIVE_TAB==='rka') renderRKA(rkaF);
+  else if(ACTIVE_TAB==='beli') renderBeli(beliF);
+  else renderEval(rkaF,beliF);
 }
 
-// ── EXPORT CSV ───────────────────────────────────────────────────────────────
+function renderRKA(rkaF){
+  const rows=sorted(rkaF);
+  document.getElementById('table-head').innerHTML=`<tr>
+    <th onclick="sortBy('id')">ID ${arrow('id')}</th>
+    <th onclick="sortBy('timestamp')">Waktu ${arrow('timestamp')}</th>
+    <th onclick="sortBy('mds')">MDS ${arrow('mds')}</th>
+    <th onclick="sortBy('area')">Area ${arrow('area')}</th>
+    <th onclick="sortBy('store')">Toko ${arrow('store')}</th>
+    <th onclick="sortBy('avail')">Ada ${arrow('avail')}</th>
+    <th onclick="sortBy('unavail')">Tdk ${arrow('unavail')}</th>
+    <th>AV%</th>
+  </tr>`;
+  document.getElementById('table-body').innerHTML=rows.length?rows.map(r=>{
+    const pct=r.avail+r.unavail>0?Math.round(r.avail/(r.avail+r.unavail)*100):0;
+    const ts=r.timestamp instanceof Date?r.timestamp:new Date(r.timestamp);
+    return`<tr>
+      <td class="td-id">${r.id||'—'}</td>
+      <td style="color:rgba(255,255,255,.45);font-size:11px">${ts.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})} ${ts.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</td>
+      <td class="td-mds">${r.mds||'—'}</td>
+      <td class="td-area">${r.area||'—'}</td>
+      <td class="td-store">${r.store||'—'}</td>
+      <td><span class="tag green">${r.avail||0}</span></td>
+      <td><span class="tag red">${r.unavail||0}</span></td>
+      <td><span class="tag ${pct>=80?'green':pct>=60?'blue':'red'}">${pct}%</span></td>
+    </tr>`;
+  }).join(''):'<tr><td colspan="8"><div class="empty-state">Tidak ada data untuk filter ini.</div></td></tr>';
+  document.getElementById('tfoot').textContent=`Menampilkan ${rows.length} dari ${RKA_ALL.length} data`;
+}
+
+function renderBeli(beliF){
+  const rows=sorted(beliF);
+  document.getElementById('table-head').innerHTML=`<tr>
+    <th onclick="sortBy('id')">ID ${arrow('id')}</th>
+    <th onclick="sortBy('timestamp')">Waktu ${arrow('timestamp')}</th>
+    <th onclick="sortBy('mds')">MDS ${arrow('mds')}</th>
+    <th onclick="sortBy('area')">Area ${arrow('area')}</th>
+    <th onclick="sortBy('store')">Toko ${arrow('store')}</th>
+    <th onclick="sortBy('nominal')">Nominal ${arrow('nominal')}</th>
+    <th onclick="sortBy('totalRenceng')">Renceng ${arrow('totalRenceng')}</th>
+  </tr>`;
+  document.getElementById('table-body').innerHTML=rows.length?rows.map(r=>{
+    const ts=r.timestamp instanceof Date?r.timestamp:new Date(r.timestamp);
+    return`<tr>
+      <td class="td-id">${r.id||'—'}</td>
+      <td style="color:rgba(255,255,255,.45);font-size:11px">${ts.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})} ${ts.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</td>
+      <td class="td-mds">${r.mds||'—'}</td>
+      <td class="td-area">${r.area||'—'}</td>
+      <td class="td-store">${r.store||'—'}</td>
+      <td><span class="tag gold">Rp ${(r.nominal||0).toLocaleString('id-ID')}</span></td>
+      <td><span class="tag green">${r.totalRenceng||0}</span></td>
+    </tr>`;
+  }).join(''):'<tr><td colspan="7"><div class="empty-state">Tidak ada data untuk filter ini.</div></td></tr>';
+  document.getElementById('tfoot').textContent=`Menampilkan ${rows.length} dari ${BELI_ALL.length} data`;
+}
+
+function renderEval(rkaF,beliF){
+  // Aggregate per MDS
+  const mds={};
+  rkaF.forEach(r=>{
+    const m=r.mds||'—';
+    if(!mds[m])mds[m]={name:m,area:r.area||'—',visits:0,avail:0,total:0,stores:new Set(),nom:0,beli:0};
+    mds[m].visits++;
+    mds[m].avail+=(r.avail||0);
+    mds[m].total+=(r.avail||0)+(r.unavail||0);
+    mds[m].stores.add(r.store||'?');
+  });
+  beliF.forEach(r=>{
+    const m=r.mds||'—';
+    if(!mds[m])mds[m]={name:m,area:r.area||'—',visits:0,avail:0,total:0,stores:new Set(),nom:0,beli:0};
+    mds[m].nom+=(r.nominal||0);
+    mds[m].beli++;
+    mds[m].stores.add(r.store||'?');
+  });
+
+  let entries=Object.values(mds).map(v=>({...v,stores:v.stores.size,av:v.total?Math.round(v.avail/v.total*100):null}));
+
+  // Sort by eval score: visits+av
+  if(SORT_COL==='av') entries.sort((a,b)=>SORT_DIR*((a.av||0)-(b.av||0)));
+  else if(SORT_COL==='visits') entries.sort((a,b)=>SORT_DIR*(a.visits-b.visits));
+  else if(SORT_COL==='nom') entries.sort((a,b)=>SORT_DIR*(a.nom-b.nom));
+  else if(SORT_COL==='mds') entries.sort((a,b)=>SORT_DIR*a.name.localeCompare(b.name));
+  else entries.sort((a,b)=>b.visits-a.visits);
+
+  document.getElementById('table-head').innerHTML=`<tr>
+    <th onclick="sortBy('mds')">MDS ${arrow('mds')}</th>
+    <th>Area</th>
+    <th onclick="sortBy('visits')">Visit ${arrow('visits')}</th>
+    <th>Toko</th>
+    <th onclick="sortBy('av')">AV% ${arrow('av')}</th>
+    <th>Bar</th>
+    <th onclick="sortBy('nom')">Total Beli ${arrow('nom')}</th>
+    <th>Status</th>
+  </tr>`;
+
+  document.getElementById('table-body').innerHTML=entries.length?entries.map(e=>{
+    const av=e.av!==null?e.av:null;
+    const avLabel=av!==null?av+'%':'—';
+    const avClass=av===null?'blue':av>=80?'green':av>=60?'blue':'red';
+    const barW=av!==null?av:0;
+    const barColor=av===null?'rgba(80,140,255,.6)':av>=80?'#3ECF6D':av>=60?'#7eb3ff':'#ff7070';
+    const status=av===null?'<span class="tag blue">No Data</span>':av>=80?'<span class="tag green">✓ Baik</span>':av>=60?'<span class="tag blue">~ Cukup</span>':'<span class="tag red">⚠ Perlu Perhatian</span>';
+    return`<tr class="mds-eval-row" onclick="openMDS('${e.name.replace(/'/g,"\\'")}')">
+      <td class="td-mds">${e.name}</td>
+      <td class="td-area">${e.area}</td>
+      <td><span class="tag green">${e.visits}</span></td>
+      <td style="color:rgba(255,255,255,.5)">${e.stores}</td>
+      <td><span class="tag ${avClass}">${avLabel}</span></td>
+      <td><div class="av-bar-wrap"><div class="av-bar-bg"><div class="av-bar-fill" style="width:${barW}%;background:${barColor}"></div></div></div></td>
+      <td><span class="tag gold">${e.nom?'Rp '+e.nom.toLocaleString('id-ID'):'—'}</span></td>
+      <td>${status}</td>
+    </tr>`;
+  }).join(''):'<tr><td colspan="8"><div class="empty-state">Tidak ada data MDS untuk filter ini.</div></td></tr>';
+  document.getElementById('tfoot').textContent=`${entries.length} MDS ditemukan — klik baris untuk detail`;
+}
+
+// ── MDS MODAL ─────────────────────────────────────────────────────────────
+function openMDS(name){
+  const rkaF=filtered(RKA_ALL).filter(r=>r.mds===name);
+  const beliF=filtered(BELI_ALL).filter(r=>r.mds===name);
+
+  document.getElementById('modal-name').textContent=name;
+  const areas=[...new Set(rkaF.map(r=>r.area||'—'))].join(', ');
+  document.getElementById('modal-sub').textContent=`Area: ${areas||'—'}`;
+
+  document.getElementById('m-visits').textContent=rkaF.length;
+  const totalAV=rkaF.reduce((s,r)=>s+(r.avail||0),0);
+  const totalItems=rkaF.reduce((s,r)=>s+(r.avail||0)+(r.unavail||0),0);
+  document.getElementById('m-av').textContent=totalItems?Math.round(totalAV/totalItems*100)+'%':'—';
+  const stores=new Set([...rkaF.map(r=>r.store),...beliF.map(r=>r.store)]);
+  document.getElementById('m-stores').textContent=stores.size;
+  const totalNom=beliF.reduce((s,r)=>s+(r.nominal||0),0);
+  document.getElementById('m-nom').textContent=totalNom?'Rp '+totalNom.toLocaleString('id-ID'):'—';
+  document.getElementById('m-beli-count').textContent=beliF.length+' transaksi';
+
+  // Modal chart 1: AV% per day
+  const dayAV={};
+  rkaF.forEach(r=>{
+    const ts=r.timestamp instanceof Date?r.timestamp:new Date(r.timestamp);
+    const key=ts.toLocaleDateString('id-ID',{day:'numeric',month:'short'});
+    if(!dayAV[key])dayAV[key]={avail:0,total:0};
+    dayAV[key].avail+=(r.avail||0);
+    dayAV[key].total+=(r.avail||0)+(r.unavail||0);
+  });
+  const dayKeys=Object.keys(dayAV).slice(-10);
+  const dayPcts=dayKeys.map(k=>dayAV[k].total?Math.round(dayAV[k].avail/dayAV[k].total*100):0);
+  if(modalChartAV)modalChartAV.destroy();
+  modalChartAV=new Chart(document.getElementById('modal-chart-av'),{type:'line',data:{labels:dayKeys,datasets:[{data:dayPcts,borderColor:'#3ECF6D',backgroundColor:'rgba(62,207,109,.07)',tension:.4,fill:true,pointRadius:3,pointBackgroundColor:'#3ECF6D'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw+'%'},backgroundColor:'rgba(13,17,23,.95)',titleColor:'rgba(255,255,255,.6)',bodyColor:'#fff',borderColor:'rgba(255,255,255,.08)',borderWidth:1}},scales:{x:{ticks:{color:'rgba(255,255,255,.25)',font:{size:9}},grid:{color:'rgba(255,255,255,.04)'}},y:{max:100,ticks:{color:'rgba(255,255,255,.25)',font:{size:9},callback:v=>v+'%'},grid:{color:'rgba(255,255,255,.04)'}}}}});
+
+  // Modal chart 2: visits per area
+  const areaMap={};
+  rkaF.forEach(r=>{const a=r.area||'—';areaMap[a]=(areaMap[a]||0)+1;});
+  const areaEntries=Object.entries(areaMap).sort((a,b)=>b[1]-a[1]);
+  const PALETTE=['rgba(62,207,109,.75)','rgba(126,179,255,.75)','rgba(255,197,50,.75)','rgba(181,123,255,.75)','rgba(255,112,112,.75)','rgba(80,200,200,.75)'];
+  if(modalChartArea)modalChartArea.destroy();
+  modalChartArea=new Chart(document.getElementById('modal-chart-area'),{type:'doughnut',data:{labels:areaEntries.map(e=>e[0]),datasets:[{data:areaEntries.map(e=>e[1]),backgroundColor:PALETTE,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'right',labels:{color:'rgba(255,255,255,.4)',font:{size:9},boxWidth:10,padding:8}},tooltip:{backgroundColor:'rgba(13,17,23,.95)',titleColor:'rgba(255,255,255,.6)',bodyColor:'#fff',borderColor:'rgba(255,255,255,.08)',borderWidth:1}},cutout:'60%'}});
+
+  // RKA table
+  const rkaRows=rkaF.slice().sort((a,b)=>b.timestamp-a.timestamp).slice(0,20);
+  document.getElementById('modal-rka-body').innerHTML=rkaRows.length?rkaRows.map(r=>{
+    const ts=r.timestamp instanceof Date?r.timestamp:new Date(r.timestamp);
+    const pct=r.avail+r.unavail>0?Math.round(r.avail/(r.avail+r.unavail)*100):0;
+    return`<tr><td>${ts.toLocaleDateString('id-ID',{day:'numeric',month:'short'})} ${ts.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</td><td>${r.store||'—'}</td><td>${r.area||'—'}</td><td>${r.avail||0}</td><td>${r.unavail||0}</td><td><span class="tag ${pct>=80?'green':pct>=60?'blue':'red'}" style="font-size:10px">${pct}%</span></td></tr>`;
+  }).join(''):'<tr><td colspan="6" style="text-align:center;padding:16px;color:rgba(255,255,255,.2)">Tidak ada data</td></tr>';
+
+  // Beli table
+  const beliRows=beliF.slice().sort((a,b)=>b.timestamp-a.timestamp).slice(0,20);
+  document.getElementById('modal-beli-body').innerHTML=beliRows.length?beliRows.map(r=>{
+    const ts=r.timestamp instanceof Date?r.timestamp:new Date(r.timestamp);
+    return`<tr><td>${ts.toLocaleDateString('id-ID',{day:'numeric',month:'short'})} ${ts.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</td><td>${r.store||'—'}</td><td>${r.area||'—'}</td><td style="color:#ffc532">Rp ${(r.nominal||0).toLocaleString('id-ID')}</td><td>${r.totalRenceng||0}</td></tr>`;
+  }).join(''):'<tr><td colspan="5" style="text-align:center;padding:16px;color:rgba(255,255,255,.2)">Tidak ada data</td></tr>';
+
+  document.getElementById('mds-modal').classList.remove('hidden');
+}
+
+function closeModal(e){
+  if(e.target===document.getElementById('mds-modal')) document.getElementById('mds-modal').classList.add('hidden');
+}
+
+// ── EXPORT CSV ────────────────────────────────────────────────────────────
 function exportCSV(){
-  const data=ACTIVE_TAB==='rka'?RKA_ALL:BELI_ALL;
-  const rows=sorted(filtered(data));
+  const rkaF=filtered(RKA_ALL),beliF=filtered(BELI_ALL);
+  const data=ACTIVE_TAB==='rka'?rkaF:ACTIVE_TAB==='beli'?beliF:rkaF;
+  const rows=sorted(data);
   let csv='';
-  if(ACTIVE_TAB==='rka'){
+  if(ACTIVE_TAB==='rka'||ACTIVE_TAB==='eval'){
     csv='ID,Waktu,MDS,Area,Toko,Ada,Tidak Ada,AV%\n';
     csv+=rows.map(r=>{
       const ts=r.timestamp instanceof Date?r.timestamp:new Date(r.timestamp);
       const pct=r.avail+r.unavail>0?Math.round(r.avail/(r.avail+r.unavail)*100):0;
-      return [r.id,ts.toLocaleString('id-ID'),r.mds,r.area,`"${r.store}"`,r.avail,r.unavail,pct+'%'].join(',');
+      return[r.id,ts.toLocaleString('id-ID'),r.mds,r.area,`"${r.store}"`,r.avail,r.unavail,pct+'%'].join(',');
     }).join('\n');
   } else {
     csv='ID,Waktu,MDS,Area,Toko,Nominal,Renceng\n';
     csv+=rows.map(r=>{
       const ts=r.timestamp instanceof Date?r.timestamp:new Date(r.timestamp);
-      return [r.id,ts.toLocaleString('id-ID'),r.mds,r.area,`"${r.store}"`,r.nominal,r.totalRenceng].join(',');
+      return[r.id,ts.toLocaleString('id-ID'),r.mds,r.area,`"${r.store}"`,r.nominal,r.totalRenceng].join(',');
     }).join('\n');
   }
   const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});
   const url=URL.createObjectURL(blob);
-  const a=document.createElement('a'); a.href=url;
+  const a=document.createElement('a');a.href=url;
   a.download=`MDS_${ACTIVE_TAB}_${new Date().toISOString().slice(0,10)}.csv`;
-  a.click(); URL.revokeObjectURL(url);
+  a.click();URL.revokeObjectURL(url);
 }
 </script>
 </body>
