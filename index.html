@@ -6641,13 +6641,11 @@ document.addEventListener('click',e=>{
 
 /* ─── DASHBOARD ROUTING ─── */
 (function(){
-  const isDash = window.location.search.includes('dash');
-  if(isDash){
-    document.getElementById('app').style.display='none';
-    document.getElementById('dash-root').style.display='block';
-    // rename IDs to avoid clash with mobile app (none clash here)
-    document.title='Dashboard — MDS Visit';
-  }
+  if(!window.location.search.includes('dash')) return;
+  // hide mobile, show dashboard
+  document.getElementById('app').style.display='none';
+  document.getElementById('dash-root').style.display='block';
+  document.title='Dashboard — MDS Visit';
 })();
 
 const DASH_PIN = 'Nutrifood2026';
@@ -6668,7 +6666,7 @@ let RKA_ALL=[], BELI_ALL=[], ACTIVE_TAB='rka', DATE_FILTER='today', SORT_COL='ti
 function checkPin(){
   if(document.getElementById('pin-input').value === DASH_PIN){
     document.getElementById('pin-screen').classList.add('hidden');
-    document.getElementById('app').classList.add('visible');
+    document.getElementById('dash-app').classList.add('visible');
     initDash();
   } else {
     document.getElementById('pin-err').textContent = 'PIN salah, coba lagi.';
@@ -6845,8 +6843,7 @@ function exportCSV(){
 }
 
 </script>
-
-<!-- ══════════════════ DASHBOARD (desktop) ══════════════════ -->
+<!-- ══ DASHBOARD ══ -->
 <div id="dash-root" style="display:none">
   <div id="pin-screen">
   <div class="pin-logo">📊</div>
@@ -6857,7 +6854,7 @@ function exportCSV(){
   <button class="pin-btn" onclick="checkPin()">Masuk</button>
 </div>
   
-<div id="app">
+<div id="dash-app">
   <div class="topbar">
     <div class="tb-left">
       <div class="tb-logo">📊</div>
@@ -6928,6 +6925,8 @@ function exportCSV(){
       </div>
     </div>
   </div>
+</div>
+
 
 </div>
 </body>
