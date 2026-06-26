@@ -12,7 +12,7 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#080c12;color:#e0e6f0;min-height:100vh;}
 
-/* ── PIN ── */
+/* PIN */
 #pin-screen{position:fixed;inset:0;background:#080c12;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:200;}
 #pin-screen.hidden{display:none;}
 .pin-logo{width:56px;height:56px;background:linear-gradient(135deg,#3ECF6D,#27ae60);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:4px;}
@@ -24,7 +24,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .pin-btn{background:linear-gradient(135deg,#3ECF6D,#27ae60);color:#000;font-weight:700;font-size:14px;padding:13px 0;border-radius:12px;border:none;cursor:pointer;width:260px;transition:opacity .2s;}
 .pin-btn:hover{opacity:.88;}
 
-/* ── LAYOUT ── */
+/* LAYOUT */
 #app{display:none;}
 #app.visible{display:block;}
 .topbar{background:#0d1117;border-bottom:1px solid rgba(255,255,255,.06);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:10;}
@@ -32,116 +32,127 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .tb-icon{width:34px;height:34px;background:linear-gradient(135deg,#3ECF6D,#27ae60);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;}
 .tb-title{font-size:14px;font-weight:700;color:#fff;}
 .tb-sub{font-size:11px;color:rgba(255,255,255,.3);margin-top:1px;}
-.tb-right{display:flex;align-items:center;gap:16px;}
+.tb-right{display:flex;align-items:center;gap:12px;}
 .tb-date{font-size:12px;color:rgba(255,255,255,.3);}
 .live-dot{width:6px;height:6px;background:#3ECF6D;border-radius:50%;animation:pulse 2s infinite;}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.8);}}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
 
 .main{max-width:1440px;margin:0 auto;padding:24px 28px;}
 
-/* ── STATS ── */
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
-.stat-card{background:#0d1117;border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:20px 22px;position:relative;overflow:hidden;transition:border-color .2s;}
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;}
+.stat-card{background:#0d1117;border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:18px 20px;position:relative;overflow:hidden;transition:border-color .2s;}
 .stat-card:hover{border-color:rgba(62,207,109,.2);}
 .stat-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(62,207,109,.04),transparent);pointer-events:none;}
 .stat-label{font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;}
-.stat-val{font-size:34px;font-weight:700;color:#3ECF6D;line-height:1;font-variant-numeric:tabular-nums;}
+.stat-val{font-size:30px;font-weight:700;color:#3ECF6D;line-height:1;font-variant-numeric:tabular-nums;}
 .stat-sub{font-size:11px;color:rgba(255,255,255,.2);margin-top:6px;}
-.stat-trend{position:absolute;top:18px;right:18px;font-size:11px;padding:3px 8px;border-radius:20px;font-weight:600;}
-.stat-trend.up{background:rgba(62,207,109,.12);color:#3ECF6D;}
-.stat-trend.down{background:rgba(255,80,80,.1);color:#ff7070;}
 
-/* ── FILTERS ── */
-.filter-bar{background:#0d1117;border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:14px 18px;display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
+/* FILTERS */
+.filter-bar{background:#0d1117;border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:12px 16px;display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap;}
 .filter-label{font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;}
 .date-pills{display:flex;gap:5px;}
-.date-pill{padding:6px 13px;border-radius:20px;border:1px solid rgba(255,255,255,.08);background:transparent;color:rgba(255,255,255,.35);font-size:12px;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.date-pill{padding:5px 12px;border-radius:20px;border:1px solid rgba(255,255,255,.08);background:transparent;color:rgba(255,255,255,.35);font-size:12px;cursor:pointer;transition:all .15s;white-space:nowrap;}
 .date-pill.active{background:#3ECF6D;border-color:#3ECF6D;color:#000;font-weight:600;}
 .date-pill:hover:not(.active){border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.6);}
-.filter-sep{width:1px;height:22px;background:rgba(255,255,255,.07);flex-shrink:0;}
-.filter-input{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:9px;padding:7px 12px;color:#fff;font-size:12px;outline:none;transition:all .15s;}
-.filter-input:focus{border-color:rgba(62,207,109,.4);background:rgba(62,207,109,.03);}
+.filter-sep{width:1px;height:20px;background:rgba(255,255,255,.07);flex-shrink:0;}
+.filter-input,.month-select{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:9px;padding:6px 11px;color:#fff;font-size:12px;outline:none;transition:all .15s;}
+.filter-input:focus,.month-select:focus{border-color:rgba(62,207,109,.4);background:rgba(62,207,109,.03);}
 .filter-input::placeholder{color:rgba(255,255,255,.18);}
-.month-select{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:9px;padding:7px 12px;color:#fff;font-size:12px;outline:none;cursor:pointer;transition:all .15s;}
-.month-select:focus{border-color:rgba(62,207,109,.4);}
+.month-select{cursor:pointer;}
 .month-select option{background:#0d1117;color:#fff;}
 .filter-clear{font-size:11px;color:rgba(255,255,255,.25);cursor:pointer;white-space:nowrap;padding:4px 0;}
 .filter-clear:hover{color:rgba(255,255,255,.5);}
-.export-btn{margin-left:auto;background:rgba(62,207,109,.08);border:1px solid rgba(62,207,109,.2);color:#3ECF6D;padding:7px 14px;border-radius:9px;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.export-btn{margin-left:auto;background:rgba(62,207,109,.08);border:1px solid rgba(62,207,109,.2);color:#3ECF6D;padding:6px 13px;border-radius:9px;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;}
 .export-btn:hover{background:rgba(62,207,109,.15);}
 
-/* ── CHARTS ROW ── */
-.charts-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:22px;}
-.chart-card{background:#0d1117;border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:18px 20px;}
-.chart-title{font-size:11px;font-weight:600;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;}
-.chart-wrap{position:relative;height:180px;}
+/* CHARTS */
+.charts-row{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:12px;margin-bottom:18px;}
+.chart-card{background:#0d1117;border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:16px 18px;}
+.chart-title{font-size:10px;font-weight:600;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;}
+.chart-wrap{position:relative;height:170px;}
 
-/* ── PANEL / TABLE ── */
+/* PANEL */
 .panel{background:#0d1117;border:1px solid rgba(255,255,255,.07);border-radius:16px;overflow:hidden;}
-.panel-header{display:flex;align-items:center;border-bottom:1px solid rgba(255,255,255,.06);}
-.panel-tab{padding:14px 22px;font-size:12px;font-weight:600;color:rgba(255,255,255,.3);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;}
+.panel-header{display:flex;align-items:center;border-bottom:1px solid rgba(255,255,255,.06);overflow-x:auto;}
+.panel-tab{padding:13px 20px;font-size:12px;font-weight:600;color:rgba(255,255,255,.3);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;flex-shrink:0;}
 .panel-tab.active{color:#3ECF6D;border-bottom-color:#3ECF6D;}
 .panel-tab:hover:not(.active){color:rgba(255,255,255,.6);}
 .panel-body{overflow-x:auto;}
 
 table{width:100%;border-collapse:collapse;font-size:12px;}
 thead{background:rgba(255,255,255,.025);}
-th{text-align:left;padding:11px 14px;font-size:10px;font-weight:600;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;cursor:pointer;user-select:none;transition:color .15s;}
+th{text-align:left;padding:10px 13px;font-size:10px;font-weight:600;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.07em;white-space:nowrap;cursor:pointer;user-select:none;transition:color .15s;}
 th:hover{color:rgba(255,255,255,.55);}
-td{padding:11px 14px;border-top:1px solid rgba(255,255,255,.035);vertical-align:middle;}
+td{padding:10px 13px;border-top:1px solid rgba(255,255,255,.03);vertical-align:middle;}
 tr:hover td{background:rgba(255,255,255,.018);}
 .td-id{font-weight:700;color:#3ECF6D;font-size:10px;letter-spacing:.05em;}
-.td-mds{font-weight:600;color:#fff;}
-.td-area{color:rgba(255,255,255,.4);font-size:11px;}
-.td-store{color:rgba(255,255,255,.55);}
+.td-main{font-weight:600;color:#fff;}
+.td-dim{color:rgba(255,255,255,.4);font-size:11px;}
+.td-mid{color:rgba(255,255,255,.55);}
 .tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;line-height:1.5;}
 .tag.green{background:rgba(62,207,109,.13);color:#3ECF6D;}
 .tag.red{background:rgba(255,80,80,.1);color:#ff7070;}
 .tag.blue{background:rgba(80,140,255,.12);color:#7eb3ff;}
 .tag.gold{background:rgba(255,195,50,.1);color:#ffc532;}
 .tag.purple{background:rgba(160,90,255,.12);color:#b57bff;}
+.tag.teal{background:rgba(80,210,210,.1);color:#50d8d8;}
+.tag.sm{font-size:10px;padding:2px 6px;}
 
-.tfoot-row{padding:12px 14px;font-size:11px;color:rgba(255,255,255,.2);border-top:1px solid rgba(255,255,255,.05);}
-.empty-state{text-align:center;padding:56px 20px;color:rgba(255,255,255,.18);font-size:13px;}
+.tfoot-row{padding:10px 13px;font-size:11px;color:rgba(255,255,255,.2);border-top:1px solid rgba(255,255,255,.05);}
+.empty-state{text-align:center;padding:50px 20px;color:rgba(255,255,255,.18);font-size:13px;}
 
-/* MDS EVAL TABLE special columns */
-.mds-eval-row{cursor:pointer;}
-.mds-eval-row:hover td{background:rgba(62,207,109,.04) !important;}
-.av-bar-wrap{display:flex;align-items:center;gap:8px;}
-.av-bar-bg{flex:1;height:5px;background:rgba(255,255,255,.06);border-radius:3px;min-width:60px;}
-.av-bar-fill{height:5px;border-radius:3px;transition:width .4s;}
+/* brand bar */
+.brand-bars{display:flex;flex-direction:column;gap:3px;min-width:120px;}
+.brand-bar-row{display:flex;align-items:center;gap:5px;font-size:10px;}
+.brand-bar-lbl{width:28px;color:rgba(255,255,255,.35);font-weight:600;}
+.brand-bar-bg{flex:1;height:4px;background:rgba(255,255,255,.06);border-radius:2px;}
+.brand-bar-fill{height:4px;border-radius:2px;}
+.brand-bar-pct{width:30px;text-align:right;color:rgba(255,255,255,.4);}
 
-/* ── MODAL ── */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;}
+/* eval row click */
+.clickrow{cursor:pointer;}
+.clickrow:hover td{background:rgba(62,207,109,.035) !important;}
+
+/* av bar */
+.av-bar-wrap{display:flex;align-items:center;gap:7px;}
+.av-bar-bg{flex:1;height:4px;background:rgba(255,255,255,.06);border-radius:2px;min-width:50px;}
+.av-bar-fill{height:4px;border-radius:2px;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(5px);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;}
 .modal-overlay.hidden{display:none;}
-.modal{background:#0d1117;border:1px solid rgba(255,255,255,.1);border-radius:20px;width:100%;max-width:720px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;}
-.modal-header{padding:22px 24px 0;display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0;}
+.modal{background:#0d1117;border:1px solid rgba(255,255,255,.1);border-radius:20px;width:100%;max-width:800px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;}
+.modal-header{padding:20px 24px 0;display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0;}
 .modal-name{font-size:20px;font-weight:700;color:#fff;}
 .modal-sub{font-size:12px;color:rgba(255,255,255,.3);margin-top:3px;}
-.modal-close{width:32px;height:32px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:rgba(255,255,255,.5);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
+.modal-close{width:32px;height:32px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:rgba(255,255,255,.5);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .15s;}
 .modal-close:hover{background:rgba(255,255,255,.08);color:#fff;}
-.modal-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:18px 24px;flex-shrink:0;}
-.m-stat{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:14px 14px;}
-.m-stat-label{font-size:9px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
-.m-stat-val{font-size:22px;font-weight:700;color:#3ECF6D;}
-.m-stat-sub{font-size:10px;color:rgba(255,255,255,.2);margin-top:3px;}
-.modal-chart-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 24px 18px;flex-shrink:0;}
-.modal-chart-card{background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.05);border-radius:12px;padding:14px;}
-.modal-chart-title{font-size:10px;font-weight:600;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;}
-.modal-chart-wrap{position:relative;height:130px;}
-.modal-body{overflow-y:auto;padding:0 24px 24px;flex:1;}
-.modal-section{margin-bottom:18px;}
-.modal-section-title{font-size:10px;font-weight:600;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;}
+.modal-kpi{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;padding:16px 24px;flex-shrink:0;}
+.m-kpi{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:12px 13px;}
+.m-kpi-label{font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;}
+.m-kpi-val{font-size:20px;font-weight:700;color:#3ECF6D;line-height:1.1;}
+.m-kpi-sub{font-size:10px;color:rgba(255,255,255,.2);margin-top:3px;}
+.modal-chart-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 24px 14px;flex-shrink:0;}
+.modal-chart-card{background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.05);border-radius:12px;padding:13px;}
+.modal-chart-title{font-size:10px;font-weight:600;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.07em;margin-bottom:9px;}
+.modal-chart-wrap{position:relative;height:120px;}
+.modal-body{overflow-y:auto;padding:0 24px 22px;flex:1;}
+.modal-section{margin-bottom:16px;}
+.modal-section-title{font-size:10px;font-weight:700;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.08em;margin-bottom:9px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,.05);}
 .modal-table{width:100%;border-collapse:collapse;font-size:11px;}
-.modal-table th{text-align:left;padding:8px 10px;font-size:9px;font-weight:600;color:rgba(255,255,255,.2);text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid rgba(255,255,255,.06);}
-.modal-table td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.03);color:rgba(255,255,255,.6);}
-.modal-table tr:last-child td{border-bottom:none;}
+.modal-table th{text-align:left;padding:7px 9px;font-size:9px;font-weight:600;color:rgba(255,255,255,.2);text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid rgba(255,255,255,.05);}
+.modal-table td{padding:7px 9px;border-bottom:1px solid rgba(255,255,255,.03);color:rgba(255,255,255,.55);}
 .modal-table tr:hover td{background:rgba(255,255,255,.02);}
 
-/* scrollbar */
-::-webkit-scrollbar{width:5px;height:5px;}
+/* brand legend */
+.brand-legend{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:8px;}
+.b-leg{display:flex;align-items:center;gap:5px;font-size:10px;color:rgba(255,255,255,.4);}
+.b-dot{width:8px;height:8px;border-radius:50%;}
+
+::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px;}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.09);border-radius:2px;}
 </style>
 </head>
 <body>
@@ -156,7 +167,7 @@ tr:hover td{background:rgba(255,255,255,.018);}
   <button class="pin-btn" onclick="checkPin()">Masuk</button>
 </div>
 
-<!-- MAIN APP -->
+<!-- APP -->
 <div id="app">
   <div class="topbar">
     <div class="tb-left">
@@ -167,7 +178,7 @@ tr:hover td{background:rgba(255,255,255,.018);}
       </div>
     </div>
     <div class="tb-right">
-      <div class="live-dot" title="Live data"></div>
+      <div class="live-dot" title="Live"></div>
       <div class="tb-date" id="tb-date"></div>
     </div>
   </div>
@@ -176,24 +187,29 @@ tr:hover td{background:rgba(255,255,255,.018);}
     <!-- STATS -->
     <div class="stats-row">
       <div class="stat-card">
-        <div class="stat-label">Visit RKA</div>
+        <div class="stat-label">Total Visit</div>
         <div class="stat-val" id="ds-rka">—</div>
-        <div class="stat-sub" id="ds-rka-sub">kunjungan</div>
+        <div class="stat-sub">kunjungan RKA</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">Rata-rata AV%</div>
+        <div class="stat-label">Avg AV%</div>
         <div class="stat-val" id="ds-av">—</div>
         <div class="stat-sub">availability produk</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">MDS Aktif</div>
-        <div class="stat-val" id="ds-mds">—</div>
-        <div class="stat-sub">periode terpilih</div>
+        <div class="stat-label">NS Renceng</div>
+        <div class="stat-val" id="ds-ns" style="color:#7eb3ff">—</div>
+        <div class="stat-sub">total terjual</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">Total Pembelian</div>
-        <div class="stat-val" id="ds-nom" style="font-size:20px;padding-top:8px">—</div>
-        <div class="stat-sub" id="ds-beli-sub">transaksi</div>
+        <div class="stat-label">HILO Renceng</div>
+        <div class="stat-val" id="ds-hilo" style="color:#ffc532">—</div>
+        <div class="stat-sub">total terjual</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Kalkulasi Nominal</div>
+        <div class="stat-val" id="ds-kalc" style="font-size:18px;padding-top:6px">—</div>
+        <div class="stat-sub">NS×11.250 + HILO×17.000</div>
       </div>
     </div>
 
@@ -212,9 +228,9 @@ tr:hover td{background:rgba(255,255,255,.018);}
         <option value="">Semua Bulan</option>
       </select>
       <div class="filter-sep"></div>
-      <input class="filter-input" id="f-area" placeholder="Filter area…" style="width:130px" oninput="render()">
-      <input class="filter-input" id="f-mds" placeholder="Filter MDS…" style="width:130px" oninput="render()">
-      <input class="filter-input" id="f-store" placeholder="Filter toko…" style="width:140px" oninput="render()">
+      <input class="filter-input" id="f-area" placeholder="Area…" style="width:110px" oninput="render()">
+      <input class="filter-input" id="f-mds" placeholder="MDS…" style="width:120px" oninput="render()">
+      <input class="filter-input" id="f-store" placeholder="Toko…" style="width:130px" oninput="render()">
       <span class="filter-clear" onclick="clearFilters()">Reset</span>
       <button class="export-btn" onclick="exportCSV()">⬇ Export CSV</button>
     </div>
@@ -222,7 +238,7 @@ tr:hover td{background:rgba(255,255,255,.018);}
     <!-- CHARTS -->
     <div class="charts-row">
       <div class="chart-card">
-        <div class="chart-title">AV% per MDS (Top 8)</div>
+        <div class="chart-title">AV% per MDS (Top 10)</div>
         <div class="chart-wrap"><canvas id="chart-av"></canvas></div>
       </div>
       <div class="chart-card">
@@ -230,8 +246,12 @@ tr:hover td{background:rgba(255,255,255,.018);}
         <div class="chart-wrap"><canvas id="chart-trend"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="chart-title">Pembelian per MDS (Top 8)</div>
-        <div class="chart-wrap"><canvas id="chart-beli"></canvas></div>
+        <div class="chart-title">NS vs HILO Renceng per MDS (Top 8)</div>
+        <div class="brand-legend">
+          <div class="b-leg"><div class="b-dot" style="background:#7eb3ff"></div>NS</div>
+          <div class="b-leg"><div class="b-dot" style="background:#ffc532"></div>HILO</div>
+        </div>
+        <div class="chart-wrap" style="height:148px"><canvas id="chart-brand"></canvas></div>
       </div>
     </div>
 
@@ -239,7 +259,9 @@ tr:hover td{background:rgba(255,255,255,.018);}
     <div class="panel">
       <div class="panel-header">
         <div class="panel-tab active" id="ptab-rka" onclick="switchTab('rka')">Visit RKA</div>
+        <div class="panel-tab" id="ptab-store" onclick="switchTab('store')">📦 AV per Toko</div>
         <div class="panel-tab" id="ptab-beli" onclick="switchTab('beli')">Beli Barang</div>
+        <div class="panel-tab" id="ptab-analisis" onclick="switchTab('analisis')">📈 Analisis Beli MDS</div>
         <div class="panel-tab" id="ptab-eval" onclick="switchTab('eval')">📋 Evaluasi MDS</div>
       </div>
       <div class="panel-body">
@@ -254,7 +276,7 @@ tr:hover td{background:rgba(255,255,255,.018);}
 </div>
 
 <!-- MDS MODAL -->
-<div class="modal-overlay hidden" id="mds-modal" onclick="closeModal(event)">
+<div class="modal-overlay hidden" id="mds-modal" onclick="if(event.target===this)this.classList.add('hidden')">
   <div class="modal">
     <div class="modal-header">
       <div>
@@ -263,11 +285,12 @@ tr:hover td{background:rgba(255,255,255,.018);}
       </div>
       <button class="modal-close" onclick="document.getElementById('mds-modal').classList.add('hidden')">✕</button>
     </div>
-    <div class="modal-stats">
-      <div class="m-stat"><div class="m-stat-label">Total Visit</div><div class="m-stat-val" id="m-visits">—</div><div class="m-stat-sub">kunjungan</div></div>
-      <div class="m-stat"><div class="m-stat-label">Avg AV%</div><div class="m-stat-val" id="m-av">—</div><div class="m-stat-sub">availability</div></div>
-      <div class="m-stat"><div class="m-stat-label">Toko Dikunjungi</div><div class="m-stat-val" id="m-stores">—</div><div class="m-stat-sub">unique store</div></div>
-      <div class="m-stat"><div class="m-stat-label">Total Nominal</div><div class="m-stat-val" id="m-nom" style="font-size:16px;padding-top:4px">—</div><div class="m-stat-sub" id="m-beli-count">—</div></div>
+    <div class="modal-kpi">
+      <div class="m-kpi"><div class="m-kpi-label">Aktif Sejak</div><div class="m-kpi-val" id="m-since" style="font-size:14px;padding-top:4px">—</div><div class="m-kpi-sub" id="m-tenure">—</div></div>
+      <div class="m-kpi"><div class="m-kpi-label">Total Visit</div><div class="m-kpi-val" id="m-visits">—</div><div class="m-kpi-sub">kunjungan</div></div>
+      <div class="m-kpi"><div class="m-kpi-label">Avg AV%</div><div class="m-kpi-val" id="m-av">—</div><div class="m-kpi-sub">availability</div></div>
+      <div class="m-kpi"><div class="m-kpi-label">NS Renceng</div><div class="m-kpi-val" id="m-ns" style="color:#7eb3ff">—</div><div class="m-kpi-sub" id="m-hilo-sub">HILO: —</div></div>
+      <div class="m-kpi"><div class="m-kpi-label">Kalkulasi Nominal</div><div class="m-kpi-val" id="m-kalc" style="font-size:14px;padding-top:4px;color:#ffc532">—</div><div class="m-kpi-sub" id="m-nota-sub">Nota: —</div></div>
     </div>
     <div class="modal-chart-row">
       <div class="modal-chart-card">
@@ -275,22 +298,22 @@ tr:hover td{background:rgba(255,255,255,.018);}
         <div class="modal-chart-wrap"><canvas id="modal-chart-av"></canvas></div>
       </div>
       <div class="modal-chart-card">
-        <div class="modal-chart-title">Kunjungan per Area</div>
-        <div class="modal-chart-wrap"><canvas id="modal-chart-area"></canvas></div>
+        <div class="modal-chart-title">NS vs HILO Renceng per Bulan</div>
+        <div class="modal-chart-wrap"><canvas id="modal-chart-brand"></canvas></div>
       </div>
     </div>
     <div class="modal-body">
       <div class="modal-section">
-        <div class="modal-section-title">Log Kunjungan Terakhir</div>
+        <div class="modal-section-title">Log Kunjungan (20 Terakhir)</div>
         <table class="modal-table">
-          <thead><tr><th>Waktu</th><th>Toko</th><th>Area</th><th>Ada</th><th>Tdk</th><th>AV%</th></tr></thead>
+          <thead><tr><th>Waktu</th><th>Toko</th><th>Area</th><th>Ada</th><th>Tdk</th><th>AV%</th><th>Brand Breakdown</th></tr></thead>
           <tbody id="modal-rka-body"></tbody>
         </table>
       </div>
       <div class="modal-section">
-        <div class="modal-section-title">Log Pembelian Terakhir</div>
+        <div class="modal-section-title">Log Pembelian (20 Terakhir)</div>
         <table class="modal-table">
-          <thead><tr><th>Waktu</th><th>Toko</th><th>Area</th><th>Nominal</th><th>Renceng</th></tr></thead>
+          <thead><tr><th>Waktu</th><th>Toko</th><th>NS Rnc</th><th>HILO Rnc</th><th>Total Rnc</th><th>Kalkulasi</th><th>Nota</th><th>Selisih</th></tr></thead>
           <tbody id="modal-beli-body"></tbody>
         </table>
       </div>
@@ -300,65 +323,77 @@ tr:hover td{background:rgba(255,255,255,.018);}
 
 <script>
 const DASH_PIN='Nutrifood2026';
+const NS_PRICE=11250, HILO_PRICE=17000;
 const firebaseConfig={apiKey:"AIzaSyCtYc8uZICLzQrA1b7l00Yo_9V_rqNVOu0",authDomain:"mds-visit.firebaseapp.com",projectId:"mds-visit",storageBucket:"mds-visit.firebasestorage.app",messagingSenderId:"732603054928",appId:"1:732603054928:web:9f946bfa13d56d860a8a55"};
 firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 
 let RKA_ALL=[],BELI_ALL=[],ACTIVE_TAB='rka',DATE_FILTER='today',MONTH_FILTER='',SORT_COL='timestamp',SORT_DIR=-1;
-let chartAV=null,chartTrend=null,chartBeli=null,modalChartAV=null,modalChartArea=null;
+let cAV=null,cTrend=null,cBrand=null,mChartAV=null,mChartBrand=null;
 
-// ── PIN ───────────────────────────────────────────────────────────────────
+// ── PIN ─────────────────────────────────────────────────────────────────────
 function checkPin(){
   if(document.getElementById('pin-input').value===DASH_PIN){
     document.getElementById('pin-screen').classList.add('hidden');
     document.getElementById('app').classList.add('visible');
     initDash();
-  } else {
+  }else{
     document.getElementById('pin-err').textContent='PIN salah, coba lagi.';
     document.getElementById('pin-input').value='';
   }
 }
 document.getElementById('pin-input').focus();
 
-// ── INIT ─────────────────────────────────────────────────────────────────
+// ── HELPERS ─────────────────────────────────────────────────────────────────
+function brandFromName(name){
+  if(!name) return 'OTHER';
+  const u=name.toUpperCase();
+  if(u.startsWith('HI LO')||u.startsWith('HILO')) return 'HILO';
+  if(u.startsWith('NS ')) return 'NS';
+  if(u.startsWith('TS ')) return 'TS';
+  return 'OTHER';
+}
+function kalcNominal(r){ return ((r.groupTotals&&r.groupTotals.NS||0)*NS_PRICE)+((r.groupTotals&&r.groupTotals.HILO||0)*HILO_PRICE); }
+function rp(n){ return 'Rp '+n.toLocaleString('id-ID'); }
+function shortName(n){const p=n.split(' ');return p.length>=2?p.slice(0,2).join(' '):n;}
+function sinceLabel(d){
+  const now=new Date(), ms=now-d;
+  const days=Math.floor(ms/864e5);
+  if(days<1) return 'Hari ini';
+  if(days===1) return '1 hari lalu';
+  if(days<30) return days+' hari';
+  if(days<365) return Math.floor(days/30)+' bulan';
+  return (days/365).toFixed(1)+' tahun';
+}
+function avColor(pct){ return pct>=80?'#3ECF6D':pct>=60?'#7eb3ff':'#ff7070'; }
+function avTag(pct){ return `<span class="tag ${pct>=80?'green':pct>=60?'blue':'red'}">${pct}%</span>`; }
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
 function initDash(){
   document.getElementById('tb-date').textContent=new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-
   db.collection('rka_logs').orderBy('timestamp','desc').limit(2000).onSnapshot(snap=>{
     RKA_ALL=[];
     snap.forEach(doc=>{const d=doc.data();RKA_ALL.push({...d,timestamp:d.timestamp?d.timestamp.toDate():new Date()});});
-    buildMonthOptions();
-    render();
+    buildMonthOptions(); render();
   });
-
   db.collection('beli_logs').orderBy('timestamp','desc').limit(2000).onSnapshot(snap=>{
     BELI_ALL=[];
     snap.forEach(doc=>{const d=doc.data();BELI_ALL.push({...d,timestamp:d.timestamp?d.timestamp.toDate():new Date()});});
-    buildMonthOptions();
-    render();
+    buildMonthOptions(); render();
   });
 }
-
 function buildMonthOptions(){
-  const all=[...RKA_ALL,...BELI_ALL];
-  const months=new Set();
-  all.forEach(r=>{
-    const d=r.timestamp instanceof Date?r.timestamp:new Date(r.timestamp);
-    months.add(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`);
-  });
-  const sel=document.getElementById('f-month');
-  const cur=sel.value;
-  const sorted=[...months].sort().reverse();
+  const months=new Set([...RKA_ALL,...BELI_ALL].map(r=>{const d=r.timestamp;return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;}));
+  const sel=document.getElementById('f-month'), cur=sel.value;
   sel.innerHTML='<option value="">Semua Bulan</option>';
-  sorted.forEach(m=>{
+  [...months].sort().reverse().forEach(m=>{
     const [y,mo]=m.split('-');
-    const label=new Date(+y,+mo-1,1).toLocaleDateString('id-ID',{month:'long',year:'numeric'});
-    sel.innerHTML+=`<option value="${m}">${label}</option>`;
+    sel.innerHTML+=`<option value="${m}">${new Date(+y,+mo-1,1).toLocaleDateString('id-ID',{month:'long',year:'numeric'})}</option>`;
   });
   if(cur) sel.value=cur;
 }
 
-// ── FILTERS ──────────────────────────────────────────────────────────────
+// ── FILTERS ─────────────────────────────────────────────────────────────────
 function getDateCutoff(){
   const now=new Date();
   if(DATE_FILTER==='today'){const d=new Date(now);d.setHours(0,0,0,0);return d;}
@@ -369,8 +404,7 @@ function getDateCutoff(){
 function setDateFilter(f,el){
   DATE_FILTER=f; MONTH_FILTER=''; document.getElementById('f-month').value='';
   document.querySelectorAll('.date-pill').forEach(p=>p.classList.remove('active'));
-  el.classList.add('active');
-  render();
+  el.classList.add('active'); render();
 }
 function setMonthFilter(){
   MONTH_FILTER=document.getElementById('f-month').value;
@@ -379,10 +413,7 @@ function setMonthFilter(){
 }
 function clearFilters(){
   DATE_FILTER='today'; MONTH_FILTER='';
-  document.getElementById('f-month').value='';
-  document.getElementById('f-area').value='';
-  document.getElementById('f-mds').value='';
-  document.getElementById('f-store').value='';
+  ['f-month','f-area','f-mds','f-store'].forEach(id=>document.getElementById(id).value='');
   document.querySelectorAll('.date-pill').forEach(p=>p.classList.remove('active'));
   document.querySelector('[data-f="today"]').classList.add('active');
   render();
@@ -393,24 +424,18 @@ function filtered(data){
   const fm=document.getElementById('f-mds').value.toLowerCase();
   const fs=document.getElementById('f-store').value.toLowerCase();
   return data.filter(r=>{
-    const ts=r.timestamp instanceof Date?r.timestamp:new Date(r.timestamp);
-    if(MONTH_FILTER){
-      const key=`${ts.getFullYear()}-${String(ts.getMonth()+1).padStart(2,'0')}`;
-      if(key!==MONTH_FILTER) return false;
-    } else {
-      if(ts<cutoff) return false;
-    }
-    if(fa&&!(r.area||'').toLowerCase().includes(fa)) return false;
-    if(fm&&!(r.mds||'').toLowerCase().includes(fm)) return false;
-    if(fs&&!(r.store||'').toLowerCase().includes(fs)) return false;
+    const ts=r.timestamp;
+    if(MONTH_FILTER){const key=`${ts.getFullYear()}-${String(ts.getMonth()+1).padStart(2,'0')}`;if(key!==MONTH_FILTER)return false;}
+    else{if(ts<cutoff)return false;}
+    if(fa&&!(r.area||'').toLowerCase().includes(fa))return false;
+    if(fm&&!(r.mds||'').toLowerCase().includes(fm))return false;
+    if(fs&&!(r.store||'').toLowerCase().includes(fs))return false;
     return true;
   });
 }
 
-// ── SORT ─────────────────────────────────────────────────────────────────
-function sortBy(col){
-  if(SORT_COL===col)SORT_DIR*=-1;else{SORT_COL=col;SORT_DIR=-1;}render();
-}
+// ── SORT ────────────────────────────────────────────────────────────────────
+function sortBy(col){if(SORT_COL===col)SORT_DIR*=-1;else{SORT_COL=col;SORT_DIR=-1;}render();}
 function sorted(data){
   return[...data].sort((a,b)=>{
     let av=a[SORT_COL],bv=b[SORT_COL];
@@ -419,13 +444,12 @@ function sorted(data){
     return SORT_DIR*String(av||'').localeCompare(String(bv||''));
   });
 }
-function arrow(col){return SORT_COL===col?(SORT_DIR>0?'↑':'↓'):'<span style="opacity:.2">↕</span>';}
+function ar(col){return`<span style="opacity:.3;margin-left:3px">${SORT_COL===col?(SORT_DIR>0?'↑':'↓'):'↕'}</span>`;}
 
-// ── CHARTS ───────────────────────────────────────────────────────────────
-const CHART_OPTS={
-  responsive:true,maintainAspectRatio:false,
-  plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(13,17,23,.95)',titleColor:'rgba(255,255,255,.7)',bodyColor:'#fff',borderColor:'rgba(255,255,255,.1)',borderWidth:1,padding:10}},
-  scales:{x:{ticks:{color:'rgba(255,255,255,.3)',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'rgba(255,255,255,.3)',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}}}
+// ── CHARTS ───────────────────────────────────────────────────────────────────
+const BASE_OPTS={responsive:true,maintainAspectRatio:false,
+  plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(10,14,20,.97)',titleColor:'rgba(255,255,255,.6)',bodyColor:'#fff',borderColor:'rgba(255,255,255,.08)',borderWidth:1,padding:10}},
+  scales:{x:{ticks:{color:'rgba(255,255,255,.28)',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'rgba(255,255,255,.28)',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}}}
 };
 
 function buildCharts(rkaF,beliF){
@@ -433,267 +457,449 @@ function buildCharts(rkaF,beliF){
   const mdsAV={};
   rkaF.forEach(r=>{
     const m=r.mds||'?';
-    if(!mdsAV[m])mdsAV[m]={avail:0,total:0};
-    mdsAV[m].avail+=(r.avail||0);
-    mdsAV[m].total+=(r.avail||0)+(r.unavail||0);
+    if(!mdsAV[m])mdsAV[m]={a:0,t:0};
+    mdsAV[m].a+=(r.avail||0); mdsAV[m].t+=(r.avail||0)+(r.unavail||0);
   });
-  const avEntries=Object.entries(mdsAV).map(([m,v])=>({m,pct:v.total?Math.round(v.avail/v.total*100):0})).sort((a,b)=>b.pct-a.pct).slice(0,8);
-  const avColors=avEntries.map(e=>e.pct>=80?'rgba(62,207,109,.8)':e.pct>=60?'rgba(126,179,255,.8)':'rgba(255,112,112,.8)');
-  if(chartAV)chartAV.destroy();
-  chartAV=new Chart(document.getElementById('chart-av'),{type:'bar',data:{labels:avEntries.map(e=>shortName(e.m)),datasets:[{data:avEntries.map(e=>e.pct),backgroundColor:avColors,borderRadius:6,borderSkipped:false}]},options:{...CHART_OPTS,scales:{...CHART_OPTS.scales,y:{...CHART_OPTS.scales.y,max:100,ticks:{...CHART_OPTS.scales.y.ticks,callback:v=>v+'%'}}},plugins:{...CHART_OPTS.plugins,tooltip:{...CHART_OPTS.plugins.tooltip,callbacks:{label:c=>c.raw+'%'}}}}});
+  const avE=Object.entries(mdsAV).map(([m,v])=>({m,p:v.t?Math.round(v.a/v.t*100):0})).sort((a,b)=>b.p-a.p).slice(0,10);
+  if(cAV)cAV.destroy();
+  cAV=new Chart(document.getElementById('chart-av'),{type:'bar',data:{labels:avE.map(e=>shortName(e.m)),datasets:[{data:avE.map(e=>e.p),backgroundColor:avE.map(e=>avColor(e.p)+'cc'),borderRadius:5,borderSkipped:false}]},
+    options:{...BASE_OPTS,scales:{...BASE_OPTS.scales,y:{...BASE_OPTS.scales.y,max:100,ticks:{...BASE_OPTS.scales.y.ticks,callback:v=>v+'%'}}},plugins:{...BASE_OPTS.plugins,tooltip:{...BASE_OPTS.plugins.tooltip,callbacks:{label:c=>c.raw+'%'}}}}});
 
   // Chart 2: daily trend
   const dayMap={};
   rkaF.forEach(r=>{
-    const ts=r.timestamp instanceof Date?r.timestamp:new Date(r.timestamp);
-    const key=ts.toLocaleDateString('id-ID',{day:'numeric',month:'short'});
+    const key=r.timestamp.toLocaleDateString('id-ID',{day:'numeric',month:'short'});
     dayMap[key]=(dayMap[key]||0)+1;
   });
   const days=Object.entries(dayMap).slice(-14);
-  if(chartTrend)chartTrend.destroy();
-  chartTrend=new Chart(document.getElementById('chart-trend'),{type:'line',data:{labels:days.map(d=>d[0]),datasets:[{data:days.map(d=>d[1]),borderColor:'#3ECF6D',backgroundColor:'rgba(62,207,109,.08)',tension:.4,fill:true,pointBackgroundColor:'#3ECF6D',pointRadius:3,pointHoverRadius:5}]},options:{...CHART_OPTS}});
+  if(cTrend)cTrend.destroy();
+  cTrend=new Chart(document.getElementById('chart-trend'),{type:'line',data:{labels:days.map(d=>d[0]),datasets:[{data:days.map(d=>d[1]),borderColor:'#3ECF6D',backgroundColor:'rgba(62,207,109,.07)',tension:.4,fill:true,pointBackgroundColor:'#3ECF6D',pointRadius:3}]},options:{...BASE_OPTS}});
 
-  // Chart 3: purchase per MDS
-  const mdsNom={};
-  beliF.forEach(r=>{const m=r.mds||'?';mdsNom[m]=(mdsNom[m]||0)+(r.nominal||0);});
-  const nomEntries=Object.entries(mdsNom).sort((a,b)=>b[1]-a[1]).slice(0,8);
-  if(chartBeli)chartBeli.destroy();
-  chartBeli=new Chart(document.getElementById('chart-beli'),{type:'bar',data:{labels:nomEntries.map(e=>shortName(e[0])),datasets:[{data:nomEntries.map(e=>e[1]),backgroundColor:'rgba(255,197,50,.7)',borderRadius:6,borderSkipped:false}]},options:{...CHART_OPTS,scales:{...CHART_OPTS.scales,y:{...CHART_OPTS.scales.y,ticks:{...CHART_OPTS.scales.y.ticks,callback:v=>v>=1e6?'Rp'+(v/1e6).toFixed(0)+'jt':v>=1e3?'Rp'+(v/1e3).toFixed(0)+'rb':'Rp'+v}}},plugins:{...CHART_OPTS.plugins,tooltip:{...CHART_OPTS.plugins.tooltip,callbacks:{label:c=>'Rp '+c.raw.toLocaleString('id-ID')}}}}});
+  // Chart 3: NS vs HILO per MDS
+  const mdsB={};
+  beliF.forEach(r=>{
+    const m=r.mds||'?';
+    if(!mdsB[m])mdsB[m]={ns:0,hilo:0};
+    mdsB[m].ns+=(r.groupTotals&&r.groupTotals.NS||0);
+    mdsB[m].hilo+=(r.groupTotals&&r.groupTotals.HILO||0);
+  });
+  const bE=Object.entries(mdsB).sort((a,b)=>(b[1].ns+b[1].hilo)-(a[1].ns+a[1].hilo)).slice(0,8);
+  if(cBrand)cBrand.destroy();
+  cBrand=new Chart(document.getElementById('chart-brand'),{type:'bar',
+    data:{labels:bE.map(e=>shortName(e[0])),datasets:[
+      {label:'NS',data:bE.map(e=>e[1].ns),backgroundColor:'rgba(126,179,255,.75)',borderRadius:4,borderSkipped:false},
+      {label:'HILO',data:bE.map(e=>e[1].hilo),backgroundColor:'rgba(255,197,50,.75)',borderRadius:4,borderSkipped:false}
+    ]},
+    options:{...BASE_OPTS,plugins:{...BASE_OPTS.plugins,legend:{display:false}},scales:{...BASE_OPTS.scales,x:{...BASE_OPTS.scales.x,stacked:true},y:{...BASE_OPTS.scales.y,stacked:true}}}});
 }
 
-function shortName(n){const p=n.split(' ');return p.length>=2?p.slice(0,2).join(' '):n;}
-
-// ── RENDER ───────────────────────────────────────────────────────────────
+// ── RENDER ───────────────────────────────────────────────────────────────────
 function switchTab(tab){
   ACTIVE_TAB=tab;
-  ['rka','beli','eval'].forEach(t=>document.getElementById('ptab-'+t).classList.toggle('active',t===tab));
+  ['rka','store','beli','analisis','eval'].forEach(t=>{
+    const el=document.getElementById('ptab-'+t);
+    if(el) el.classList.toggle('active',t===tab);
+  });
   render();
 }
 
 function render(){
-  const rkaF=filtered(RKA_ALL),beliF=filtered(BELI_ALL);
+  const rkaF=filtered(RKA_ALL), beliF=filtered(BELI_ALL);
 
-  // Stats
-  document.getElementById('ds-rka').textContent=rkaF.length;
-  const totalAV=rkaF.reduce((s,r)=>s+(r.avail||0),0);
-  const totalItems=rkaF.reduce((s,r)=>s+(r.avail||0)+(r.unavail||0),0);
-  document.getElementById('ds-av').textContent=totalItems?Math.round(totalAV/totalItems*100)+'%':'—';
-  const mdsSet=new Set([...rkaF.map(r=>r.mds),...beliF.map(r=>r.mds)]);
-  document.getElementById('ds-mds').textContent=mdsSet.size||'—';
-  const totalNom=beliF.reduce((s,r)=>s+(r.nominal||0),0);
-  document.getElementById('ds-nom').textContent=totalNom?'Rp '+totalNom.toLocaleString('id-ID'):'—';
-  document.getElementById('ds-beli-sub').textContent=beliF.length+' transaksi';
+  // Global stats
+  document.getElementById('ds-rka').textContent=rkaF.length||'—';
+  const totA=rkaF.reduce((s,r)=>s+(r.avail||0),0), totI=rkaF.reduce((s,r)=>s+(r.avail||0)+(r.unavail||0),0);
+  document.getElementById('ds-av').textContent=totI?Math.round(totA/totI*100)+'%':'—';
+  const totNS=beliF.reduce((s,r)=>s+(r.groupTotals&&r.groupTotals.NS||0),0);
+  const totHILO=beliF.reduce((s,r)=>s+(r.groupTotals&&r.groupTotals.HILO||0),0);
+  document.getElementById('ds-ns').textContent=totNS||'—';
+  document.getElementById('ds-hilo').textContent=totHILO||'—';
+  const kalc=totNS*NS_PRICE+totHILO*HILO_PRICE;
+  document.getElementById('ds-kalc').textContent=kalc?rp(kalc):'—';
 
   buildCharts(rkaF,beliF);
 
   if(ACTIVE_TAB==='rka') renderRKA(rkaF);
+  else if(ACTIVE_TAB==='store') renderStore(rkaF);
   else if(ACTIVE_TAB==='beli') renderBeli(beliF);
+  else if(ACTIVE_TAB==='analisis') renderAnalisis(rkaF,beliF);
   else renderEval(rkaF,beliF);
 }
 
+// ── TAB: Visit RKA ───────────────────────────────────────────────────────────
 function renderRKA(rkaF){
   const rows=sorted(rkaF);
   document.getElementById('table-head').innerHTML=`<tr>
-    <th onclick="sortBy('id')">ID ${arrow('id')}</th>
-    <th onclick="sortBy('timestamp')">Waktu ${arrow('timestamp')}</th>
-    <th onclick="sortBy('mds')">MDS ${arrow('mds')}</th>
-    <th onclick="sortBy('area')">Area ${arrow('area')}</th>
-    <th onclick="sortBy('store')">Toko ${arrow('store')}</th>
-    <th onclick="sortBy('avail')">Ada ${arrow('avail')}</th>
-    <th onclick="sortBy('unavail')">Tdk ${arrow('unavail')}</th>
+    <th onclick="sortBy('id')">ID${ar('id')}</th>
+    <th onclick="sortBy('timestamp')">Waktu${ar('timestamp')}</th>
+    <th onclick="sortBy('mds')">MDS${ar('mds')}</th>
+    <th onclick="sortBy('area')">Area${ar('area')}</th>
+    <th onclick="sortBy('store')">Toko${ar('store')}</th>
+    <th onclick="sortBy('avail')">Ada${ar('avail')}</th>
+    <th onclick="sortBy('unavail')">Tdk${ar('unavail')}</th>
     <th>AV%</th>
+    <th>NS AV</th><th>HILO AV</th><th>TS AV</th>
   </tr>`;
   document.getElementById('table-body').innerHTML=rows.length?rows.map(r=>{
     const pct=r.avail+r.unavail>0?Math.round(r.avail/(r.avail+r.unavail)*100):0;
-    const ts=r.timestamp instanceof Date?r.timestamp:new Date(r.timestamp);
+    const ts=r.timestamp;
+    // parse items for brand AV
+    const brandAV={NS:{a:0,t:0},HILO:{a:0,t:0},TS:{a:0,t:0}};
+    if(r.items){
+      Object.entries(r.items).forEach(([name,val])=>{
+        const b=brandFromName(name);
+        if(brandAV[b]){brandAV[b].t++;if(val)brandAV[b].a++;}
+      });
+    }
+    function bTag(b){
+      const d=brandAV[b];
+      if(!d||d.t===0) return '<span class="tag sm blue">—</span>';
+      const p=Math.round(d.a/d.t*100);
+      return`<span class="tag sm ${p>=80?'green':p>=60?'blue':'red'}">${p}%</span>`;
+    }
     return`<tr>
       <td class="td-id">${r.id||'—'}</td>
-      <td style="color:rgba(255,255,255,.45);font-size:11px">${ts.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})} ${ts.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</td>
-      <td class="td-mds">${r.mds||'—'}</td>
-      <td class="td-area">${r.area||'—'}</td>
-      <td class="td-store">${r.store||'—'}</td>
+      <td class="td-dim">${ts.toLocaleDateString('id-ID',{day:'numeric',month:'short'})} ${ts.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</td>
+      <td class="td-main">${r.mds||'—'}</td>
+      <td class="td-dim">${r.area||'—'}</td>
+      <td class="td-mid">${r.store||'—'}</td>
       <td><span class="tag green">${r.avail||0}</span></td>
       <td><span class="tag red">${r.unavail||0}</span></td>
-      <td><span class="tag ${pct>=80?'green':pct>=60?'blue':'red'}">${pct}%</span></td>
+      <td>${avTag(pct)}</td>
+      <td>${bTag('NS')}</td><td>${bTag('HILO')}</td><td>${bTag('TS')}</td>
     </tr>`;
-  }).join(''):'<tr><td colspan="8"><div class="empty-state">Tidak ada data untuk filter ini.</div></td></tr>';
-  document.getElementById('tfoot').textContent=`Menampilkan ${rows.length} dari ${RKA_ALL.length} data`;
+  }).join(''):'<tr><td colspan="11"><div class="empty-state">Tidak ada data.</div></td></tr>';
+  document.getElementById('tfoot').textContent=`${rows.length} kunjungan`;
 }
 
+// ── TAB: AV per Toko ─────────────────────────────────────────────────────────
+function renderStore(rkaF){
+  // Aggregate per store
+  const stores={};
+  rkaF.forEach(r=>{
+    const s=r.store||'—';
+    if(!stores[s])stores[s]={store:s,area:r.area||'—',visits:0,avail:0,unavail:0,ns:{a:0,t:0},hilo:{a:0,t:0},ts:{a:0,t:0}};
+    const st=stores[s];
+    st.visits++; st.avail+=(r.avail||0); st.unavail+=(r.unavail||0);
+    if(r.items){
+      Object.entries(r.items).forEach(([name,val])=>{
+        const b=brandFromName(name).toLowerCase();
+        if(st[b]){st[b].t++;if(val)st[b].a++;}
+      });
+    }
+  });
+  let entries=Object.values(stores).map(v=>({...v,pct:v.avail+v.unavail>0?Math.round(v.avail/(v.avail+v.unavail)*100):0}));
+  if(SORT_COL==='store'||SORT_COL==='area'||SORT_COL==='visits'||SORT_COL==='pct')
+    entries.sort((a,b)=>SORT_DIR*(typeof a[SORT_COL]==='number'?a[SORT_COL]-b[SORT_COL]:String(a[SORT_COL]).localeCompare(String(b[SORT_COL]))));
+  else entries.sort((a,b)=>b.pct-a.pct);
+
+  document.getElementById('table-head').innerHTML=`<tr>
+    <th onclick="sortBy('store')">Toko${ar('store')}</th>
+    <th onclick="sortBy('area')">Area${ar('area')}</th>
+    <th onclick="sortBy('visits')">Visit${ar('visits')}</th>
+    <th onclick="sortBy('pct')">AV% Total${ar('pct')}</th>
+    <th>Bar AV</th>
+    <th>NS AV%</th><th>HILO AV%</th><th>TS AV%</th>
+    <th>Status</th>
+  </tr>`;
+  document.getElementById('table-body').innerHTML=entries.length?entries.map(e=>{
+    function bCell(bd){
+      const d=e[bd.toLowerCase()];
+      if(!d||d.t===0) return '<td><span class="tag sm blue">—</span></td>';
+      const p=Math.round(d.a/d.t*100);
+      return`<td>${avTag(p)} <span style="font-size:10px;color:rgba(255,255,255,.25)">${d.a}/${d.t}</span></td>`;
+    }
+    const statusLabel=e.pct>=80?'<span class="tag green">✓ Baik</span>':e.pct>=60?'<span class="tag blue">~ Cukup</span>':'<span class="tag red">⚠ Perhatian</span>';
+    return`<tr>
+      <td class="td-main">${e.store}</td>
+      <td class="td-dim">${e.area}</td>
+      <td><span class="tag teal">${e.visits}</span></td>
+      <td>${avTag(e.pct)}</td>
+      <td><div class="av-bar-wrap"><div class="av-bar-bg"><div class="av-bar-fill" style="width:${e.pct}%;background:${avColor(e.pct)}"></div></div></div></td>
+      ${bCell('NS')}${bCell('HILO')}${bCell('TS')}
+      <td>${statusLabel}</td>
+    </tr>`;
+  }).join(''):'<tr><td colspan="9"><div class="empty-state">Tidak ada data.</div></td></tr>';
+  document.getElementById('tfoot').textContent=`${entries.length} toko`;
+}
+
+// ── TAB: Beli Barang ──────────────────────────────────────────────────────────
 function renderBeli(beliF){
   const rows=sorted(beliF);
   document.getElementById('table-head').innerHTML=`<tr>
-    <th onclick="sortBy('id')">ID ${arrow('id')}</th>
-    <th onclick="sortBy('timestamp')">Waktu ${arrow('timestamp')}</th>
-    <th onclick="sortBy('mds')">MDS ${arrow('mds')}</th>
-    <th onclick="sortBy('area')">Area ${arrow('area')}</th>
-    <th onclick="sortBy('store')">Toko ${arrow('store')}</th>
-    <th onclick="sortBy('nominal')">Nominal ${arrow('nominal')}</th>
-    <th onclick="sortBy('totalRenceng')">Renceng ${arrow('totalRenceng')}</th>
+    <th onclick="sortBy('id')">ID${ar('id')}</th>
+    <th onclick="sortBy('timestamp')">Waktu${ar('timestamp')}</th>
+    <th onclick="sortBy('mds')">MDS${ar('mds')}</th>
+    <th onclick="sortBy('area')">Area${ar('area')}</th>
+    <th onclick="sortBy('store')">Toko${ar('store')}</th>
+    <th>NS Rnc</th><th>HILO Rnc</th>
+    <th onclick="sortBy('totalRenceng')">Total Rnc${ar('totalRenceng')}</th>
+    <th>Kalkulasi</th>
+    <th onclick="sortBy('nominal')">Nota${ar('nominal')}</th>
+    <th>Selisih</th>
   </tr>`;
   document.getElementById('table-body').innerHTML=rows.length?rows.map(r=>{
-    const ts=r.timestamp instanceof Date?r.timestamp:new Date(r.timestamp);
+    const ts=r.timestamp;
+    const nsR=r.groupTotals&&r.groupTotals.NS||0;
+    const hiloR=r.groupTotals&&r.groupTotals.HILO||0;
+    const kalc=nsR*NS_PRICE+hiloR*HILO_PRICE;
+    const nota=r.nominal||0;
+    const diff=kalc-nota;
+    const diffTag=diff===0?'<span class="tag teal">0</span>':diff>0?`<span class="tag green">+${rp(diff)}</span>`:`<span class="tag red">${rp(diff)}</span>`;
     return`<tr>
       <td class="td-id">${r.id||'—'}</td>
-      <td style="color:rgba(255,255,255,.45);font-size:11px">${ts.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})} ${ts.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</td>
-      <td class="td-mds">${r.mds||'—'}</td>
-      <td class="td-area">${r.area||'—'}</td>
-      <td class="td-store">${r.store||'—'}</td>
-      <td><span class="tag gold">Rp ${(r.nominal||0).toLocaleString('id-ID')}</span></td>
-      <td><span class="tag green">${r.totalRenceng||0}</span></td>
+      <td class="td-dim">${ts.toLocaleDateString('id-ID',{day:'numeric',month:'short'})} ${ts.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</td>
+      <td class="td-main">${r.mds||'—'}</td>
+      <td class="td-dim">${r.area||'—'}</td>
+      <td class="td-mid">${r.store||'—'}</td>
+      <td><span class="tag blue">${nsR}</span></td>
+      <td><span class="tag gold">${hiloR}</span></td>
+      <td><span class="tag teal">${r.totalRenceng||0}</span></td>
+      <td><span class="tag green">${kalc?rp(kalc):'—'}</span></td>
+      <td><span class="tag purple">${nota?rp(nota):'—'}</span></td>
+      <td>${diffTag}</td>
     </tr>`;
-  }).join(''):'<tr><td colspan="7"><div class="empty-state">Tidak ada data untuk filter ini.</div></td></tr>';
-  document.getElementById('tfoot').textContent=`Menampilkan ${rows.length} dari ${BELI_ALL.length} data`;
+  }).join(''):'<tr><td colspan="11"><div class="empty-state">Tidak ada data.</div></td></tr>';
+  document.getElementById('tfoot').textContent=`${rows.length} transaksi`;
 }
 
-function renderEval(rkaF,beliF){
-  // Aggregate per MDS
+// ── TAB: Analisis Beli MDS ────────────────────────────────────────────────────
+function renderAnalisis(rkaF,beliF){
+  // per MDS aggregate
   const mds={};
+  // get earliest visit date per MDS from ALL data (not filtered)
+  RKA_ALL.forEach(r=>{
+    const m=r.mds||'—';
+    if(!mds[m])mds[m]={name:m,area:r.area||'—',firstDate:r.timestamp,lastDate:r.timestamp,visits:0,avail:0,total:0,ns:0,hilo:0,nom:0,beli:0,stores:new Set()};
+    if(r.timestamp<mds[m].firstDate)mds[m].firstDate=r.timestamp;
+    if(r.timestamp>mds[m].lastDate)mds[m].lastDate=r.timestamp;
+  });
   rkaF.forEach(r=>{
     const m=r.mds||'—';
-    if(!mds[m])mds[m]={name:m,area:r.area||'—',visits:0,avail:0,total:0,stores:new Set(),nom:0,beli:0};
-    mds[m].visits++;
-    mds[m].avail+=(r.avail||0);
-    mds[m].total+=(r.avail||0)+(r.unavail||0);
+    if(!mds[m])mds[m]={name:m,area:r.area||'—',firstDate:r.timestamp,lastDate:r.timestamp,visits:0,avail:0,total:0,ns:0,hilo:0,nom:0,beli:0,stores:new Set()};
+    mds[m].visits++; mds[m].avail+=(r.avail||0); mds[m].total+=(r.avail||0)+(r.unavail||0);
     mds[m].stores.add(r.store||'?');
   });
   beliF.forEach(r=>{
     const m=r.mds||'—';
-    if(!mds[m])mds[m]={name:m,area:r.area||'—',visits:0,avail:0,total:0,stores:new Set(),nom:0,beli:0};
+    if(!mds[m])mds[m]={name:m,area:r.area||'—',firstDate:r.timestamp,lastDate:r.timestamp,visits:0,avail:0,total:0,ns:0,hilo:0,nom:0,beli:0,stores:new Set()};
+    mds[m].ns+=(r.groupTotals&&r.groupTotals.NS||0);
+    mds[m].hilo+=(r.groupTotals&&r.groupTotals.HILO||0);
     mds[m].nom+=(r.nominal||0);
     mds[m].beli++;
     mds[m].stores.add(r.store||'?');
   });
 
-  let entries=Object.values(mds).map(v=>({...v,stores:v.stores.size,av:v.total?Math.round(v.avail/v.total*100):null}));
+  let entries=Object.values(mds).map(v=>({
+    ...v,stores:v.stores.size,
+    av:v.total?Math.round(v.avail/v.total*100):null,
+    kalc:v.ns*NS_PRICE+v.hilo*HILO_PRICE,
+    tenureDays:Math.floor((new Date()-v.firstDate)/864e5)
+  }));
 
-  // Sort by eval score: visits+av
-  if(SORT_COL==='av') entries.sort((a,b)=>SORT_DIR*((a.av||0)-(b.av||0)));
-  else if(SORT_COL==='visits') entries.sort((a,b)=>SORT_DIR*(a.visits-b.visits));
-  else if(SORT_COL==='nom') entries.sort((a,b)=>SORT_DIR*(a.nom-b.nom));
-  else if(SORT_COL==='mds') entries.sort((a,b)=>SORT_DIR*a.name.localeCompare(b.name));
-  else entries.sort((a,b)=>b.visits-a.visits);
+  // sort
+  const sortField=SORT_COL;
+  entries.sort((a,b)=>{
+    const av=a[sortField]??0, bv=b[sortField]??0;
+    if(typeof av==='number')return SORT_DIR*(av-bv);
+    return SORT_DIR*String(av).localeCompare(String(bv));
+  });
 
   document.getElementById('table-head').innerHTML=`<tr>
-    <th onclick="sortBy('mds')">MDS ${arrow('mds')}</th>
+    <th onclick="sortBy('name')">MDS${ar('name')}</th>
     <th>Area</th>
-    <th onclick="sortBy('visits')">Visit ${arrow('visits')}</th>
-    <th>Toko</th>
-    <th onclick="sortBy('av')">AV% ${arrow('av')}</th>
-    <th>Bar</th>
-    <th onclick="sortBy('nom')">Total Beli ${arrow('nom')}</th>
-    <th>Status</th>
+    <th onclick="sortBy('tenureDays')">Aktif Sejak${ar('tenureDays')}</th>
+    <th onclick="sortBy('visits')">Visit${ar('visits')}</th>
+    <th onclick="sortBy('av')">AV%${ar('av')}</th>
+    <th onclick="sortBy('ns')">NS Rnc${ar('ns')}</th>
+    <th onclick="sortBy('hilo')">HILO Rnc${ar('hilo')}</th>
+    <th onclick="sortBy('kalc')">Kalkulasi${ar('kalc')}</th>
+    <th onclick="sortBy('nom')">Nota${ar('nom')}</th>
+    <th>Selisih</th>
+    <th onclick="sortBy('beli')">Transaksi${ar('beli')}</th>
   </tr>`;
 
   document.getElementById('table-body').innerHTML=entries.length?entries.map(e=>{
-    const av=e.av!==null?e.av:null;
-    const avLabel=av!==null?av+'%':'—';
-    const avClass=av===null?'blue':av>=80?'green':av>=60?'blue':'red';
-    const barW=av!==null?av:0;
-    const barColor=av===null?'rgba(80,140,255,.6)':av>=80?'#3ECF6D':av>=60?'#7eb3ff':'#ff7070';
-    const status=av===null?'<span class="tag blue">No Data</span>':av>=80?'<span class="tag green">✓ Baik</span>':av>=60?'<span class="tag blue">~ Cukup</span>':'<span class="tag red">⚠ Perlu Perhatian</span>';
-    return`<tr class="mds-eval-row" onclick="openMDS('${e.name.replace(/'/g,"\\'")}')">
-      <td class="td-mds">${e.name}</td>
-      <td class="td-area">${e.area}</td>
-      <td><span class="tag green">${e.visits}</span></td>
-      <td style="color:rgba(255,255,255,.5)">${e.stores}</td>
-      <td><span class="tag ${avClass}">${avLabel}</span></td>
-      <td><div class="av-bar-wrap"><div class="av-bar-bg"><div class="av-bar-fill" style="width:${barW}%;background:${barColor}"></div></div></div></td>
-      <td><span class="tag gold">${e.nom?'Rp '+e.nom.toLocaleString('id-ID'):'—'}</span></td>
-      <td>${status}</td>
+    const avLabel=e.av!==null?avTag(e.av):'<span class="tag blue sm">—</span>';
+    const diff=e.kalc-e.nom;
+    const diffTag=diff===0?'<span class="tag teal sm">0</span>':diff>0?`<span class="tag green sm">+${rp(diff)}</span>`:`<span class="tag red sm">${rp(diff)}</span>`;
+    const sinceStr=e.firstDate?e.firstDate.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'2-digit'}):'—';
+    const tenureStr=e.tenureDays<1?'Baru':e.tenureDays<30?e.tenureDays+'h':e.tenureDays<365?Math.floor(e.tenureDays/30)+'bln':(e.tenureDays/365).toFixed(1)+'thn';
+    return`<tr class="clickrow" onclick="openMDS('${e.name.replace(/'/g,"\\'")}')">
+      <td class="td-main">${e.name}</td>
+      <td class="td-dim">${e.area}</td>
+      <td><span class="tag teal sm">${sinceStr}</span><span style="font-size:10px;color:rgba(255,255,255,.3);margin-left:4px">${tenureStr}</span></td>
+      <td><span class="tag green sm">${e.visits}</span></td>
+      <td>${avLabel}</td>
+      <td><span class="tag blue sm">${e.ns}</span></td>
+      <td><span class="tag gold sm">${e.hilo}</span></td>
+      <td style="color:#3ECF6D;font-weight:600;font-size:12px">${e.kalc?rp(e.kalc):'—'}</td>
+      <td class="td-dim">${e.nom?rp(e.nom):'—'}</td>
+      <td>${diffTag}</td>
+      <td><span class="tag purple sm">${e.beli}</span></td>
     </tr>`;
-  }).join(''):'<tr><td colspan="8"><div class="empty-state">Tidak ada data MDS untuk filter ini.</div></td></tr>';
-  document.getElementById('tfoot').textContent=`${entries.length} MDS ditemukan — klik baris untuk detail`;
+  }).join(''):'<tr><td colspan="11"><div class="empty-state">Tidak ada data MDS.</div></td></tr>';
+  document.getElementById('tfoot').textContent=`${entries.length} MDS — klik baris untuk detail`;
 }
 
-// ── MDS MODAL ─────────────────────────────────────────────────────────────
+// ── TAB: Evaluasi MDS ─────────────────────────────────────────────────────────
+function renderEval(rkaF,beliF){
+  const mds={};
+  rkaF.forEach(r=>{
+    const m=r.mds||'—';
+    if(!mds[m])mds[m]={name:m,area:r.area||'—',visits:0,avail:0,total:0,stores:new Set(),nom:0,beli:0};
+    mds[m].visits++; mds[m].avail+=(r.avail||0); mds[m].total+=(r.avail||0)+(r.unavail||0);
+    mds[m].stores.add(r.store||'?');
+  });
+  beliF.forEach(r=>{
+    const m=r.mds||'—';
+    if(!mds[m])mds[m]={name:m,area:r.area||'—',visits:0,avail:0,total:0,stores:new Set(),nom:0,beli:0};
+    mds[m].nom+=(r.nominal||0); mds[m].beli++; mds[m].stores.add(r.store||'?');
+  });
+  let entries=Object.values(mds).map(v=>({...v,stores:v.stores.size,av:v.total?Math.round(v.avail/v.total*100):null}));
+  entries.sort((a,b)=>b.visits-a.visits);
+
+  document.getElementById('table-head').innerHTML=`<tr>
+    <th onclick="sortBy('name')">MDS${ar('name')}</th>
+    <th>Area</th>
+    <th onclick="sortBy('visits')">Visit${ar('visits')}</th>
+    <th>Toko</th>
+    <th>AV%</th>
+    <th>Bar</th>
+    <th>Total Beli</th>
+    <th>Status</th>
+  </tr>`;
+  document.getElementById('table-body').innerHTML=entries.length?entries.map(e=>{
+    const av=e.av;
+    const avLabel=av!==null?avTag(av):'<span class="tag blue sm">—</span>';
+    const barW=av!==null?av:0;
+    const status=av===null?'<span class="tag blue">No Data</span>':av>=80?'<span class="tag green">✓ Baik</span>':av>=60?'<span class="tag blue">~ Cukup</span>':'<span class="tag red">⚠ Perhatian</span>';
+    return`<tr class="clickrow" onclick="openMDS('${e.name.replace(/'/g,"\\'")}')">
+      <td class="td-main">${e.name}</td>
+      <td class="td-dim">${e.area}</td>
+      <td><span class="tag green">${e.visits}</span></td>
+      <td class="td-dim">${e.stores}</td>
+      <td>${avLabel}</td>
+      <td><div class="av-bar-wrap"><div class="av-bar-bg"><div class="av-bar-fill" style="width:${barW}%;background:${avColor(barW)}"></div></div></div></td>
+      <td><span class="tag gold">${e.nom?rp(e.nom):'—'}</span></td>
+      <td>${status}</td>
+    </tr>`;
+  }).join(''):'<tr><td colspan="8"><div class="empty-state">Tidak ada data.</div></td></tr>';
+  document.getElementById('tfoot').textContent=`${entries.length} MDS — klik untuk detail`;
+}
+
+// ── MDS MODAL ─────────────────────────────────────────────────────────────────
 function openMDS(name){
   const rkaF=filtered(RKA_ALL).filter(r=>r.mds===name);
   const beliF=filtered(BELI_ALL).filter(r=>r.mds===name);
+  const allRka=RKA_ALL.filter(r=>r.mds===name);
 
   document.getElementById('modal-name').textContent=name;
   const areas=[...new Set(rkaF.map(r=>r.area||'—'))].join(', ');
   document.getElementById('modal-sub').textContent=`Area: ${areas||'—'}`;
 
-  document.getElementById('m-visits').textContent=rkaF.length;
-  const totalAV=rkaF.reduce((s,r)=>s+(r.avail||0),0);
-  const totalItems=rkaF.reduce((s,r)=>s+(r.avail||0)+(r.unavail||0),0);
-  document.getElementById('m-av').textContent=totalItems?Math.round(totalAV/totalItems*100)+'%':'—';
-  const stores=new Set([...rkaF.map(r=>r.store),...beliF.map(r=>r.store)]);
-  document.getElementById('m-stores').textContent=stores.size;
-  const totalNom=beliF.reduce((s,r)=>s+(r.nominal||0),0);
-  document.getElementById('m-nom').textContent=totalNom?'Rp '+totalNom.toLocaleString('id-ID'):'—';
-  document.getElementById('m-beli-count').textContent=beliF.length+' transaksi';
+  // first appearance
+  const firstDate=allRka.length?new Date(Math.min(...allRka.map(r=>r.timestamp))):null;
+  document.getElementById('m-since').textContent=firstDate?firstDate.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}):'—';
+  document.getElementById('m-tenure').textContent=firstDate?sinceLabel(firstDate):'';
+
+  document.getElementById('m-visits').textContent=rkaF.length||'—';
+  const totA=rkaF.reduce((s,r)=>s+(r.avail||0),0), totI=rkaF.reduce((s,r)=>s+(r.avail||0)+(r.unavail||0),0);
+  document.getElementById('m-av').textContent=totI?Math.round(totA/totI*100)+'%':'—';
+
+  const totNS=beliF.reduce((s,r)=>s+(r.groupTotals&&r.groupTotals.NS||0),0);
+  const totHILO=beliF.reduce((s,r)=>s+(r.groupTotals&&r.groupTotals.HILO||0),0);
+  document.getElementById('m-ns').textContent=totNS||'—';
+  document.getElementById('m-hilo-sub').textContent=`HILO: ${totHILO}`;
+  const kalc=totNS*NS_PRICE+totHILO*HILO_PRICE;
+  document.getElementById('m-kalc').textContent=kalc?rp(kalc):'—';
+  const totNota=beliF.reduce((s,r)=>s+(r.nominal||0),0);
+  document.getElementById('m-nota-sub').textContent=`Nota: ${totNota?rp(totNota):'—'}`;
 
   // Modal chart 1: AV% per day
   const dayAV={};
   rkaF.forEach(r=>{
-    const ts=r.timestamp instanceof Date?r.timestamp:new Date(r.timestamp);
-    const key=ts.toLocaleDateString('id-ID',{day:'numeric',month:'short'});
-    if(!dayAV[key])dayAV[key]={avail:0,total:0};
-    dayAV[key].avail+=(r.avail||0);
-    dayAV[key].total+=(r.avail||0)+(r.unavail||0);
+    const key=r.timestamp.toLocaleDateString('id-ID',{day:'numeric',month:'short'});
+    if(!dayAV[key])dayAV[key]={a:0,t:0};
+    dayAV[key].a+=(r.avail||0); dayAV[key].t+=(r.avail||0)+(r.unavail||0);
   });
-  const dayKeys=Object.keys(dayAV).slice(-10);
-  const dayPcts=dayKeys.map(k=>dayAV[k].total?Math.round(dayAV[k].avail/dayAV[k].total*100):0);
-  if(modalChartAV)modalChartAV.destroy();
-  modalChartAV=new Chart(document.getElementById('modal-chart-av'),{type:'line',data:{labels:dayKeys,datasets:[{data:dayPcts,borderColor:'#3ECF6D',backgroundColor:'rgba(62,207,109,.07)',tension:.4,fill:true,pointRadius:3,pointBackgroundColor:'#3ECF6D'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw+'%'},backgroundColor:'rgba(13,17,23,.95)',titleColor:'rgba(255,255,255,.6)',bodyColor:'#fff',borderColor:'rgba(255,255,255,.08)',borderWidth:1}},scales:{x:{ticks:{color:'rgba(255,255,255,.25)',font:{size:9}},grid:{color:'rgba(255,255,255,.04)'}},y:{max:100,ticks:{color:'rgba(255,255,255,.25)',font:{size:9},callback:v=>v+'%'},grid:{color:'rgba(255,255,255,.04)'}}}}});
+  const dKeys=Object.keys(dayAV).slice(-10);
+  if(mChartAV)mChartAV.destroy();
+  mChartAV=new Chart(document.getElementById('modal-chart-av'),{type:'line',data:{labels:dKeys,datasets:[{data:dKeys.map(k=>dayAV[k].t?Math.round(dayAV[k].a/dayAV[k].t*100):0),borderColor:'#3ECF6D',backgroundColor:'rgba(62,207,109,.06)',tension:.4,fill:true,pointRadius:3,pointBackgroundColor:'#3ECF6D'}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw+'%'},backgroundColor:'rgba(10,14,20,.95)',bodyColor:'#fff',borderColor:'rgba(255,255,255,.08)',borderWidth:1}},scales:{x:{ticks:{color:'rgba(255,255,255,.25)',font:{size:9}},grid:{color:'rgba(255,255,255,.04)'}},y:{max:100,ticks:{color:'rgba(255,255,255,.25)',font:{size:9},callback:v=>v+'%'},grid:{color:'rgba(255,255,255,.04)'}}}}});
 
-  // Modal chart 2: visits per area
-  const areaMap={};
-  rkaF.forEach(r=>{const a=r.area||'—';areaMap[a]=(areaMap[a]||0)+1;});
-  const areaEntries=Object.entries(areaMap).sort((a,b)=>b[1]-a[1]);
-  const PALETTE=['rgba(62,207,109,.75)','rgba(126,179,255,.75)','rgba(255,197,50,.75)','rgba(181,123,255,.75)','rgba(255,112,112,.75)','rgba(80,200,200,.75)'];
-  if(modalChartArea)modalChartArea.destroy();
-  modalChartArea=new Chart(document.getElementById('modal-chart-area'),{type:'doughnut',data:{labels:areaEntries.map(e=>e[0]),datasets:[{data:areaEntries.map(e=>e[1]),backgroundColor:PALETTE,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'right',labels:{color:'rgba(255,255,255,.4)',font:{size:9},boxWidth:10,padding:8}},tooltip:{backgroundColor:'rgba(13,17,23,.95)',titleColor:'rgba(255,255,255,.6)',bodyColor:'#fff',borderColor:'rgba(255,255,255,.08)',borderWidth:1}},cutout:'60%'}});
+  // Modal chart 2: NS vs HILO per month
+  const moB={};
+  beliF.forEach(r=>{
+    const key=r.timestamp.toLocaleDateString('id-ID',{month:'short',year:'2-digit'});
+    if(!moB[key])moB[key]={ns:0,hilo:0};
+    moB[key].ns+=(r.groupTotals&&r.groupTotals.NS||0);
+    moB[key].hilo+=(r.groupTotals&&r.groupTotals.HILO||0);
+  });
+  const moKeys=Object.keys(moB);
+  if(mChartBrand)mChartBrand.destroy();
+  mChartBrand=new Chart(document.getElementById('modal-chart-brand'),{type:'bar',
+    data:{labels:moKeys,datasets:[
+      {label:'NS',data:moKeys.map(k=>moB[k].ns),backgroundColor:'rgba(126,179,255,.75)',borderRadius:4,borderSkipped:false},
+      {label:'HILO',data:moKeys.map(k=>moB[k].hilo),backgroundColor:'rgba(255,197,50,.75)',borderRadius:4,borderSkipped:false}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'rgba(255,255,255,.4)',font:{size:9},boxWidth:10,padding:8}},tooltip:{backgroundColor:'rgba(10,14,20,.95)',bodyColor:'#fff',borderColor:'rgba(255,255,255,.08)',borderWidth:1}},
+      scales:{x:{stacked:true,ticks:{color:'rgba(255,255,255,.25)',font:{size:9}},grid:{color:'rgba(255,255,255,.04)'}},y:{stacked:true,ticks:{color:'rgba(255,255,255,.25)',font:{size:9}},grid:{color:'rgba(255,255,255,.04)'}}}}});
 
-  // RKA table
+  // RKA log
   const rkaRows=rkaF.slice().sort((a,b)=>b.timestamp-a.timestamp).slice(0,20);
   document.getElementById('modal-rka-body').innerHTML=rkaRows.length?rkaRows.map(r=>{
-    const ts=r.timestamp instanceof Date?r.timestamp:new Date(r.timestamp);
     const pct=r.avail+r.unavail>0?Math.round(r.avail/(r.avail+r.unavail)*100):0;
-    return`<tr><td>${ts.toLocaleDateString('id-ID',{day:'numeric',month:'short'})} ${ts.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</td><td>${r.store||'—'}</td><td>${r.area||'—'}</td><td>${r.avail||0}</td><td>${r.unavail||0}</td><td><span class="tag ${pct>=80?'green':pct>=60?'blue':'red'}" style="font-size:10px">${pct}%</span></td></tr>`;
-  }).join(''):'<tr><td colspan="6" style="text-align:center;padding:16px;color:rgba(255,255,255,.2)">Tidak ada data</td></tr>';
+    const brandAV={NS:{a:0,t:0},HILO:{a:0,t:0},TS:{a:0,t:0}};
+    if(r.items){Object.entries(r.items).forEach(([n,v])=>{const b=brandFromName(n);if(brandAV[b]){brandAV[b].t++;if(v)brandAV[b].a++;}});}
+    const breakdown=Object.entries(brandAV).filter(([,d])=>d.t>0).map(([b,d])=>`${b}:${Math.round(d.a/d.t*100)}%`).join(' | ');
+    const ts=r.timestamp;
+    return`<tr><td>${ts.toLocaleDateString('id-ID',{day:'numeric',month:'short'})} ${ts.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</td><td>${r.store||'—'}</td><td>${r.area||'—'}</td><td>${r.avail||0}</td><td>${r.unavail||0}</td><td>${avTag(pct)}</td><td style="color:rgba(255,255,255,.35);font-size:10px">${breakdown||'—'}</td></tr>`;
+  }).join(''):'<tr><td colspan="7" style="text-align:center;padding:14px;color:rgba(255,255,255,.2)">Tidak ada data</td></tr>';
 
-  // Beli table
+  // Beli log
   const beliRows=beliF.slice().sort((a,b)=>b.timestamp-a.timestamp).slice(0,20);
   document.getElementById('modal-beli-body').innerHTML=beliRows.length?beliRows.map(r=>{
-    const ts=r.timestamp instanceof Date?r.timestamp:new Date(r.timestamp);
-    return`<tr><td>${ts.toLocaleDateString('id-ID',{day:'numeric',month:'short'})} ${ts.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</td><td>${r.store||'—'}</td><td>${r.area||'—'}</td><td style="color:#ffc532">Rp ${(r.nominal||0).toLocaleString('id-ID')}</td><td>${r.totalRenceng||0}</td></tr>`;
-  }).join(''):'<tr><td colspan="5" style="text-align:center;padding:16px;color:rgba(255,255,255,.2)">Tidak ada data</td></tr>';
+    const ts=r.timestamp;
+    const nsR=r.groupTotals&&r.groupTotals.NS||0;
+    const hiloR=r.groupTotals&&r.groupTotals.HILO||0;
+    const kalc=nsR*NS_PRICE+hiloR*HILO_PRICE;
+    const nota=r.nominal||0;
+    const diff=kalc-nota;
+    const diffStyle=diff>0?'color:#3ECF6D':diff<0?'color:#ff7070':'color:rgba(255,255,255,.3)';
+    return`<tr><td>${ts.toLocaleDateString('id-ID',{day:'numeric',month:'short'})} ${ts.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</td><td>${r.store||'—'}</td><td style="color:#7eb3ff">${nsR}</td><td style="color:#ffc532">${hiloR}</td><td>${r.totalRenceng||0}</td><td style="color:#3ECF6D;font-weight:600">${kalc?rp(kalc):'—'}</td><td style="color:rgba(255,255,255,.4)">${nota?rp(nota):'—'}</td><td style="${diffStyle}">${diff>0?'+':''}${diff?rp(diff):'—'}</td></tr>`;
+  }).join(''):'<tr><td colspan="8" style="text-align:center;padding:14px;color:rgba(255,255,255,.2)">Tidak ada data</td></tr>';
 
   document.getElementById('mds-modal').classList.remove('hidden');
 }
 
-function closeModal(e){
-  if(e.target===document.getElementById('mds-modal')) document.getElementById('mds-modal').classList.add('hidden');
-}
-
-// ── EXPORT CSV ────────────────────────────────────────────────────────────
+// ── EXPORT CSV ────────────────────────────────────────────────────────────────
 function exportCSV(){
-  const rkaF=filtered(RKA_ALL),beliF=filtered(BELI_ALL);
-  const data=ACTIVE_TAB==='rka'?rkaF:ACTIVE_TAB==='beli'?beliF:rkaF;
-  const rows=sorted(data);
-  let csv='';
-  if(ACTIVE_TAB==='rka'||ACTIVE_TAB==='eval'){
-    csv='ID,Waktu,MDS,Area,Toko,Ada,Tidak Ada,AV%\n';
-    csv+=rows.map(r=>{
-      const ts=r.timestamp instanceof Date?r.timestamp:new Date(r.timestamp);
-      const pct=r.avail+r.unavail>0?Math.round(r.avail/(r.avail+r.unavail)*100):0;
-      return[r.id,ts.toLocaleString('id-ID'),r.mds,r.area,`"${r.store}"`,r.avail,r.unavail,pct+'%'].join(',');
-    }).join('\n');
+  const rkaF=filtered(RKA_ALL), beliF=filtered(BELI_ALL);
+  let csv='',fn='MDS';
+  if(ACTIVE_TAB==='rka'){
+    csv='ID,Waktu,MDS,Area,Toko,Ada,Tdk,AV%,NS AV%,HILO AV%,TS AV%\n';
+    csv+=sorted(rkaF).map(r=>{
+      const ts=r.timestamp; const pct=r.avail+r.unavail>0?Math.round(r.avail/(r.avail+r.unavail)*100):0;
+      const b={NS:{a:0,t:0},HILO:{a:0,t:0},TS:{a:0,t:0}};
+      if(r.items)Object.entries(r.items).forEach(([n,v])=>{const br=brandFromName(n);if(b[br]){b[br].t++;if(v)b[br].a++;}});
+      const bp=bd=>b[bd].t?Math.round(b[bd].a/b[bd].t*100)+'%':'—';
+      return[r.id,ts.toLocaleString('id-ID'),r.mds,r.area,`"${r.store}"`,r.avail,r.unavail,pct+'%',bp('NS'),bp('HILO'),bp('TS')].join(',');
+    }).join('\n'); fn='RKA';
+  } else if(ACTIVE_TAB==='beli'){
+    csv='ID,Waktu,MDS,Area,Toko,NS Rnc,HILO Rnc,Total Rnc,Kalkulasi,Nota,Selisih\n';
+    csv+=sorted(beliF).map(r=>{
+      const ts=r.timestamp; const nsR=r.groupTotals&&r.groupTotals.NS||0; const hiloR=r.groupTotals&&r.groupTotals.HILO||0;
+      const kalc=nsR*NS_PRICE+hiloR*HILO_PRICE;
+      return[r.id,ts.toLocaleString('id-ID'),r.mds,r.area,`"${r.store}"`,nsR,hiloR,r.totalRenceng||0,kalc,r.nominal||0,kalc-(r.nominal||0)].join(',');
+    }).join('\n'); fn='Beli';
   } else {
-    csv='ID,Waktu,MDS,Area,Toko,Nominal,Renceng\n';
-    csv+=rows.map(r=>{
-      const ts=r.timestamp instanceof Date?r.timestamp:new Date(r.timestamp);
-      return[r.id,ts.toLocaleString('id-ID'),r.mds,r.area,`"${r.store}"`,r.nominal,r.totalRenceng].join(',');
-    }).join('\n');
+    csv='MDS,Area,Visit,AV%,NS Rnc,HILO Rnc,Kalkulasi,Nota\n';
+    fn='Analisis';
   }
   const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});
   const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;
-  a.download=`MDS_${ACTIVE_TAB}_${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();URL.revokeObjectURL(url);
+  const a=document.createElement('a');a.href=url;a.download=`MDS_${fn}_${new Date().toISOString().slice(0,10)}.csv`;a.click();URL.revokeObjectURL(url);
 }
 </script>
 </body>
