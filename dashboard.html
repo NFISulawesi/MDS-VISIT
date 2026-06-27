@@ -551,10 +551,7 @@ tr:hover td{background:rgba(255,255,255,.014);}
         <div class="pill" data-mn="6" onclick="setNMonthFilter(6,this)">6 Bln</div>
       </div>
       <div class="fsep"></div>
-      <span class="fl">Bulan</span>
-      <select class="fi" id="f-month" onchange="setMonthFilter()" style="width:150px">
-        <option value="">Semua Bulan</option>
-      </select>
+      <div id="f-month-pills" style="display:flex;gap:6px;flex-wrap:wrap"></div>
       <div class="fsep"></div>
       <input class="fi" id="f-area" placeholder="Area…" style="width:100px" oninput="render()">
       <input class="fi" id="f-mds" placeholder="MDS…" style="width:110px" oninput="render()">
@@ -743,13 +740,23 @@ function initDash(){
 }
 function buildMonthOpts(){
   const ms=new Set([...RKA_ALL,...BELI_ALL].map(r=>{const d=r.timestamp;return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;}));
-  const sel=document.getElementById('f-month'),cur=sel.value;
-  sel.innerHTML='<option value="">Semua Bulan</option>';
+  const container=document.getElementById('f-month-pills');
+  container.innerHTML='';
+  // "Semua" pill
+  const all=document.createElement('div');
+  all.className='pill'+(MF===''?' on':'');
+  all.textContent='Semua';
+  all.onclick=()=>{MF='';DF='today';NM=0;document.querySelectorAll('.pill[data-f],.pill[data-mn]').forEach(p=>p.classList.remove('on'));buildMonthOpts();render();};
+  container.appendChild(all);
   [...ms].sort().reverse().forEach(m=>{
     const[y,mo]=m.split('-');
-    sel.innerHTML+=`<option value="${m}">${new Date(+y,+mo-1,1).toLocaleDateString('id-ID',{month:'long',year:'numeric'})}</option>`;
+    const label=new Date(+y,+mo-1,1).toLocaleDateString('id-ID',{month:'short',year:'numeric'});
+    const p=document.createElement('div');
+    p.className='pill'+(MF===m?' on':'');
+    p.textContent=label;
+    p.onclick=()=>setMonthFilter(m);
+    container.appendChild(p);
   });
-  if(cur)sel.value=cur;
 }
 
 // ── FILTERS ─────────────────────────────────────────────────────────────────
@@ -775,15 +782,15 @@ function setNMonthFilter(n,el){
   document.querySelectorAll('.pill[data-mn]').forEach(p=>p.classList.remove('on'));
   el.classList.add('on');render();
 }
-function setMonthFilter(){
-  MF=document.getElementById('f-month').value;
-  DF='';NM=0;
+function setMonthFilter(m){
+  MF=m;DF='';NM=0;
   document.querySelectorAll('.pill[data-f],.pill[data-mn]').forEach(p=>p.classList.remove('on'));
+  buildMonthOpts();
   render();
 }
 function clearFilters(){
   DF='today';NM=0;MF='';
-  ['f-month','f-area','f-mds','f-store'].forEach(id=>document.getElementById(id).value='');
+  ['f-area','f-mds','f-store'].forEach(id=>document.getElementById(id).value='');
   document.querySelectorAll('.pill[data-f],.pill[data-mn]').forEach(p=>p.classList.remove('on'));
   document.querySelector('[data-f="today"]').classList.add('on');
   render();
