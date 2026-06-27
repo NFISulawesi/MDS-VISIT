@@ -216,12 +216,12 @@ tr:hover td{background:rgba(255,255,255,.016);}
   <div class="main">
     <div class="filter-shell"><div class="filter-inner">
       <span class="fl">Periode</span>
-      <div class="pills">
-        <div class="pill on" data-f="today" onclick="setDateFilter('today',this)">Hari Ini</div>
-        <div class="pill" data-f="week" onclick="setDateFilter('week',this)">7 Hari</div>
-        <div class="pill" data-f="30d" onclick="setDateFilter('30d',this)">30 Hari</div>
-        <div class="pill" data-f="all" onclick="setDateFilter('all',this)">Semua</div>
-      </div>
+      <select id="f-period-sel" class="month-sel" onchange="setDateFilterSel(this.value)">
+        <option value="today">Hari Ini</option>
+        <option value="week">7 Hari</option>
+        <option value="30d">30 Hari</option>
+        <option value="all">Semua</option>
+      </select>
       <div class="fsep"></div>
       <span class="fl">Bulan</span>
       <select id="f-month-sel" class="month-sel" onchange="setMonthPill(+this.value||0)">
@@ -499,6 +499,11 @@ function setDateFilter(f,el){
   document.querySelectorAll('.pill[data-f]').forEach(p=>p.classList.remove('on'));
   document.querySelectorAll('.pill[data-mn]').forEach(p=>p.classList.remove('on'));
   el.classList.add('on');render();
+}
+function setDateFilterSel(f){
+  DF=f;NM=0;MF='';
+  const sel=document.getElementById('f-month-sel');if(sel)sel.value='0';
+  render();
 }
 function setMonthPill(mo){
   if(!mo){MF='';render();return;}
