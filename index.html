@@ -545,6 +545,17 @@ input[type="file"]{display:none;}
       </div>
     </div>
 
+    <div class="mod-card-shell">
+      <div class="mod-card" onclick="openStock()">
+        <div class="mod-icon" style="background:rgba(99,102,241,.12);color:#6366F1">📦</div>
+        <div class="mod-text">
+          <div class="mod-title">Stock Sell Out</div>
+          <div class="mod-desc">Pencatatan stock awal & akhir toko</div>
+        </div>
+        <div class="mod-arr">›</div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -828,6 +839,147 @@ input[type="file"]{display:none;}
     </div>
   </div>
 </div>
+
+
+<!-- ══════════════════ STOCK SELL OUT ══════════════════ -->
+<div id="s-stock" class="screen">
+  <div class="mod-header">
+    <div class="mod-header-row">
+      <button class="back-btn" onclick="goHome()">←</button>
+      <span class="mod-screen-name">Stock Sell Out</span>
+    </div>
+    <div class="mod-screen-sub">Pencatatan Stock Toko</div>
+  </div>
+
+  <div class="stepper" id="stock-stepper">
+    <div class="s-item active" id="ss0"><div class="s-dot">1</div><div class="s-lbl">MDS</div></div>
+    <div class="s-item"        id="ss1"><div class="s-dot">2</div><div class="s-lbl">Toko</div></div>
+    <div class="s-item"        id="ss2"><div class="s-dot">3</div><div class="s-lbl">Awal</div></div>
+    <div class="s-item"        id="ss3"><div class="s-dot">4</div><div class="s-lbl">Akhir</div></div>
+  </div>
+
+  <div class="step-wrap" id="stock-wrap" style="overflow-y:auto;flex:1">
+    <div class="step-pad">
+
+      <!-- Step 0: MDS -->
+      <div class="step-section active" id="stock-s0">
+        <div class="s-title">Pilih MDS</div>
+        <div class="s-sub">Pilih area dan nama MDS</div>
+        <div class="field">
+          <label class="f-label">Nama Area</label>
+          <select class="f-input sel" id="stock-area-sel" onchange="stockAreaChange()">
+            <option value="">— Pilih Area —</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="f-label">Nama MDS</label>
+          <select class="f-input sel" id="stock-mds-sel" onchange="stockCheck(0)">
+            <option value="">— Pilih Area dulu —</option>
+          </select>
+        </div>
+        <div class="add-trigger" onclick="toggleBox('stock-mds-box')"><span>+</span> Tambah MDS baru</div>
+        <div class="add-box" id="stock-mds-box">
+          <div class="field" style="margin-bottom:0">
+            <label class="f-label">Nama MDS Baru</label>
+            <input type="text" class="f-input" id="stock-mds-new" placeholder="Ketik nama…" oninput="stockCheck(0)">
+          </div>
+        </div>
+        <div class="step-nav">
+          <div></div>
+          <button class="btn btn-p" id="stock-next-0" onclick="stockNext(0)" disabled>Lanjut →</button>
+        </div>
+      </div>
+
+      <!-- Step 1: Toko -->
+      <div class="step-section" id="stock-s1">
+        <div class="s-title">Pilih Toko</div>
+        <div class="s-sub">Toko mana yang dicek stoknya?</div>
+        <div class="field">
+          <label class="f-label">Nama Toko</label>
+          <select class="f-input sel" id="stock-store-sel" onchange="stockCheck(1)">
+            <option value="">— Pilih Toko —</option>
+          </select>
+        </div>
+        <div class="add-trigger" onclick="toggleBox('stock-store-box')"><span>+</span> Tambah toko baru</div>
+        <div class="add-box" id="stock-store-box">
+          <div class="field" style="margin-bottom:0">
+            <label class="f-label">Nama Toko Baru</label>
+            <input type="text" class="f-input" id="stock-store-new" placeholder="Ketik nama toko…" oninput="stockCheck(1)">
+          </div>
+        </div>
+        <div class="step-nav">
+          <button class="btn btn-s" id="stock-bb" onclick="stockPrev(1)" style="display:none">← Kembali</button>
+          <button class="btn btn-p" id="stock-next-1" onclick="stockNext(1)" disabled>Lanjut →</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Stock Awal -->
+      <div class="step-section" id="stock-s2">
+        <div class="s-title">Stock Awal</div>
+        <div class="s-sub">Jumlah renceng per item di awal periode</div>
+        <div id="stock-qty-list-awal"></div>
+        <div class="step-nav">
+          <button class="btn btn-s" onclick="stockPrev(2)">← Kembali</button>
+          <button class="btn btn-p" onclick="stockNext(2)">Lanjut →</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Stock Akhir -->
+      <div class="step-section" id="stock-s3">
+        <div class="s-title">Stock Akhir</div>
+        <div class="s-sub">Jumlah renceng per item saat ini (akhir periode)</div>
+        <div id="stock-qty-list-akhir"></div>
+        <div class="step-nav">
+          <button class="btn btn-s" onclick="stockPrev(3)">← Kembali</button>
+          <button class="btn btn-p" onclick="stockGoReview()">Review →</button>
+        </div>
+      </div>
+
+      <!-- Step 4: Review & Submit -->
+      <div class="step-section" id="stock-s4">
+        <div class="s-title">Review & Submit</div>
+        <div class="s-sub">Periksa data sebelum disimpan</div>
+        <div style="background:rgba(99,102,241,.07);border:1px solid rgba(99,102,241,.18);border-radius:14px;padding:14px 16px;margin-bottom:16px;font-size:12px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+            <span style="color:var(--t2)">Area</span><span id="stock-rev-area" style="font-weight:700"></span>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+            <span style="color:var(--t2)">MDS</span><span id="stock-rev-mds" style="font-weight:700"></span>
+          </div>
+          <div style="display:flex;justify-content:space-between">
+            <span style="color:var(--t2)">Toko</span><span id="stock-rev-store" style="font-weight:700"></span>
+          </div>
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:16px">
+          <thead>
+            <tr style="background:rgba(99,102,241,.08)">
+              <th style="text-align:left;padding:8px;border-bottom:1px solid var(--border)">Item</th>
+              <th style="text-align:center;padding:8px;border-bottom:1px solid var(--border);white-space:nowrap">Stok Awal</th>
+              <th style="text-align:center;padding:8px;border-bottom:1px solid var(--border);white-space:nowrap">Stok Akhir</th>
+            </tr>
+          </thead>
+          <tbody id="stock-review-body"></tbody>
+        </table>
+        <div class="step-nav">
+          <button class="btn btn-s" onclick="stockPrev(4)">← Edit</button>
+          <button class="btn btn-p" onclick="submitStock()">✓ Simpan</button>
+        </div>
+      </div>
+
+      <!-- Step 5: Sukses -->
+      <div class="step-section" id="stock-s5">
+        <div style="text-align:center;padding:48px 16px">
+          <div style="font-size:48px;margin-bottom:12px">📦</div>
+          <div style="font-size:18px;font-weight:800;color:var(--primary);margin-bottom:6px">Stock Tercatat!</div>
+          <div style="font-size:13px;color:var(--t2);margin-bottom:8px" id="stock-success-store"></div>
+          <div style="font-size:11px;color:var(--t3);margin-bottom:24px">Data stock berhasil disimpan ke sistem</div>
+          <button class="btn btn-p" style="width:100%" onclick="resetStock()">+ Entri Baru</button>
+        </div>
+      </div>
+
+    </div><!-- step-pad -->
+  </div><!-- step-wrap -->
+</div><!-- s-stock -->
 
 </div><!-- #app -->
 
@@ -24724,6 +24876,195 @@ document.addEventListener('click',e=>{
     document.querySelectorAll('.search-drop').forEach(d=>d.classList.remove('open'));
   }
 });
+
+
+/* ─────────── STOCK SELL OUT ─────────── */
+const SK = { area:'', mds:'', store:'', awal:{}, akhir:{} };
+let stockStep = 0;
+
+function openStock(){
+  showScreen('s-stock');
+  initStock();
+}
+
+function initStock(){
+  stockStep=0;
+  SK.area=''; SK.mds=''; SK.store=''; SK.awal={}; SK.akhir={};
+  const as=document.getElementById('stock-area-sel');
+  as.innerHTML='<option value="">— Pilih Area —</option>';
+  AREAS.forEach(n=>{ const o=document.createElement('option'); o.value=n; o.textContent=n; as.appendChild(o); });
+  document.getElementById('stock-mds-sel').innerHTML='<option value="">— Pilih Area dulu —</option>';
+  document.getElementById('stock-mds-new').value='';
+  document.getElementById('stock-store-sel').innerHTML='<option value="">— Pilih Toko —</option>';
+  document.getElementById('stock-store-new').value='';
+  document.getElementById('stock-next-0').disabled=true;
+  document.getElementById('stock-next-1').disabled=true;
+  document.getElementById('stock-bb').style.display='none';
+  stockUpdateStepper();
+  document.querySelectorAll('#s-stock .step-section').forEach((s,i)=>s.classList.toggle('active',i===0));
+}
+
+function stockAreaChange(){
+  const area=document.getElementById('stock-area-sel').value;
+  const mdsSel=document.getElementById('stock-mds-sel');
+  mdsSel.innerHTML='';
+  if(!area){ mdsSel.innerHTML='<option value="">— Pilih Area dulu —</option>'; stockCheck(0); return; }
+  mdsSel.innerHTML='<option value="">— Pilih MDS —</option>';
+  (MDS_BY_AREA[area]||[]).forEach(m=>{ const o=document.createElement('option'); o.value=m; o.textContent=m; mdsSel.appendChild(o); });
+  stockCheck(0);
+}
+
+function stockCheck(step){
+  let ok=false;
+  if(step===0){
+    const area=document.getElementById('stock-area-sel').value;
+    const mds=document.getElementById('stock-mds-sel').value||document.getElementById('stock-mds-new').value.trim();
+    ok=!!(area&&mds);
+    document.getElementById('stock-next-0').disabled=!ok;
+  } else if(step===1){
+    const store=document.getElementById('stock-store-sel').value||document.getElementById('stock-store-new').value.trim();
+    ok=!!store;
+    document.getElementById('stock-next-1').disabled=!ok;
+  }
+  return ok;
+}
+
+function stockNext(step){
+  if(!stockCheck(step)&&step<2) return;
+  if(step===0){
+    SK.area=document.getElementById('stock-area-sel').value;
+    const box=document.getElementById('stock-mds-box');
+    const nw=document.getElementById('stock-mds-new').value.trim();
+    SK.mds=(box.classList.contains('open')&&nw)?nw:document.getElementById('stock-mds-sel').value;
+    if(box.classList.contains('open')&&nw&&!MDS_BY_AREA[SK.area].includes(nw)) MDS_BY_AREA[SK.area].push(nw);
+    // fill stores
+    const ss=document.getElementById('stock-store-sel');
+    ss.innerHTML='<option value="">— Pilih Toko —</option>';
+    (BELI_STORES_BY_AREA[SK.area]||[]).forEach(n=>{ const o=document.createElement('option'); o.value=n; o.textContent=n; ss.appendChild(o); });
+  } else if(step===1){
+    const box=document.getElementById('stock-store-box');
+    const nw=document.getElementById('stock-store-new').value.trim();
+    SK.store=(box.classList.contains('open')&&nw)?nw:document.getElementById('stock-store-sel').value;
+    if(box.classList.contains('open')&&nw){
+      if(!BELI_STORES_BY_AREA[SK.area]) BELI_STORES_BY_AREA[SK.area]=[];
+      if(!BELI_STORES_BY_AREA[SK.area].includes(nw)){ BELI_STORES_BY_AREA[SK.area].push(nw); const o=document.createElement('option'); o.value=nw; o.textContent=nw; document.getElementById('stock-store-sel').appendChild(o); }
+    }
+    renderStockQty('awal');
+  } else if(step===2){
+    // save awal
+    SK.awal={};
+    let fi=0;
+    BELI_PRODUCTS.forEach(g=>g.items.forEach((name)=>{
+      const el=document.getElementById('sqval-awal-'+fi);
+      const v=parseInt(el&&el.value)||0;
+      if(v) SK.awal[name]=v;
+      fi++;
+    }));
+    renderStockQty('akhir');
+  }
+  stockStep=step+1;
+  stockUpdateStepper();
+  document.querySelectorAll('#s-stock .step-section').forEach((s,i)=>s.classList.toggle('active',i===stockStep));
+  document.getElementById('stock-wrap').scrollTop=0;
+}
+
+function stockPrev(step){
+  stockStep=step-1;
+  stockUpdateStepper();
+  document.querySelectorAll('#s-stock .step-section').forEach((s,i)=>s.classList.toggle('active',i===stockStep));
+  document.getElementById('stock-wrap').scrollTop=0;
+}
+
+function stockGoReview(){
+  // save akhir
+  SK.akhir={};
+  let fi=0;
+  BELI_PRODUCTS.forEach(g=>g.items.forEach((name)=>{
+    const el=document.getElementById('sqval-akhir-'+fi);
+    const v=parseInt(el&&el.value)||0;
+    if(v) SK.akhir[name]=v;
+    fi++;
+  }));
+  // build review
+  const allItems=[...new Set([...Object.keys(SK.awal),...Object.keys(SK.akhir)])];
+  const tbody=document.getElementById('stock-review-body');
+  tbody.innerHTML='';
+  if(!allItems.length){
+    tbody.innerHTML='<tr><td colspan="3" style="text-align:center;color:var(--t2);padding:16px">Tidak ada item yang diisi</td></tr>';
+  } else {
+    allItems.forEach(name=>{
+      const a=SK.awal[name]||0, k=SK.akhir[name]||0;
+      const tr=document.createElement('tr');
+      tr.innerHTML='<td style="font-size:10px;padding:5px 8px;border-bottom:1px solid var(--border)">'+name+'</td><td style="text-align:center;padding:5px 8px;border-bottom:1px solid var(--border);font-weight:700">'+a+'</td><td style="text-align:center;padding:5px 8px;border-bottom:1px solid var(--border);font-weight:700">'+k+'</td>';
+      tbody.appendChild(tr);
+    });
+  }
+  document.getElementById('stock-rev-mds').textContent=SK.mds;
+  document.getElementById('stock-rev-store').textContent=SK.store;
+  document.getElementById('stock-rev-area').textContent=SK.area;
+  stockStep=4;
+  stockUpdateStepper();
+  document.querySelectorAll('#s-stock .step-section').forEach((s,i)=>s.classList.toggle('active',i===stockStep));
+  document.getElementById('stock-wrap').scrollTop=0;
+}
+
+function renderStockQty(type){
+  const list=document.getElementById('stock-qty-list-'+type);
+  list.innerHTML='';
+  let fi=0;
+  BELI_PRODUCTS.forEach(group=>{
+    const hdr=document.createElement('div');
+    hdr.className='qty-group-hdr'; hdr.textContent=group.group;
+    list.appendChild(hdr);
+    group.items.forEach((name,gi)=>{
+      const i=fi++;
+      const isPri=group.priority&&gi<group.priority;
+      const prevVal=type==='akhir'?(SK.awal[name]||0):0;
+      const hint=type==='akhir'&&prevVal?'<span style="font-size:9px;opacity:.5;margin-left:4px">awal:'+prevVal+'</span>':'';
+      const row=document.createElement('div');
+      row.className='qty-row'+(isPri?' beli-priority':'');
+      row.innerHTML='<div class="qty-name">'+name+hint+'</div><div class="qty-ctrl"><button class="qty-btn" onclick="adjSK(\''+type+'\','+i+',-1)">−</button><input type="number" class="qty-val" id="sqval-'+type+'-'+i+'" value="0" min="0" oninput="this.closest(\'.qty-row\').classList.toggle(\'has-val\',+this.value>0)"><button class="qty-btn" onclick="adjSK(\''+type+'\','+i+',1)">+</button></div>';
+      list.appendChild(row);
+    });
+  });
+}
+
+function adjSK(type,i,d){
+  const el=document.getElementById('sqval-'+type+'-'+i);
+  if(!el) return;
+  const v=Math.max(0,(parseInt(el.value)||0)+d);
+  el.value=v;
+  el.closest('.qty-row').classList.toggle('has-val',v>0);
+}
+
+function submitStock(){
+  const id='STOCK-'+String(Math.floor(Math.random()*9000)+1000);
+  document.getElementById('stock-success-store').textContent=SK.store+' · '+SK.area;
+  if(typeof db!=='undefined'){
+    db.collection('stock_logs').add({
+      id,area:SK.area,mds:SK.mds,store:SK.store,
+      timestamp:firebase.firestore.FieldValue.serverTimestamp(),
+      stockAwal:Object.assign({},SK.awal),
+      stockAkhir:Object.assign({},SK.akhir)
+    }).catch(e=>console.warn('Firestore stock failed',e));
+  }
+  stockStep=5;
+  stockUpdateStepper();
+  document.querySelectorAll('#s-stock .step-section').forEach((s,i)=>s.classList.toggle('active',i===stockStep));
+  document.getElementById('stock-wrap').scrollTop=0;
+}
+
+function resetStock(){ initStock(); document.getElementById('stock-wrap').scrollTop=0; }
+
+function stockUpdateStepper(){
+  ['ss0','ss1','ss2','ss3'].forEach((id,i)=>{
+    const el=document.getElementById(id); if(!el) return;
+    el.className='s-item'+(i<stockStep?' done':i===stockStep?' active':'');
+    el.querySelector('.s-dot').textContent=i<stockStep?'✓':(i+1);
+  });
+  const bb=document.getElementById('stock-bb');
+  if(bb) bb.style.display=stockStep===0?'none':'';
+}
 
 </script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
