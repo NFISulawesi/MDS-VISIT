@@ -587,31 +587,31 @@ tr:hover td{background:rgba(255,255,255,.014);}
     <div class="spotlight-shell" id="ns-spotlight-shell"><div class="spotlight-inner">
       <div class="sp-header">
         <div class="sp-badge">NS Item Spotlight</div>
-        <div class="sp-title">Availability: Jeruk Peras Polos & American Sweet Orange Polos vs lainnya</div>
+        <div class="sp-title">Beli Barang: NS ASO & NS Jeruk Peras — Total Renceng Terjual</div>
       </div>
       <div class="sp-grid">
         <div class="sp-item" id="sp-jp">
-          <div class="sp-item-name">NS Jeruk Peras Polos</div>
+          <div class="sp-item-name">NS Jeruk Peras PLS</div>
           <div class="sp-pct" id="sp-jp-pct" style="color:var(--accent)">—</div>
           <div class="sp-bar-bg"><div class="sp-bar-fill" id="sp-jp-bar" style="background:var(--accent);width:0%"></div></div>
           <div style="font-size:9px;color:var(--t3);margin-top:2px" id="sp-jp-count">—</div>
         </div>
         <div class="sp-item" id="sp-aso">
-          <div class="sp-item-name">NS American Sweet Orange Polos</div>
+          <div class="sp-item-name">NS ASO PLS</div>
           <div class="sp-pct" id="sp-aso-pct" style="color:var(--blue)">—</div>
           <div class="sp-bar-bg"><div class="sp-bar-fill" id="sp-aso-bar" style="background:var(--blue);width:0%"></div></div>
           <div style="font-size:9px;color:var(--t3);margin-top:2px" id="sp-aso-count">—</div>
         </div>
         <div class="sp-item" id="sp-other">
-          <div class="sp-item-name">Avg NS Items Lainnya</div>
-          <div class="sp-pct" id="sp-other-pct" style="color:var(--t2)">—</div>
-          <div class="sp-bar-bg"><div class="sp-bar-fill" id="sp-other-bar" style="background:var(--t3);width:0%"></div></div>
+          <div class="sp-item-name">Total NS Renceng</div>
+          <div class="sp-pct" id="sp-other-pct" style="color:var(--gold)">—</div>
+          <div class="sp-bar-bg"><div class="sp-bar-fill" id="sp-other-bar" style="background:var(--gold);width:0%"></div></div>
           <div style="font-size:9px;color:var(--t3);margin-top:2px" id="sp-other-count">—</div>
         </div>
         <div class="sp-note">
-          Data dari <strong id="sp-visits">—</strong> kunjungan RKA.<br>
-          Berdasarkan ketersediaan item di toko<br>
-          (field <code>items</code> dari rka_logs).
+          Data dari <strong id="sp-visits">—</strong> transaksi Beli Barang.<br>
+          Berdasarkan qty item dari beli_logs<br>
+          (field <code>itemQty</code>).
         </div>
       </div>
     </div></div>
@@ -858,31 +858,34 @@ function buildCharts(rkaF,beliF){
 }
 
 // ── NS SPOTLIGHT ─────────────────────────────────────────────────────────────
-function buildSpotlight(rkaF){
-  const jp={a:0,t:0}, aso={a:0,t:0}, oth={a:0,t:0};
-  let visits=0;
-  rkaF.forEach(r=>{
-    if(!r.items)return; visits++;
-    Object.entries(r.items).forEach(([n,v])=>{
-      if(brandOf(n)!=='NS')return;
-      if(isJP(n)){jp.t++;if(v)jp.a++;}
-      else if(isASO(n)){aso.t++;if(v)aso.a++;}
-      else{oth.t++;if(v)oth.a++;}
+function buildSpotlight(rkaF,beliF){
+  let jpQty=0, asoQty=0, nsTotal=0, txCount=0;
+  beliF.forEach(r=>{
+    const iq=r.itemQty;
+    nsTotal+=(r.groupTotals&&r.groupTotals.NS||0);
+    if(!iq)return;
+    txCount++;
+    Object.entries(iq).forEach(([n,v])=>{
+      if(isJP(n)) jpQty+=Number(v)||0;
+      else if(isASO(n)) asoQty+=Number(v)||0;
     });
   });
-  function pct(d){return d.t?Math.round(d.a/d.t*100):null;}
-  function setItem(idPct,idBar,idCount,d,color){
-    const p=pct(d);
-    document.getElementById(idPct).textContent=p!==null?p+'%':'—';
-    document.getElementById(idPct).style.color=p!==null?avC(p):color;
-    document.getElementById(idBar).style.width=(p||0)+'%';
-    document.getElementById(idBar).style.background=p!==null?avC(p):'var(--t3)';
-    document.getElementById(idCount).textContent=d.t?`${d.a} ada / ${d.t} toko checkup`:'Tidak ada data item';
+  const maxVal=Math.max(jpQty,asoQty,1);
+  function setItem(idPct,idBar,idCount,qty,color,label){
+    document.getElementById(idPct).textContent=qty?qty+' renceng':'—';
+    document.getElementById(idPct).style.color=color;
+    document.getElementById(idBar).style.width=Math.round(qty/maxVal*100)+'%';
+    document.getElementById(idBar).style.background=color;
+    document.getElementById(idCount).textContent=qty?label:'Tidak ada data';
   }
-  setItem('sp-jp-pct','sp-jp-bar','sp-jp-count',jp,'var(--accent)');
-  setItem('sp-aso-pct','sp-aso-bar','sp-aso-count',aso,'var(--blue)');
-  setItem('sp-other-pct','sp-other-bar','sp-other-count',oth,'var(--t2)');
-  document.getElementById('sp-visits').textContent=visits;
+  setItem('sp-jp-pct','sp-jp-bar','sp-jp-count',jpQty,'var(--accent)','NS JERUK PERAS PLS 18PX40SX14G');
+  setItem('sp-aso-pct','sp-aso-bar','sp-aso-count',asoQty,'var(--blue)','NS ASO PLS 14GX18PX40S');
+  document.getElementById('sp-other-pct').textContent=nsTotal?nsTotal+' renceng':'—';
+  document.getElementById('sp-other-pct').style.color='var(--gold)';
+  document.getElementById('sp-other-bar').style.width='100%';
+  document.getElementById('sp-other-bar').style.background='var(--gold)';
+  document.getElementById('sp-other-count').textContent=nsTotal?`Total semua NS dari ${beliF.length} transaksi`:'Tidak ada data';
+  document.getElementById('sp-visits').textContent=txCount||beliF.length;
 }
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
@@ -909,7 +912,7 @@ function render(){
   document.getElementById('ds-kalc').textContent=k?rp(k):'—';
 
   buildCharts(rkaF,beliF);
-  buildSpotlight(rkaF);
+  buildSpotlight(rkaF,beliF);
 
   if(TAB==='rka')     renderRKA(rkaF);
   else if(TAB==='store')   renderStore(rkaF);

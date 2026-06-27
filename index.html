@@ -24518,7 +24518,7 @@ function submitBeli(){
     _beliLog.push({id,area:B.area,mds:B.mds,store:B.store,timestamp:now.toISOString(),nominal:Number(document.getElementById('beli-nominal').value),groupTotals:Object.assign({},groupTotals),totalRenceng});
     localStorage.setItem('mds_beli_log',JSON.stringify(_beliLog));
   }catch(e){console.warn('localStorage write failed',e);}
-  if(typeof db!=='undefined') db.collection('beli_logs').add({id,area:B.area,mds:B.mds,store:B.store,timestamp:firebase.firestore.FieldValue.serverTimestamp(),nominal:Number(document.getElementById('beli-nominal').value),groupTotals:Object.assign({},groupTotals),totalRenceng}).catch(e=>console.warn('Firestore beli failed',e));
+  if(typeof db!=='undefined'){const _iq={};BELI_FLAT.forEach((nm,ii)=>{if(B.qty[ii])_iq[nm]=B.qty[ii];});db.collection('beli_logs').add({id,area:B.area,mds:B.mds,store:B.store,timestamp:firebase.firestore.FieldValue.serverTimestamp(),nominal:Number(document.getElementById('beli-nominal').value),groupTotals:Object.assign({},groupTotals),totalRenceng,itemQty:_iq}).catch(e=>console.warn('Firestore beli failed',e));}
 
   document.getElementById('beli-sm-qty-hilo').textContent=(groupTotals['HILO']||0)+' renceng';
   document.getElementById('beli-sm-qty-ns').textContent=(groupTotals['NS']||0)+' renceng';
