@@ -35,7 +35,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   radial-gradient(ellipse 40% 30% at 80% 75%,rgba(236,72,153,.07) 0%,transparent 50%);}
 body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.018;
   background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
-#pin-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:200;}
+#pin-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:10000;}
 #pin-screen.hidden{display:none;}
 .pin-shell{background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.2);border-radius:28px;padding:3px;box-shadow:0 0 80px rgba(139,92,246,.08),0 40px 80px rgba(0,0,0,.6);}
 .pin-inner{background:var(--bg2);border-radius:26px;padding:44px 48px;display:flex;flex-direction:column;align-items:center;gap:12px;min-width:340px;box-shadow:inset 0 1px 0 rgba(255,255,255,.05);}
@@ -402,11 +402,11 @@ const NS_PRICE=11250, HILO_PRICE=17000;
 const NS_JP_KEY  = 'NS JERUK PERAS PLS';
 const NS_ASO_KEY = 'NS AMERICAN SWEET ORANGE PLS';
 
-const FB={apiKey:"AIzaSyCtYc8uZICLzQrA1b7l00Yo_9V_rqNVOu0",authDomain:"mds-visit.firebaseapp.com",projectId:"mds-visit",storageBucket:"mds-visit.firebasestorage.app",messagingSenderId:"732603054928",appId:"1:732603054928:web:9f946bfa13d56d860a8a55"};
+try{const FB={apiKey:"AIzaSyCtYc8uZICLzQrA1b7l00Yo_9V_rqNVOu0",authDomain:"mds-visit.firebaseapp.com",projectId:"mds-visit",storageBucket:"mds-visit.firebasestorage.app",messagingSenderId:"732603054928",appId:"1:732603054928:web:9f946bfa13d56d860a8a55"};
 firebase.initializeApp(FB);
-const db=firebase.firestore();
+window.db=firebase.firestore();}catch(e){console.warn("Firebase init failed",e);}
 
-let RKA_ALL=[],BELI_ALL=[],TAB='rka',DF='today',NM=0,MF='',SC='timestamp',SD=-1;
+var RKA_ALL=[],BELI_ALL=[],TAB='rka',DF='today',NM=0,MF='',SC='timestamp',SD=-1;
 let cAV=null,cTrend=null,cBrand=null,mcAV=null,mcBrand=null;
 
 // ── PIN ─────────────────────────────────────────────────────────────────────
@@ -470,9 +470,8 @@ function getCutoff(){
 }
 function setDateFilter(f,el){
   DF=f;NM=0;MF='';
-  document.getElementById('f-month').value='';
   document.querySelectorAll('.pill[data-f]').forEach(p=>p.classList.remove('on'));
-  document.querySelectorAll('.pill[data-mn]').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.mpill').forEach(p=>p.classList.remove('on'));
   el.classList.add('on');render();
 }
 function setMonthPill(mo){
