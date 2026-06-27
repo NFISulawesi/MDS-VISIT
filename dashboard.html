@@ -33,7 +33,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   radial-gradient(ellipse 55% 40% at 92% 15%,rgba(6,182,212,.09) 0%,transparent 50%),
   radial-gradient(ellipse 45% 35% at 50% 95%,rgba(16,185,129,.07) 0%,transparent 50%),
   radial-gradient(ellipse 40% 30% at 80% 75%,rgba(236,72,153,.07) 0%,transparent 50%);}
-body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.018;
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.018;
   background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
 #pin-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:10000;}
 #pin-screen.hidden{display:none;}
@@ -189,7 +189,7 @@ tr:hover td{background:rgba(255,255,255,.016);}
     <div class="pin-orb">📊</div>
     <div class="pin-eye">Nutrifood Sulawesi</div>
     <div class="pin-title">MDS Visit Dashboard</div>
-    <div class="pin-sub">Masukkan PIN PIC untuk melanjutkan</div>
+    <div class="pin-sub">Masukkan PIN supervisor untuk melanjutkan</div>
     <input id="pin-input" class="pin-field" type="password" placeholder="••••••••" maxlength="20" onkeydown="if(event.key==='Enter')checkPin()">
     <div class="pin-err" id="pin-err"></div>
     <button class="pin-cta" onclick="checkPin()">Masuk →</button>
@@ -402,11 +402,12 @@ const NS_PRICE=11250, HILO_PRICE=17000;
 const NS_JP_KEY  = 'NS JERUK PERAS PLS';
 const NS_ASO_KEY = 'NS AMERICAN SWEET ORANGE PLS';
 
+var db;
 try{const FB={apiKey:"AIzaSyCtYc8uZICLzQrA1b7l00Yo_9V_rqNVOu0",authDomain:"mds-visit.firebaseapp.com",projectId:"mds-visit",storageBucket:"mds-visit.firebasestorage.app",messagingSenderId:"732603054928",appId:"1:732603054928:web:9f946bfa13d56d860a8a55"};
 firebase.initializeApp(FB);
-window.db=firebase.firestore();}catch(e){console.warn("Firebase init failed",e);}
+db=firebase.firestore();}catch(e){console.warn("Firebase init failed",e);}
 
-var RKA_ALL=[],BELI_ALL=[],TAB='rka',DF='today',NM=0,MF='',SC='timestamp',SD=-1;
+let RKA_ALL=[],BELI_ALL=[],TAB='rka',DF='today',NM=0,MF='',SC='timestamp',SD=-1;
 let cAV=null,cTrend=null,cBrand=null,mcAV=null,mcBrand=null;
 
 // ── PIN ─────────────────────────────────────────────────────────────────────
@@ -435,9 +436,8 @@ function isASO(n){return n&&n.toUpperCase().includes('NS AMERICAN SWEET ORANGE P
 function kalc(r){return((r.groupTotals&&r.groupTotals.NS||0)*NS_PRICE)+((r.groupTotals&&r.groupTotals.HILO||0)*HILO_PRICE);}
 function rp(n){return'Rp '+Math.round(n).toLocaleString('id-ID');}
 function sn(n){const p=n.split(' ');return p.length>=2?p.slice(0,2).join(' '):n;}
-function avC(p){return p>=80?'var(--green)':p>=60?'var(--amber)':'var(--red)';}
-function avTag(p,sm=''){const cls=p>=80?'g':p>=60?'au':'r';return`<span class="tag ${cls}${sm}">${p}%</span>`;}${sm}">${p}%</span>`;
-}
+function avC(p){return p>=80?'var(--accent)':p>=60?'var(--blue)':'var(--red)';}
+function avTag(p,sm=''){const cls=p>=80?'g':p>=60?'au':'r';return`<span class="tag ${cls}${sm}">${p}%</span>`;}
 function ar(c){return`<span style="opacity:.25;margin-left:2px;font-size:9px">${SC===c?(SD>0?'↑':'↓'):'↕'}</span>`;}
 function tenure(d){
   const days=Math.floor((new Date()-d)/864e5);
@@ -449,16 +449,38 @@ function tenure(d){
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
 function initDash(){
+  switchTab('rka');
   document.getElementById('tb-date').textContent=new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   db.collection('rka_logs').orderBy('timestamp','desc').limit(2000).onSnapshot(s=>{
     RKA_ALL=[];s.forEach(d=>{const v=d.data();RKA_ALL.push({...v,timestamp:v.timestamp?v.timestamp.toDate():new Date()});});
-    render();
+    buildMonthOpts();render();
   });
   db.collection('beli_logs').orderBy('timestamp','desc').limit(2000).onSnapshot(s=>{
     BELI_ALL=[];s.forEach(d=>{const v=d.data();BELI_ALL.push({...v,timestamp:v.timestamp?v.timestamp.toDate():new Date()});});
-    render();
+    buildMonthOpts();render();
   });
 }
+function buildMonthOpts(){
+  const ms=new Set([...RKA_ALL,...BELI_ALL].map(r=>{const d=r.timestamp;return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;}));
+  const container=document.getElementById('f-month-pills');
+  container.innerHTML='';
+  // "Semua" pill
+  const all=document.createElement('div');
+  all.className='pill'+(MF===''?' on':'');
+  all.textContent='Semua';
+  all.onclick=()=>{MF='';DF='today';NM=0;document.querySelectorAll('.pill[data-f],.pill[data-mn]').forEach(p=>p.classList.remove('on'));buildMonthOpts();render();};
+  container.appendChild(all);
+  [...ms].sort().reverse().forEach(m=>{
+    const[y,mo]=m.split('-');
+    const label=new Date(+y,+mo-1,1).toLocaleDateString('id-ID',{month:'short',year:'numeric'});
+    const p=document.createElement('div');
+    p.className='pill'+(MF===m?' on':'');
+    p.textContent=label;
+    p.onclick=()=>setMonthFilter(m);
+    container.appendChild(p);
+  });
+}
+
 // ── FILTERS ─────────────────────────────────────────────────────────────────
 function getCutoff(){
   const now=new Date();
@@ -471,7 +493,7 @@ function getCutoff(){
 function setDateFilter(f,el){
   DF=f;NM=0;MF='';
   document.querySelectorAll('.pill[data-f]').forEach(p=>p.classList.remove('on'));
-  document.querySelectorAll('.mpill').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.pill[data-mn]').forEach(p=>p.classList.remove('on'));
   el.classList.add('on');render();
 }
 function setMonthPill(mo){
@@ -481,13 +503,37 @@ function setMonthPill(mo){
   document.querySelectorAll('.mpill').forEach(p=>p.classList.toggle('on',+p.dataset.mo===mo));
   render();
 }
+function setMonthFilter(m){
+  MF=m;DF='';NM=0;
+  document.querySelectorAll('.pill[data-f],.pill[data-mn]').forEach(p=>p.classList.remove('on'));
+  buildMonthOpts();
+  render();
+}
 function clearFilters(){
   DF='today';NM=0;MF='';
   ['f-area','f-mds','f-store'].forEach(id=>document.getElementById(id).value='');
-  document.querySelectorAll('.pill[data-f],.mpill').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.pill[data-f],.pill[data-mn]').forEach(p=>p.classList.remove('on'));
   document.querySelector('[data-f="today"]').classList.add('on');
   render();
 }
+function filtered(data){
+  const cutoff=getCutoff();
+  const fa=document.getElementById('f-area').value.toLowerCase();
+  const fm=document.getElementById('f-mds').value.toLowerCase();
+  const fs=document.getElementById('f-store').value.toLowerCase();
+  return data.filter(r=>{
+    const ts=r.timestamp;
+    if(MF){const k=`${ts.getFullYear()}-${String(ts.getMonth()+1).padStart(2,'0')}`;if(k!==MF)return false;}
+    else{if(ts<cutoff)return false;}
+    if(fa&&!(r.area||'').toLowerCase().includes(fa))return false;
+    if(fm&&!(r.mds||'').toLowerCase().includes(fm))return false;
+    if(fs&&!(r.store||'').toLowerCase().includes(fs))return false;
+    return true;
+  });
+}
+
+// ── SORT ─────────────────────────────────────────────────────────────────────
+function sortBy(c){if(SC===c)SD*=-1;else{SC=c;SD=-1;}render();}
 function doSort(data){
   return[...data].sort((a,b)=>{
     let av=a[SC],bv=b[SC];
@@ -585,22 +631,11 @@ function switchTab(t){
 function switchSubTab(main,sub){
   if(main==='rka'){
     SUBTAB_RKA=sub;
-    ['log','store'].forEach(s=>{
-      const el=document.getElementById('stab-rka-'+s);
-      if(el)el.classList.toggle('on',s===sub);
-    });
+    ['log','store'].forEach(s=>{const el=document.getElementById('stab-rka-'+s);if(el)el.classList.toggle('on',s===sub);});
   }else{
     SUBTAB_BELI=sub;
-    ['log','analisis'].forEach(s=>{
-      const el=document.getElementById('stab-beli-'+s);
-      if(el)el.classList.toggle('on',s===sub);
-    });
+    ['log','analisis'].forEach(s=>{const el=document.getElementById('stab-beli-'+s);if(el)el.classList.toggle('on',s===sub);});
   }
-  render();
-});
-  const isRka=['rka','store'].includes(t);
-  document.getElementById('dash-rka').style.display=isRka?'grid':'none';
-  document.getElementById('dash-beli').style.display=isRka?'none':'block';
   render();
 }
 
@@ -621,8 +656,8 @@ function render(){
   buildCharts(rkaF,beliF);
   buildSpotlight(rkaF,beliF);
 
-  document.getElementById('nb-rka').textContent=rkaF.length||'—';
-  document.getElementById('nb-beli').textContent=beliF.length||'—';
+  const nbRka=document.getElementById('nb-rka');if(nbRka)nbRka.textContent=rkaF.length||'—';
+  const nbBeli=document.getElementById('nb-beli');if(nbBeli)nbBeli.textContent=beliF.length||'—';
   if(TAB==='rka'){
     if(SUBTAB_RKA==='log')renderRKA(rkaF);
     else renderStore(rkaF);
@@ -635,7 +670,7 @@ function render(){
 // ── TAB: Visit RKA ─────────────────────────────────────────────────────────
 function renderRKA(rkaF){
   const rows=doSort(rkaF);
-  document.getElementById(TAB==='rka'?'table-head-rka':'table-head-beli').innerHTML=`<tr>
+  document.getElementById('table-head').innerHTML=`<tr>
     <th onclick="sortBy('id')">ID${ar('id')}</th>
     <th onclick="sortBy('timestamp')">Waktu${ar('timestamp')}</th>
     <th onclick="sortBy('mds')">MDS${ar('mds')}</th>
@@ -645,7 +680,7 @@ function renderRKA(rkaF){
     <th onclick="sortBy('unavail')">Tdk${ar('unavail')}</th>
     <th>AV%</th><th>NS AV</th><th>HILO AV</th><th>TS AV</th>
   </tr>`;
-  document.getElementById(TAB==='rka'?'table-body-rka':'table-body-beli').innerHTML=rows.length?rows.map(r=>{
+  document.getElementById('table-body').innerHTML=rows.length?rows.map(r=>{
     const pct=r.avail+r.unavail>0?Math.round(r.avail/(r.avail+r.unavail)*100):0;
     const ts=r.timestamp;
     const bav={NS:{a:0,t:0},HILO:{a:0,t:0},TS:{a:0,t:0}};
@@ -663,7 +698,7 @@ function renderRKA(rkaF){
       <td>${bTag('NS')}</td><td>${bTag('HILO')}</td><td>${bTag('TS')}</td>
     </tr>`;
   }).join(''):`<tr><td colspan="11"><div class="empty-state">Tidak ada data kunjungan.</div></td></tr>`;
-  document.getElementById(TAB==='rka'?'tfoot-rka':'tfoot-beli').textContent=`${rows.length} kunjungan`;
+  document.getElementById('tfoot').textContent=`${rows.length} kunjungan`;
 }
 
 // ── TAB: AV per Toko ───────────────────────────────────────────────────────
@@ -681,14 +716,14 @@ function renderStore(rkaF){
   let rows=Object.values(st).map(v=>({...v,pct:v.a+v.u>0?Math.round(v.a/(v.a+v.u)*100):0}));
   rows.sort((a,b)=>b.pct-a.pct);
 
-  document.getElementById(TAB==='rka'?'table-head-rka':'table-head-beli').innerHTML=`<tr>
+  document.getElementById('table-head').innerHTML=`<tr>
     <th onclick="sortBy('store')">Toko${ar('store')}</th>
     <th onclick="sortBy('area')">Area${ar('area')}</th>
     <th onclick="sortBy('visits')">Visit${ar('visits')}</th>
     <th>AV% Total</th><th>Bar</th>
     <th>NS AV%</th><th>HILO AV%</th><th>TS AV%</th><th>Status</th>
   </tr>`;
-  document.getElementById(TAB==='rka'?'table-body-rka':'table-body-beli').innerHTML=rows.length?rows.map(e=>{
+  document.getElementById('table-body').innerHTML=rows.length?rows.map(e=>{
     function bCell(k){
       const d=e[k];if(!d||!d.t)return'<td><span class="tag b sm">—</span></td>';
       const p=Math.round(d.a/d.t*100);
@@ -705,13 +740,13 @@ function renderStore(rkaF){
       <td>${s}</td>
     </tr>`;
   }).join(''):`<tr><td colspan="9"><div class="empty-state">Tidak ada data toko.</div></td></tr>`;
-  document.getElementById(TAB==='rka'?'tfoot-rka':'tfoot-beli').textContent=`${rows.length} toko`;
+  document.getElementById('tfoot').textContent=`${rows.length} toko`;
 }
 
 // ── TAB: Beli Barang ────────────────────────────────────────────────────────
 function renderBeli(beliF){
   const rows=doSort(beliF);
-  document.getElementById(TAB==='rka'?'table-head-rka':'table-head-beli').innerHTML=`<tr>
+  document.getElementById('table-head').innerHTML=`<tr>
     <th onclick="sortBy('id')">ID${ar('id')}</th>
     <th onclick="sortBy('timestamp')">Waktu${ar('timestamp')}</th>
     <th onclick="sortBy('mds')">MDS${ar('mds')}</th>
@@ -723,7 +758,7 @@ function renderBeli(beliF){
     <th onclick="sortBy('nominal')">Nota${ar('nominal')}</th>
     <th>Selisih</th>
   </tr>`;
-  document.getElementById(TAB==='rka'?'table-body-rka':'table-body-beli').innerHTML=rows.length?rows.map(r=>{
+  document.getElementById('table-body').innerHTML=rows.length?rows.map(r=>{
     const ts=r.timestamp;
     const nsR=r.groupTotals&&r.groupTotals.NS||0;
     const hiR=r.groupTotals&&r.groupTotals.HILO||0;
@@ -744,7 +779,7 @@ function renderBeli(beliF){
       <td>${dTag}</td>
     </tr>`;
   }).join(''):`<tr><td colspan="11"><div class="empty-state">Tidak ada data pembelian.</div></td></tr>`;
-  document.getElementById(TAB==='rka'?'tfoot-rka':'tfoot-beli').textContent=`${rows.length} transaksi`;
+  document.getElementById('tfoot').textContent=`${rows.length} transaksi`;
 }
 
 // ── TAB: Analisis Beli MDS ──────────────────────────────────────────────────
@@ -772,7 +807,7 @@ function renderAnalisis(rkaF,beliF){
   let entries=Object.values(mds).map(v=>({...v,storesCnt:v.stores.size,av:v.t?Math.round(v.a/v.t*100):null,k:v.ns*NS_PRICE+v.hi*HILO_PRICE,tdays:Math.floor((new Date()-v.fd)/864e5)}));
   entries.sort((a,b)=>b.visits-a.visits);
 
-  document.getElementById(TAB==='rka'?'table-head-rka':'table-head-beli').innerHTML=`<tr>
+  document.getElementById('table-head').innerHTML=`<tr>
     <th onclick="sortBy('name')">MDS${ar('name')}</th>
     <th>Area</th>
     <th onclick="sortBy('tdays')">Aktif Sejak${ar('tdays')}</th>
@@ -785,7 +820,7 @@ function renderAnalisis(rkaF,beliF){
     <th>Selisih</th>
     <th onclick="sortBy('beli')">Transaksi${ar('beli')}</th>
   </tr>`;
-  document.getElementById(TAB==='rka'?'table-body-rka':'table-body-beli').innerHTML=entries.length?entries.map(e=>{
+  document.getElementById('table-body').innerHTML=entries.length?entries.map(e=>{
     const avL=e.av!==null?avTag(e.av,' sm'):'<span class="tag b sm">—</span>';
     const diff=e.k-e.nom;
     const dTag=diff===0?'<span class="tag t sm">0</span>':diff>0?`<span class="tag g sm">+${rp(diff)}</span>`:`<span class="tag r sm">${rp(diff)}</span>`;
@@ -804,7 +839,7 @@ function renderAnalisis(rkaF,beliF){
       <td><span class="tag p sm">${e.beli}</span></td>
     </tr>`;
   }).join(''):`<tr><td colspan="11"><div class="empty-state">Tidak ada data MDS.</div></td></tr>`;
-  document.getElementById(TAB==='rka'?'tfoot-rka':'tfoot-beli').textContent=`${entries.length} MDS — klik untuk detail modal`;
+  document.getElementById('tfoot').textContent=`${entries.length} MDS — klik untuk detail modal`;
 }
 
 // ── TAB: Evaluasi MDS ───────────────────────────────────────────────────────
@@ -814,12 +849,12 @@ function renderEval(rkaF,beliF){
   beliF.forEach(r=>{const m=r.mds||'—';if(!mds[m])mds[m]={name:m,area:r.area||'—',v:0,a:0,t:0,nom:0,stores:new Set()};mds[m].nom+=(r.nominal||0);mds[m].stores.add(r.store||'?');});
   const rows=Object.values(mds).map(v=>({...v,sc:v.stores.size,av:v.t?Math.round(v.a/v.t*100):null})).sort((a,b)=>b.v-a.v);
 
-  document.getElementById(TAB==='rka'?'table-head-rka':'table-head-beli').innerHTML=`<tr>
+  document.getElementById('table-head').innerHTML=`<tr>
     <th>MDS</th><th>Area</th>
     <th onclick="sortBy('v')">Visit${ar('v')}</th><th>Toko</th>
     <th>AV%</th><th>Bar</th><th>Total Beli</th><th>Status</th>
   </tr>`;
-  document.getElementById(TAB==='rka'?'table-body-rka':'table-body-beli').innerHTML=rows.length?rows.map(e=>{
+  document.getElementById('table-body').innerHTML=rows.length?rows.map(e=>{
     const avL=e.av!==null?avTag(e.av,' sm'):'<span class="tag b sm">—</span>';
     const bw=e.av||0;
     const s=e.av===null?'<span class="tag b sm">No Data</span>':e.av>=80?'<span class="tag g sm">✓ Baik</span>':e.av>=60?'<span class="tag b sm">~ Cukup</span>':'<span class="tag r sm">⚠ Perhatian</span>';
@@ -832,7 +867,7 @@ function renderEval(rkaF,beliF){
       <td>${s}</td>
     </tr>`;
   }).join(''):`<tr><td colspan="8"><div class="empty-state">Tidak ada data.</div></td></tr>`;
-  document.getElementById(TAB==='rka'?'tfoot-rka':'tfoot-beli').textContent=`${rows.length} MDS — klik untuk detail`;
+  document.getElementById('tfoot').textContent=`${rows.length} MDS — klik untuk detail`;
 }
 
 // ── MODAL ────────────────────────────────────────────────────────────────────
