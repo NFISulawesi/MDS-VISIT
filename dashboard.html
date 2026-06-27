@@ -316,7 +316,7 @@ tr:hover td{background:rgba(255,255,255,.016);}
             <div class="kpi-glow" style="background:radial-gradient(circle at 100% 0%,var(--pink),transparent 70%)"></div>
             <div class="kpi-label">Kalkulasi Nominal</div>
             <div class="kpi-val sm" style="color:var(--pink)" id="ds-kalc">—</div>
-            <div class="kpi-sub">NS×11.250 + HILO×17.000</div>
+            <div class="kpi-sub">NS×11.250 + HILO×16.000 + HILOPLS×31.500</div>
           </div>
         </div>
       </div>
@@ -401,7 +401,7 @@ tr:hover td{background:rgba(255,255,255,.016);}
 <script>
 
 const DASH_PIN='NFI2026';
-const NS_PRICE=11250, HILO_PRICE=17000;
+const NS_PRICE=11250, HILO_PRICE=16000, HILOPLS_PRICE=31500;
 // NS items to spotlight (partial match is fine)
 const NS_JP_KEY  = 'NS JERUK PERAS PLS';
 const NS_ASO_KEY = 'NS AMERICAN SWEET ORANGE PLS';
@@ -437,7 +437,7 @@ function brandOf(n){
 }
 function isJP(n){return n&&n.toUpperCase().includes('NS JERUK PERAS PLS');}
 function isASO(n){return n&&n.toUpperCase().includes('NS AMERICAN SWEET ORANGE PLS');}
-function kalc(r){return((r.groupTotals&&r.groupTotals.NS||0)*NS_PRICE)+((r.groupTotals&&r.groupTotals.HILO||0)*HILO_PRICE);}
+function kalc(r){return((r.groupTotals&&r.groupTotals.NS||0)*NS_PRICE)+((r.groupTotals&&r.groupTotals.HILO||0)*HILO_PRICE)+((r.groupTotals&&r.groupTotals.HILOPLS||0)*HILOPLS_PRICE);}
 function rp(n){return'Rp '+Math.round(n).toLocaleString('id-ID');}
 function sn(n){const p=n.split(' ');return p.length>=2?p.slice(0,2).join(' '):n;}
 function avC(p){return p>=80?'var(--accent)':p>=60?'var(--blue)':'var(--red)';}
@@ -657,9 +657,10 @@ function render(){
   document.getElementById('ds-av').textContent=totI?Math.round(totA/totI*100)+'%':'—';
   const totNS=beliF.reduce((s,r)=>s+(r.groupTotals&&r.groupTotals.NS||0),0);
   const totHI=beliF.reduce((s,r)=>s+(r.groupTotals&&r.groupTotals.HILO||0),0);
+  const totHILOPLS=beliF.reduce((s,r)=>s+(r.groupTotals&&r.groupTotals.HILOPLS||0),0);
   document.getElementById('ds-ns').textContent=totNS||'—';
-  document.getElementById('ds-hilo').textContent=totHI||'—';
-  const k=totNS*NS_PRICE+totHI*HILO_PRICE;
+  document.getElementById('ds-hilo').textContent=(totHI+totHILOPLS)||'—';
+  const k=totNS*NS_PRICE+totHI*HILO_PRICE+totHILOPLS*HILOPLS_PRICE;
   document.getElementById('ds-kalc').textContent=k?rp(k):'—';
 
   buildCharts(rkaF,beliF);
