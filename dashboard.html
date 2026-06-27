@@ -80,6 +80,9 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 .pill{padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--t3);font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;transition:all .25s var(--ease);white-space:nowrap;}
 .pill:hover:not(.on){border-color:var(--border2);color:var(--t2);}
 .pill.on{background:linear-gradient(135deg,var(--violet),#6D28D9);border-color:var(--violet);color:#fff;font-weight:700;box-shadow:0 2px 12px rgba(139,92,246,.22);}
+.month-sel{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:20px;padding:4px 28px 4px 12px;color:var(--t2);font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237A88B0' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;transition:all .25s;}
+.month-sel:focus,.month-sel:hover{border-color:var(--border2);color:var(--t1);}
+.month-sel option{background:#0a0a1e;color:var(--t1);}
 .fi{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;padding:5px 11px;color:var(--t1);font-family:inherit;font-size:11px;outline:none;transition:all .25s var(--ease);}
 .fi:focus{border-color:rgba(139,92,246,.4);background:rgba(139,92,246,.03);}
 .fi::placeholder{color:var(--t3);}
@@ -221,20 +224,21 @@ tr:hover td{background:rgba(255,255,255,.016);}
       </div>
       <div class="fsep"></div>
       <span class="fl">Bulan</span>
-      <div class="pills">
-        <div class="pill mpill" data-mo="1" onclick="setMonthPill(1)">Jan</div>
-        <div class="pill mpill" data-mo="2" onclick="setMonthPill(2)">Feb</div>
-        <div class="pill mpill" data-mo="3" onclick="setMonthPill(3)">Mar</div>
-        <div class="pill mpill" data-mo="4" onclick="setMonthPill(4)">Apr</div>
-        <div class="pill mpill" data-mo="5" onclick="setMonthPill(5)">Mei</div>
-        <div class="pill mpill" data-mo="6" onclick="setMonthPill(6)">Jun</div>
-        <div class="pill mpill" data-mo="7" onclick="setMonthPill(7)">Jul</div>
-        <div class="pill mpill" data-mo="8" onclick="setMonthPill(8)">Agu</div>
-        <div class="pill mpill" data-mo="9" onclick="setMonthPill(9)">Sep</div>
-        <div class="pill mpill" data-mo="10" onclick="setMonthPill(10)">Okt</div>
-        <div class="pill mpill" data-mo="11" onclick="setMonthPill(11)">Nov</div>
-        <div class="pill mpill" data-mo="12" onclick="setMonthPill(12)">Des</div>
-      </div>
+      <select id="f-month-sel" class="month-sel" onchange="setMonthPill(+this.value||0)">
+        <option value="0">Semua</option>
+        <option value="1">Januari</option>
+        <option value="2">Februari</option>
+        <option value="3">Maret</option>
+        <option value="4">April</option>
+        <option value="5">Mei</option>
+        <option value="6">Juni</option>
+        <option value="7">Juli</option>
+        <option value="8">Agustus</option>
+        <option value="9">September</option>
+        <option value="10">Oktober</option>
+        <option value="11">November</option>
+        <option value="12">Desember</option>
+      </select>
       <div class="fsep"></div>
       <input class="fi" id="f-area" placeholder="Area…" style="width:88px" oninput="render()">
       <input class="fi" id="f-mds" placeholder="MDS…" style="width:100px" oninput="render()">
@@ -497,10 +501,10 @@ function setDateFilter(f,el){
   el.classList.add('on');render();
 }
 function setMonthPill(mo){
+  if(!mo){MF='';render();return;}
   const yr=new Date().getFullYear();
   MF=`${yr}-${String(mo).padStart(2,'0')}`;DF='';NM=0;
   document.querySelectorAll('.pill[data-f]').forEach(p=>p.classList.remove('on'));
-  document.querySelectorAll('.mpill').forEach(p=>p.classList.toggle('on',+p.dataset.mo===mo));
   render();
 }
 function setMonthFilter(m){
