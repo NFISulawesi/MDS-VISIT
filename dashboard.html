@@ -560,8 +560,8 @@ tr:hover td{background:rgba(255,255,255,.014);}
       <button class="exp-btn" onclick="exportCSV()">↓ Export CSV</button>
     </div></div>
 
-    <!-- CHARTS -->
-    <div class="charts-row">
+    <!-- CHARTS — Visit RKA Dashboard (shown on rka + store tabs) -->
+    <div id="dash-rka" class="charts-row" style="grid-template-columns:1.5fr 1fr">
       <div class="chart-shell"><div class="chart-inner">
         <div class="ch-label">AV% per MDS — Top 10</div>
         <div class="ch-wrap"><canvas id="chart-av"></canvas></div>
@@ -570,48 +570,53 @@ tr:hover td{background:rgba(255,255,255,.014);}
         <div class="ch-label">Trend Kunjungan Harian</div>
         <div class="ch-wrap"><canvas id="chart-trend"></canvas></div>
       </div></div>
-      <div class="chart-shell"><div class="chart-inner">
-        <div class="ch-label">NS vs HILO Renceng per MDS</div>
-        <div class="ch-legend">
-          <div class="ch-leg-item"><div class="ch-dot" style="background:var(--blue)"></div>NS</div>
-          <div class="ch-leg-item"><div class="ch-dot" style="background:var(--gold)"></div>HILO</div>
-        </div>
-        <div class="ch-wrap" style="height:140px"><canvas id="chart-brand"></canvas></div>
-      </div></div>
     </div>
 
-    <!-- NS SPOTLIGHT -->
-    <div class="spotlight-shell" id="ns-spotlight-shell"><div class="spotlight-inner">
-      <div class="sp-header">
-        <div class="sp-badge">NS Item Spotlight</div>
-        <div class="sp-title">Beli Barang: NS ASO & NS Jeruk Peras — Total Renceng Terjual</div>
+    <!-- CHARTS — Beli Barang Dashboard (shown on beli + analisis + eval tabs) -->
+    <div id="dash-beli" style="display:none">
+      <div class="charts-row" style="grid-template-columns:1fr;margin-bottom:12px">
+        <div class="chart-shell"><div class="chart-inner">
+          <div class="ch-label">NS vs HILO Renceng per MDS</div>
+          <div class="ch-legend">
+            <div class="ch-leg-item"><div class="ch-dot" style="background:var(--blue)"></div>NS</div>
+            <div class="ch-leg-item"><div class="ch-dot" style="background:var(--gold)"></div>HILO</div>
+          </div>
+          <div class="ch-wrap" style="height:140px"><canvas id="chart-brand"></canvas></div>
+        </div></div>
       </div>
-      <div class="sp-grid">
-        <div class="sp-item" id="sp-jp">
-          <div class="sp-item-name">NS Jeruk Peras PLS</div>
-          <div class="sp-pct" id="sp-jp-pct" style="color:var(--accent)">—</div>
-          <div class="sp-bar-bg"><div class="sp-bar-fill" id="sp-jp-bar" style="background:var(--accent);width:0%"></div></div>
-          <div style="font-size:9px;color:var(--t3);margin-top:2px" id="sp-jp-count">—</div>
+      <!-- NS SPOTLIGHT -->
+      <div class="spotlight-shell" id="ns-spotlight-shell"><div class="spotlight-inner">
+        <div class="sp-header">
+          <div class="sp-badge">NS Item Spotlight</div>
+          <div class="sp-title">Beli Barang: NS ASO & NS Jeruk Peras — Total Renceng Terjual</div>
         </div>
-        <div class="sp-item" id="sp-aso">
-          <div class="sp-item-name">NS ASO PLS</div>
-          <div class="sp-pct" id="sp-aso-pct" style="color:var(--blue)">—</div>
-          <div class="sp-bar-bg"><div class="sp-bar-fill" id="sp-aso-bar" style="background:var(--blue);width:0%"></div></div>
-          <div style="font-size:9px;color:var(--t3);margin-top:2px" id="sp-aso-count">—</div>
+        <div class="sp-grid">
+          <div class="sp-item" id="sp-jp">
+            <div class="sp-item-name">NS Jeruk Peras PLS</div>
+            <div class="sp-pct" id="sp-jp-pct" style="color:var(--accent)">—</div>
+            <div class="sp-bar-bg"><div class="sp-bar-fill" id="sp-jp-bar" style="background:var(--accent);width:0%"></div></div>
+            <div style="font-size:9px;color:var(--t3);margin-top:2px" id="sp-jp-count">—</div>
+          </div>
+          <div class="sp-item" id="sp-aso">
+            <div class="sp-item-name">NS ASO PLS</div>
+            <div class="sp-pct" id="sp-aso-pct" style="color:var(--blue)">—</div>
+            <div class="sp-bar-bg"><div class="sp-bar-fill" id="sp-aso-bar" style="background:var(--blue);width:0%"></div></div>
+            <div style="font-size:9px;color:var(--t3);margin-top:2px" id="sp-aso-count">—</div>
+          </div>
+          <div class="sp-item" id="sp-other">
+            <div class="sp-item-name">Total NS Renceng</div>
+            <div class="sp-pct" id="sp-other-pct" style="color:var(--gold)">—</div>
+            <div class="sp-bar-bg"><div class="sp-bar-fill" id="sp-other-bar" style="background:var(--gold);width:0%"></div></div>
+            <div style="font-size:9px;color:var(--t3);margin-top:2px" id="sp-other-count">—</div>
+          </div>
+          <div class="sp-note">
+            Data dari <strong id="sp-visits">—</strong> transaksi Beli Barang.<br>
+            Berdasarkan qty item dari beli_logs<br>
+            (field <code>itemQty</code>).
+          </div>
         </div>
-        <div class="sp-item" id="sp-other">
-          <div class="sp-item-name">Total NS Renceng</div>
-          <div class="sp-pct" id="sp-other-pct" style="color:var(--gold)">—</div>
-          <div class="sp-bar-bg"><div class="sp-bar-fill" id="sp-other-bar" style="background:var(--gold);width:0%"></div></div>
-          <div style="font-size:9px;color:var(--t3);margin-top:2px" id="sp-other-count">—</div>
-        </div>
-        <div class="sp-note">
-          Data dari <strong id="sp-visits">—</strong> transaksi Beli Barang.<br>
-          Berdasarkan qty item dari beli_logs<br>
-          (field <code>itemQty</code>).
-        </div>
-      </div>
-    </div></div>
+      </div></div>
+    </div>
 
     <!-- DATA PANEL -->
     <div class="panel-shell">
@@ -901,6 +906,9 @@ function switchTab(t){
   ['rka','store','beli','analisis','eval'].forEach(x=>{
     const el=document.getElementById('ptab-'+x);if(el)el.classList.toggle('on',x===t);
   });
+  const isRka=['rka','store'].includes(t);
+  document.getElementById('dash-rka').style.display=isRka?'grid':'none';
+  document.getElementById('dash-beli').style.display=isRka?'none':'block';
   render();
 }
 
