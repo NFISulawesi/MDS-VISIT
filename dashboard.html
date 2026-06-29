@@ -211,7 +211,6 @@ tr:hover td{background:rgba(255,255,255,.016);}
     <div class="tb-right">
       <div class="live-pill"><div class="live-dot"></div>Live</div>
       <div class="tb-date" id="tb-date"></div>
-      <div style="font-size:9px;color:var(--t3);opacity:.5">v5</div>
     </div>
   </div>
   <div class="main-nav">
@@ -386,7 +385,6 @@ tr:hover td{background:rgba(255,255,255,.016);}
         <div class="sub-tab stock" id="stab-stock-item" onclick="switchSubTab('stock','item')">📦 Detail per Toko</div>
       </div>
       <div class="panel-shell"><div class="panel-body">
-        <div id="stk-debug" style="font-size:10px;color:#F59E0B;padding:4px 8px;font-family:monospace;opacity:.7"></div>
         <table><thead id="table-head-stock"></thead><tbody id="table-body-stock"></tbody></table>
         <div class="tfoot-row" id="tfoot-stock"></div>
       </div></div>
@@ -444,7 +442,6 @@ function checkPin(){
   if(document.getElementById('pin-input').value===DASH_PIN){
     document.getElementById('pin-screen').classList.add('hidden');
     document.getElementById('app').classList.add('visible');
-    alert('DB status: '+(typeof db)+' | firebase: '+(typeof firebase));
     initDash();
   }else{
     document.getElementById('pin-err').textContent='PIN salah, coba lagi.';
@@ -478,16 +475,8 @@ function tenure(d){
 }
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
-function restTest(){
-  const url='https://firestore.googleapis.com/v1/projects/mds-visit/databases/(default)/documents/stock_logs?key=AIzaSyCtYc8uZICLzQrA1b7l00Yo_9V_rqNVOu0';
-  fetch(url).then(r=>r.json()).then(d=>{
-    const cnt=(d.documents||[]).length;
-    alert('REST: '+cnt+' docs\n'+JSON.stringify(d).substring(0,300));
-  }).catch(e=>alert('REST ERROR: '+e.message));
-}
 function loadAll(){
   if(!db){console.error('loadAll: db undefined');return;}
-  restTest();
   const SRV={source:'server'};
   db.collection('rka_logs').orderBy('timestamp','desc').limit(2000).get(SRV).then(s=>{
     RKA_ALL=[];s.forEach(d=>{const v=d.data();RKA_ALL.push({...v,timestamp:v.timestamp?v.timestamp.toDate():new Date()});});
@@ -501,14 +490,8 @@ function loadAll(){
     STOCK_ALL=[];s.forEach(d=>{const v=d.data();STOCK_ALL.push({...v,timestamp:v.timestamp?v.timestamp.toDate():new Date()});});
     STOCK_ALL.sort((a,b)=>b.timestamp-a.timestamp);
     console.log('[stock_logs] GET loaded',STOCK_ALL.length,'docs');
-    const dbg=document.getElementById('stk-debug');
-    if(dbg)dbg.textContent='GET result: '+STOCK_ALL.length+' docs | STOCK_ALL[0]: '+JSON.stringify(STOCK_ALL[0]||null).substring(0,80);
     render();
-  }).catch(e=>{
-    console.error('stock_logs get failed',e.code,e.message);
-    const dbg=document.getElementById('stk-debug');
-    if(dbg)dbg.textContent='GET ERROR: '+e.code+' — '+e.message;
-  });
+  }).catch(e=>console.error('stock_logs get failed',e.code,e.message));
 }
 function initDash(){
   switchTab('rka');
@@ -772,9 +755,6 @@ function filteredStock(){
   });
 }
 function renderStockLog(stockF){
-  // debug
-  const dbg=document.getElementById('stk-debug');
-  if(dbg)dbg.textContent='DB:'+(typeof db!=='undefined'?'ok':'MISSING')+' | STOCK_ALL:'+STOCK_ALL.length+' | filtered:'+stockF.length+' | DF:'+DF+' | cut:'+getCutoff().toISOString();
   const awal=stockF.filter(r=>r.stockType==='awal').length;
   const akhir=stockF.filter(r=>r.stockType==='akhir').length;
   const totalNilai=stockF.reduce((s,r)=>s+(r.totalNilai||0),0);
