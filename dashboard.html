@@ -1103,6 +1103,14 @@ function openMDS(name){
     const col=pct>=40?'var(--accent)':pct>=20?'var(--gold)':'var(--blue)';
     return`<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px"><span style="font-size:10px;color:var(--t2);font-weight:600">${label}</span><span style="font-size:13px;font-weight:800;color:${col}">${qty}<span style="font-size:9px;color:var(--t3);font-weight:500"> renceng (${pct}%)</span></span></div><div style="height:5px;background:var(--border);border-radius:4px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${col};border-radius:4px"></div></div></div>`;
   }
+  // Create NS beli section dynamically if not in HTML (cache-proof)
+  if(!document.getElementById('modal-ns-beli-sec')){
+    const sec=document.createElement('div');
+    sec.className='msec'; sec.id='modal-ns-beli-sec';
+    sec.innerHTML='<div class="msec-title">Rincian Pembelian NS</div><div id="modal-ns-beli-bars" style="padding-top:4px"></div>';
+    const mb=document.querySelector('.modal-body');
+    if(mb) mb.insertBefore(sec,mb.firstChild);
+  }
   document.getElementById('modal-ns-beli-bars').innerHTML=totalBQ
     ?beliNsBar('NS Jeruk Peras PLS',jpBQ,totalBQ)+beliNsBar('NS ASO PLS',asoBQ,totalBQ)+beliNsBar('NS Lainnya',otherBQ,totalBQ)
     :'<div style="color:var(--t3);font-size:11px;padding:8px 0">Belum ada data pembelian NS per item</div>';
