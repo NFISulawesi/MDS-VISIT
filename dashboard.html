@@ -507,15 +507,18 @@ function initDash(){
   document.getElementById('tb-date').textContent=new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   loadAll();
   setInterval(loadAll,30000);
-  db.collection('rka_logs').orderBy('timestamp','desc').limit(2000).onSnapshot(s=>{
+  db.collection('rka_logs').orderBy('timestamp','desc').limit(2000).onSnapshot({includeMetadataChanges:true},s=>{
+    if(s.metadata.fromCache)return;
     RKA_ALL=[];s.forEach(d=>{const v=d.data();RKA_ALL.push({...v,timestamp:v.timestamp?v.timestamp.toDate():new Date()});});
     buildMonthOpts();render();
   },e=>console.error('rka snap err',e));
-  db.collection('beli_logs').orderBy('timestamp','desc').limit(2000).onSnapshot(s=>{
+  db.collection('beli_logs').orderBy('timestamp','desc').limit(2000).onSnapshot({includeMetadataChanges:true},s=>{
+    if(s.metadata.fromCache)return;
     BELI_ALL=[];s.forEach(d=>{const v=d.data();BELI_ALL.push({...v,timestamp:v.timestamp?v.timestamp.toDate():new Date()});});
     buildMonthOpts();render();
   },e=>console.error('beli snap err',e));
-  db.collection('stock_logs').limit(2000).onSnapshot(s=>{
+  db.collection('stock_logs').limit(2000).onSnapshot({includeMetadataChanges:true},s=>{
+    if(s.metadata.fromCache)return;
     STOCK_ALL=[];s.forEach(d=>{const v=d.data();STOCK_ALL.push({...v,timestamp:v.timestamp?v.timestamp.toDate():new Date()});});
     STOCK_ALL.sort((a,b)=>b.timestamp-a.timestamp);
     console.log('[stock_logs] SNAP loaded',STOCK_ALL.length,'docs');
