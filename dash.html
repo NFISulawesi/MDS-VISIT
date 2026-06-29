@@ -1,3 +1,7 @@
 <!DOCTYPE html><html><head><title>MDS Visit</title>
-<script>location.replace('dashboard.html?v='+Date.now());</script>
-</head><body></body></html>
+<script>
+fetch('dashboard.html',{cache:'no-store'})
+  .then(r=>r.text())
+  .then(html=>{document.open();document.write(html);document.close();});
+</script>
+</head><body style="background:#04050a;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0">Loading MDS Visit...</body></html>
