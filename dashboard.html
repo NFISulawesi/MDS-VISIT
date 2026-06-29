@@ -480,20 +480,27 @@ function tenure(d){
 // ── INIT ─────────────────────────────────────────────────────────────────────
 function loadAll(){
   if(!db){console.error('loadAll: db undefined');return;}
-  db.collection('rka_logs').orderBy('timestamp','desc').limit(2000).get().then(s=>{
+  const SRV={source:'server'};
+  db.collection('rka_logs').orderBy('timestamp','desc').limit(2000).get(SRV).then(s=>{
     RKA_ALL=[];s.forEach(d=>{const v=d.data();RKA_ALL.push({...v,timestamp:v.timestamp?v.timestamp.toDate():new Date()});});
     buildMonthOpts();render();
-  }).catch(e=>console.error('rka_logs get failed',e));
-  db.collection('beli_logs').orderBy('timestamp','desc').limit(2000).get().then(s=>{
+  }).catch(e=>console.error('rka_logs get failed',e.code,e.message));
+  db.collection('beli_logs').orderBy('timestamp','desc').limit(2000).get(SRV).then(s=>{
     BELI_ALL=[];s.forEach(d=>{const v=d.data();BELI_ALL.push({...v,timestamp:v.timestamp?v.timestamp.toDate():new Date()});});
     buildMonthOpts();render();
-  }).catch(e=>console.error('beli_logs get failed',e));
-  db.collection('stock_logs').get().then(s=>{
+  }).catch(e=>console.error('beli_logs get failed',e.code,e.message));
+  db.collection('stock_logs').get(SRV).then(s=>{
     STOCK_ALL=[];s.forEach(d=>{const v=d.data();STOCK_ALL.push({...v,timestamp:v.timestamp?v.timestamp.toDate():new Date()});});
     STOCK_ALL.sort((a,b)=>b.timestamp-a.timestamp);
     console.log('[stock_logs] GET loaded',STOCK_ALL.length,'docs');
+    const dbg=document.getElementById('stk-debug');
+    if(dbg)dbg.textContent='GET result: '+STOCK_ALL.length+' docs | STOCK_ALL[0]: '+JSON.stringify(STOCK_ALL[0]||null).substring(0,80);
     render();
-  }).catch(e=>console.error('stock_logs get failed',e));
+  }).catch(e=>{
+    console.error('stock_logs get failed',e.code,e.message);
+    const dbg=document.getElementById('stk-debug');
+    if(dbg)dbg.textContent='GET ERROR: '+e.code+' — '+e.message;
+  });
 }
 function initDash(){
   switchTab('rka');
