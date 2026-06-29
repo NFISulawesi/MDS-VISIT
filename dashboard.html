@@ -444,6 +444,7 @@ function checkPin(){
   if(document.getElementById('pin-input').value===DASH_PIN){
     document.getElementById('pin-screen').classList.add('hidden');
     document.getElementById('app').classList.add('visible');
+    alert('DB status: '+(typeof db)+' | firebase: '+(typeof firebase));
     initDash();
   }else{
     document.getElementById('pin-err').textContent='PIN salah, coba lagi.';
@@ -478,6 +479,7 @@ function tenure(d){
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
 function loadAll(){
+  if(!db){console.error('loadAll: db undefined');return;}
   db.collection('rka_logs').orderBy('timestamp','desc').limit(2000).get().then(s=>{
     RKA_ALL=[];s.forEach(d=>{const v=d.data();RKA_ALL.push({...v,timestamp:v.timestamp?v.timestamp.toDate():new Date()});});
     buildMonthOpts();render();
