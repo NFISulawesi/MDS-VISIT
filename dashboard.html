@@ -481,10 +481,9 @@ function tenure(d){
 function restTest(){
   const url='https://firestore.googleapis.com/v1/projects/mds-visit/databases/(default)/documents/stock_logs?key=AIzaSyCtYc8uZICLzQrA1b7l00Yo_9V_rqNVOu0';
   fetch(url).then(r=>r.json()).then(d=>{
-    const dbg=document.getElementById('stk-debug');
     const cnt=(d.documents||[]).length;
-    if(dbg)dbg.textContent='REST API: '+cnt+' docs | raw: '+JSON.stringify(d).substring(0,120);
-  }).catch(e=>{const dbg=document.getElementById('stk-debug');if(dbg)dbg.textContent='REST ERROR: '+e.message;});
+    alert('REST: '+cnt+' docs\n'+JSON.stringify(d).substring(0,300));
+  }).catch(e=>alert('REST ERROR: '+e.message));
 }
 function loadAll(){
   if(!db){console.error('loadAll: db undefined');return;}
