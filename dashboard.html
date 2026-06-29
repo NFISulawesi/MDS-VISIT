@@ -67,6 +67,10 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 .nav-tab:hover:not(.on){color:var(--t2);}
 .nav-tab.on.rka{color:var(--green);border-bottom-color:var(--green);}
 .nav-tab.on.beli{color:var(--violet);border-bottom-color:var(--violet);}
+.nav-tab.on.stock{color:var(--amber);border-bottom-color:var(--amber);}
+.nav-tab.on.stock .nav-badge{background:var(--amber-g);color:var(--amber);}
+.sub-tab.on.stock{color:var(--amber);border-bottom-color:var(--amber);}
+.bento-4{grid-template-columns:repeat(4,1fr);}
 .nav-badge{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;border-radius:10px;font-size:9px;font-weight:800;padding:0 6px;transition:all .3s var(--ease);}
 .nav-tab.on.rka .nav-badge{background:var(--green-g);color:var(--green);}
 .nav-tab.on.beli .nav-badge{background:var(--violet-g);color:var(--violet);}
@@ -212,6 +216,7 @@ tr:hover td{background:rgba(255,255,255,.016);}
   <div class="main-nav">
     <div class="nav-tab on rka" id="ntab-rka" onclick="switchTab('rka')">📋 Visit RKA <span class="nav-badge" id="nb-rka">—</span></div>
     <div class="nav-tab beli" id="ntab-beli" onclick="switchTab('beli')">🛒 Beli Barang <span class="nav-badge" id="nb-beli">—</span></div>
+    <div class="nav-tab stock" id="ntab-stock" onclick="switchTab('stock')">📦 Stock Sell Out <span class="nav-badge" id="nb-stock">—</span></div>
   </div>
   <div class="main">
     <div class="filter-shell"><div class="filter-inner">
@@ -366,6 +371,24 @@ tr:hover td{background:rgba(255,255,255,.016);}
         <div class="tfoot-row" id="tfoot-beli"></div>
       </div></div>
     </div>
+
+    <!-- STOCK SELL OUT SECTION -->
+    <div id="sec-stock" style="display:none">
+      <div class="bento bento-4">
+        <div class="kpi-shell"><div class="kpi-border" style="--gc:rgba(245,158,11,.9)"></div><div class="kpi-inner"><div class="kpi-glow" style="background:radial-gradient(circle at 0% 0%,var(--amber),transparent 70%)"></div><div class="kpi-label">Total Entri Stock</div><div class="kpi-val" style="color:var(--amber)" id="ds-stk-total">—</div><div class="kpi-sub">input stock MDS/SPG</div></div></div>
+        <div class="kpi-shell"><div class="kpi-border" style="--gc:rgba(6,182,212,.9)"></div><div class="kpi-inner"><div class="kpi-glow" style="background:radial-gradient(circle at 50% 0%,var(--cyan),transparent 70%)"></div><div class="kpi-label">Stock Awal</div><div class="kpi-val" style="color:var(--cyan)" id="ds-stk-awal">—</div><div class="kpi-sub">entri awal bulan</div></div></div>
+        <div class="kpi-shell"><div class="kpi-border" style="--gc:rgba(16,185,129,.9)"></div><div class="kpi-inner"><div class="kpi-glow" style="background:radial-gradient(circle at 100% 0%,var(--green),transparent 70%)"></div><div class="kpi-label">Stock Akhir</div><div class="kpi-val" style="color:var(--green)" id="ds-stk-akhir">—</div><div class="kpi-sub">entri akhir bulan</div></div></div>
+        <div class="kpi-shell"><div class="kpi-border" style="--gc:rgba(139,92,246,.9)"></div><div class="kpi-inner"><div class="kpi-glow" style="background:radial-gradient(circle at 100% 0%,var(--violet),transparent 70%)"></div><div class="kpi-label">Total Nilai Stock</div><div class="kpi-val sm" style="color:var(--violet)" id="ds-stk-nilai">—</div><div class="kpi-sub">akumulasi totalNilai</div></div></div>
+      </div>
+      <div class="sub-nav">
+        <div class="sub-tab on stock" id="stab-stock-log" onclick="switchSubTab('stock','log')">📋 Riwayat Stock</div>
+        <div class="sub-tab stock" id="stab-stock-item" onclick="switchSubTab('stock','item')">📦 Detail per Toko</div>
+      </div>
+      <div class="panel-shell"><div class="panel-body">
+        <table><thead id="table-head-stock"></thead><tbody id="table-body-stock"></tbody></table>
+        <div class="tfoot-row" id="tfoot-stock"></div>
+      </div></div>
+    </div>
   </div>
 </div>
 
@@ -462,6 +485,10 @@ function initDash(){
   db.collection('beli_logs').orderBy('timestamp','desc').limit(2000).onSnapshot(s=>{
     BELI_ALL=[];s.forEach(d=>{const v=d.data();BELI_ALL.push({...v,timestamp:v.timestamp?v.timestamp.toDate():new Date()});});
     buildMonthOpts();render();
+  });
+  db.collection('stock_logs').orderBy('timestamp','desc').limit(2000).onSnapshot(s=>{
+    STOCK_ALL=[];s.forEach(d=>{const v=d.data();STOCK_ALL.push({...v,timestamp:v.timestamp?v.timestamp.toDate():new Date()});});
+    render();
   });
 }
 function buildMonthOpts(){
@@ -626,21 +653,26 @@ function buildSpotlight(rkaF,beliF){
 }
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
+let STOCK_ALL=[], SUBTAB_STOCK='log';
 let SUBTAB_RKA='log', SUBTAB_BELI='log';
 function switchTab(t){
   TAB=t;
-  ['rka','beli'].forEach(x=>{
+  ['rka','beli','stock'].forEach(x=>{
     const el=document.getElementById('ntab-'+x);
     if(el){el.classList.toggle('on',x===t);el.classList.toggle(x,true);}
   });
   document.getElementById('sec-rka').style.display=t==='rka'?'block':'none';
   document.getElementById('sec-beli').style.display=t==='beli'?'block':'none';
+  const ss=document.getElementById('sec-stock');if(ss)ss.style.display=t==='stock'?'block':'none';
   render();
 }
 function switchSubTab(main,sub){
   if(main==='rka'){
     SUBTAB_RKA=sub;
     ['log','store'].forEach(s=>{const el=document.getElementById('stab-rka-'+s);if(el)el.classList.toggle('on',s===sub);});
+  }else if(main==='stock'){
+    SUBTAB_STOCK=sub;
+    ['log','item'].forEach(s=>{const el=document.getElementById('stab-stock-'+s);if(el)el.classList.toggle('on',s===sub);});
   }else{
     SUBTAB_BELI=sub;
     ['log','analisis'].forEach(s=>{const el=document.getElementById('stab-beli-'+s);if(el)el.classList.toggle('on',s===sub);});
@@ -668,13 +700,103 @@ function render(){
 
   const nbRka=document.getElementById('nb-rka');if(nbRka)nbRka.textContent=rkaF.length||'—';
   const nbBeli=document.getElementById('nb-beli');if(nbBeli)nbBeli.textContent=beliF.length||'—';
+  const stockF=filteredStock();
+  const nbStk=document.getElementById('nb-stock');if(nbStk)nbStk.textContent=stockF.length||'—';
   if(TAB==='rka'){
     if(SUBTAB_RKA==='log')renderRKA(rkaF);
     else renderStore(rkaF);
+  }else if(TAB==='stock'){
+    if(SUBTAB_STOCK==='log')renderStockLog(stockF);
+    else renderStockItem(stockF);
   }else{
     if(SUBTAB_BELI==='log')renderBeli(beliF);
     else renderAnalisis(rkaF,beliF);
   }
+}
+
+// ── STOCK HELPERS ───────────────────────────────────────────────────────────
+function filteredStock(){
+  const area=(document.getElementById('f-area')?.value||'').toLowerCase();
+  const mds=(document.getElementById('f-mds')?.value||'').toLowerCase();
+  const store=(document.getElementById('f-store')?.value||'').toLowerCase();
+  const cut=getCutoff();
+  return STOCK_ALL.filter(r=>{
+    if(r.timestamp<cut)return false;
+    if(MF){const d=r.timestamp;const m=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');if(m!==MF)return false;}
+    if(area&&!((r.area||'').toLowerCase().includes(area)))return false;
+    if(mds&&!((r.nama||'').toLowerCase().includes(mds)))return false;
+    if(store&&!((r.store||'').toLowerCase().includes(store)))return false;
+    return true;
+  });
+}
+function renderStockLog(stockF){
+  const awal=stockF.filter(r=>r.stockType==='awal').length;
+  const akhir=stockF.filter(r=>r.stockType==='akhir').length;
+  const totalNilai=stockF.reduce((s,r)=>s+(r.totalNilai||0),0);
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  set('ds-stk-total',stockF.length||'—');
+  set('ds-stk-awal',awal||'—');
+  set('ds-stk-akhir',akhir||'—');
+  set('ds-stk-nilai',totalNilai?rp(totalNilai):'—');
+  const th=document.getElementById('table-head-stock');
+  const tb=document.getElementById('table-body-stock');
+  const tf=document.getElementById('tfoot-stock');
+  if(!th)return;
+  th.innerHTML='<tr><th>ID</th><th>Waktu</th><th>Nama</th><th>Status</th><th>Area</th><th>Toko</th><th>Tipe</th><th>Item</th><th>Total Nilai</th></tr>';
+  tb.innerHTML=stockF.length?stockF.map(r=>{
+    const ts=r.timestamp;
+    const cnt=r.items?Object.keys(r.items).length:0;
+    const tipeTag=r.stockType==='awal'
+      ?'<span class="tag" style="background:rgba(6,182,212,.15);color:var(--cyan);font-size:9px;padding:2px 8px;border-radius:10px;white-space:nowrap">Awal</span>'
+      :'<span class="tag" style="background:rgba(245,158,11,.15);color:var(--amber);font-size:9px;padding:2px 8px;border-radius:10px;white-space:nowrap">Akhir</span>';
+    return '<tr>'+
+      '<td class="td-id">'+(r.id||'—')+'</td>'+
+      '<td class="td-dim">'+ts.toLocaleDateString('id-ID',{day:'numeric',month:'short'})+' '+ts.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})+'</td>'+
+      '<td class="td-main">'+(r.nama||'—')+'</td>'+
+      '<td class="td-dim">'+(r.status||'—')+'</td>'+
+      '<td class="td-dim">'+(r.area||'—')+'</td>'+
+      '<td class="td-mid">'+(r.store||'—')+'</td>'+
+      '<td>'+tipeTag+'</td>'+
+      '<td><span class="tag b sm">'+cnt+'</span></td>'+
+      '<td class="td-main" style="color:var(--amber)">'+(r.totalNilai?rp(r.totalNilai):'—')+'</td>'+
+    '</tr>';
+  }).join(''):'<tr><td colspan="9" style="text-align:center;color:var(--t3);padding:32px">Belum ada data stock</td></tr>';
+  if(tf)tf.innerHTML=stockF.length?'<span style="color:var(--t3);font-size:11px">'+stockF.length+' entri · Total Nilai: <strong style="color:var(--amber)">'+rp(totalNilai)+'</strong></span>':'';
+}
+function renderStockItem(stockF){
+  // Aggregate items across all entries grouped by store + stockType
+  const map={};
+  stockF.forEach(r=>{
+    const key=(r.store||'?')+' | '+(r.stockType==='awal'?'Awal':'Akhir');
+    if(!map[key])map[key]={store:r.store,tipe:r.stockType,area:r.area,nama:r.nama,items:{},nilai:0,ts:r.timestamp};
+    if(r.items)Object.entries(r.items).forEach(([nm,v])=>{
+      if(!map[key].items[nm])map[key].items[nm]={krt:0,rncg:0};
+      map[key].items[nm].krt+=(v.krt||0);
+      map[key].items[nm].rncg+=(v.rncg||0);
+    });
+    map[key].nilai+=(r.totalNilai||0);
+  });
+  const rows=Object.values(map).sort((a,b)=>b.ts-a.ts);
+  const th=document.getElementById('table-head-stock');
+  const tb=document.getElementById('table-body-stock');
+  const tf=document.getElementById('tfoot-stock');
+  if(!th)return;
+  th.innerHTML='<tr><th>Toko</th><th>Area</th><th>MDS/SPG</th><th>Tipe</th><th>Item Terisi</th><th>Total Nilai</th></tr>';
+  tb.innerHTML=rows.length?rows.map(r=>{
+    const cnt=Object.keys(r.items).length;
+    const tipeTag=r.tipe==='awal'
+      ?'<span class="tag" style="background:rgba(6,182,212,.15);color:var(--cyan);font-size:9px;padding:2px 8px;border-radius:10px">Awal</span>'
+      :'<span class="tag" style="background:rgba(245,158,11,.15);color:var(--amber);font-size:9px;padding:2px 8px;border-radius:10px">Akhir</span>';
+    return '<tr>'+
+      '<td class="td-main">'+(r.store||'—')+'</td>'+
+      '<td class="td-dim">'+(r.area||'—')+'</td>'+
+      '<td class="td-dim">'+(r.nama||'—')+'</td>'+
+      '<td>'+tipeTag+'</td>'+
+      '<td><span class="tag b sm">'+cnt+' item</span></td>'+
+      '<td class="td-main" style="color:var(--amber)">'+(r.nilai?rp(r.nilai):'—')+'</td>'+
+    '</tr>';
+  }).join(''):'<tr><td colspan="6" style="text-align:center;color:var(--t3);padding:32px">Belum ada data</td></tr>';
+  if(tf)tf.innerHTML='';
 }
 
 // ── TAB: Visit RKA ─────────────────────────────────────────────────────────
