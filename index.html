@@ -24604,6 +24604,22 @@ function initBeli(){
   as.innerHTML='<option value="">— Pilih Area —</option>';
   AREAS.forEach(n=>{ const o=document.createElement('option'); o.value=n; o.textContent=n; as.appendChild(o); });
   document.getElementById('beli-store-sel').innerHTML='<option value="">— Pilih Toko —</option>';
+
+  // Pre-fill from last RKA session
+  try{
+    const log=JSON.parse(localStorage.getItem('mds_rka_log')||'[]');
+    if(log.length){
+      const last=log[log.length-1];
+      if(last.area){ as.value=last.area; beliFillMds(); }
+      if(last.mds){
+        const ms=document.getElementById('beli-mds-sel');
+        if([...ms.options].some(o=>o.value===last.mds)) ms.value=last.mds;
+        else{ document.getElementById('beli-mds-box').classList.add('open'); document.getElementById('beli-mds-new').value=last.mds; }
+      }
+      if(last.store){ beliFillStore(); const ss=document.getElementById('beli-store-sel'); if([...ss.options].some(o=>o.value===last.store)) ss.value=last.store; }
+    }
+  }catch(e){}
+
   beliGoTo(0);
 }
 
