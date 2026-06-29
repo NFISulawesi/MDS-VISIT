@@ -411,7 +411,8 @@ tr:hover td{background:rgba(255,255,255,.016);}
       <div class="mc-card"><div class="mc-lbl">NS vs HILO (Bulanan)</div><div class="mc-wrap"><canvas id="mc-brand"></canvas></div></div>
     </div>
     <div class="modal-body">
-      <div class="msec" id="modal-ns-sec"><div class="msec-title">Perbandingan Item NS — Jeruk Peras & ASO vs Lainnya</div><div id="modal-ns-bars" style="padding-top:4px"></div></div>
+      <div class="msec" id="modal-ns-beli-sec"><div class="msec-title">Rincian Pembelian NS</div><div id="modal-ns-beli-bars" style="padding-top:4px"></div></div>
+      <div class="msec" id="modal-ns-sec"><div class="msec-title">Ketersediaan Item NS (AV%)</div><div id="modal-ns-bars" style="padding-top:4px"></div></div>
       <div class="msec"><div class="msec-title">Riwayat Kunjungan (20 terbaru)</div>
         <table class="mt"><thead><tr><th>Waktu</th><th>Toko</th><th>Area</th><th>Ada</th><th>Tdk</th><th>AV%</th><th>NS</th><th>HILO</th><th>TS</th></tr></thead><tbody id="modal-rka-body"></tbody></table>
       </div>
@@ -1081,6 +1082,31 @@ function openMDS(name){
     ]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'rgba(77,96,112,.9)',font:{size:9},boxWidth:8,padding:8}},tooltip:{backgroundColor:'rgba(4,5,10,.96)',bodyColor:'#e8eef8',borderColor:'rgba(255,255,255,.07)',borderWidth:1,cornerRadius:8}},
       scales:{x:{stacked:true,ticks:{color:'rgba(77,96,112,.9)',font:{size:8}},grid:{color:'rgba(255,255,255,.03)'}},y:{stacked:true,ticks:{color:'rgba(77,96,112,.9)',font:{size:8}},grid:{color:'rgba(255,255,255,.03)'}}}}});
+
+  // NS beli breakdown (purchase quantities per item)
+  const nsBeliQty={};
+  beliF.forEach(r=>{
+    if(!r.itemQty)return;
+    Object.entries(r.itemQty).forEach(([name,qty])=>{
+      if(brandOf(name)!=='NS')return;
+      nsBeliQty[name]=(nsBeliQty[name]||0)+(parseInt(qty)||0);
+    });
+  });
+  const jpBK=Object.keys(nsBeliQty).find(k=>k.includes('JERUK PERAS'))||null;
+  const asoBK=Object.keys(nsBeliQty).find(k=>k.includes('NS ASO'))||null;
+  const jpBQ=jpBK?nsBeliQty[jpBK]:0, asoBQ=asoBK?nsBeliQty[asoBK]:0;
+  const otherBQ=Object.entries(nsBeliQty).filter(([k])=>k!==jpBK&&k!==asoBK).reduce((s,[,v])=>s+v,0);
+  const totalBQ=jpBQ+asoBQ+otherBQ;
+  function beliNsBar(label,qty,total){
+    if(!total)return`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border)"><span style="font-size:10px;color:var(--t2);font-weight:600">${label}</span><span style="font-size:10px;color:var(--t3)">0 renceng</span></div>`;
+    const pct=Math.round(qty/total*100);
+    const col=pct>=40?'var(--accent)':pct>=20?'var(--gold)':'var(--blue)';
+    return`<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px"><span style="font-size:10px;color:var(--t2);font-weight:600">${label}</span><span style="font-size:13px;font-weight:800;color:${col}">${qty}<span style="font-size:9px;color:var(--t3);font-weight:500"> renceng (${pct}%)</span></span></div><div style="height:5px;background:var(--border);border-radius:4px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${col};border-radius:4px"></div></div></div>`;
+  }
+  document.getElementById('modal-ns-beli-bars').innerHTML=totalBQ
+    ?beliNsBar('NS Jeruk Peras PLS',jpBQ,totalBQ)+beliNsBar('NS ASO PLS',asoBQ,totalBQ)+beliNsBar('NS Lainnya',otherBQ,totalBQ)
+    :'<div style="color:var(--t3);font-size:11px;padding:8px 0">Belum ada data pembelian NS per item</div>';
+  document.getElementById('modal-ns-beli-sec').style.display='';
 
   // NS item comparison
   const nsMap={};
