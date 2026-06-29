@@ -478,8 +478,17 @@ function tenure(d){
 }
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
+function restTest(){
+  const url='https://firestore.googleapis.com/v1/projects/mds-visit/databases/(default)/documents/stock_logs?key=AIzaSyCtYc8uZICLzQrA1b7l00Yo_9V_rqNVOu0';
+  fetch(url).then(r=>r.json()).then(d=>{
+    const dbg=document.getElementById('stk-debug');
+    const cnt=(d.documents||[]).length;
+    if(dbg)dbg.textContent='REST API: '+cnt+' docs | raw: '+JSON.stringify(d).substring(0,120);
+  }).catch(e=>{const dbg=document.getElementById('stk-debug');if(dbg)dbg.textContent='REST ERROR: '+e.message;});
+}
 function loadAll(){
   if(!db){console.error('loadAll: db undefined');return;}
+  restTest();
   const SRV={source:'server'};
   db.collection('rka_logs').orderBy('timestamp','desc').limit(2000).get(SRV).then(s=>{
     RKA_ALL=[];s.forEach(d=>{const v=d.data();RKA_ALL.push({...v,timestamp:v.timestamp?v.timestamp.toDate():new Date()});});
