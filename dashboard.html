@@ -423,6 +423,8 @@ tr:hover td{background:rgba(255,255,255,.016);}
 </div>
 
 <script>
+// Route old getElementById('table-head/body') to correct suffixed IDs — cache-proof patch
+(function(){const _g=document.getElementById.bind(document);document.getElementById=function(id){const T=typeof TAB!=='undefined'?TAB:'rka';if(id==='table-head')return _g(T==='beli'?'table-head-beli':'table-head-rka')||_g(id);if(id==='table-body')return _g(T==='beli'?'table-body-beli':'table-body-rka')||_g(id);if(id==='tfoot')return _g(T==='beli'?'tfoot-beli':T==='stock'?'tfoot-stock':'tfoot-rka')||_g(id);return _g(id);};})();
 
 const DASH_PIN='NFI2026';
 const NS_PRICE=11250, HILO_PRICE=16000, HILOPLS_PRICE=31500;
