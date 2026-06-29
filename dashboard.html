@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
@@ -847,7 +847,7 @@ function renderStockItem(stockF){
 // ── TAB: Visit RKA ─────────────────────────────────────────────────────────
 function renderRKA(rkaF){
   const rows=doSort(rkaF);
-  document.getElementById('table-head').innerHTML=`<tr>
+  document.getElementById('table-head-rka').innerHTML=`<tr>
     <th onclick="sortBy('id')">ID${ar('id')}</th>
     <th onclick="sortBy('timestamp')">Waktu${ar('timestamp')}</th>
     <th onclick="sortBy('mds')">MDS${ar('mds')}</th>
@@ -857,7 +857,7 @@ function renderRKA(rkaF){
     <th onclick="sortBy('unavail')">Tdk${ar('unavail')}</th>
     <th>AV%</th><th>NS AV</th><th>HILO AV</th><th>TS AV</th>
   </tr>`;
-  document.getElementById('table-body').innerHTML=rows.length?rows.map(r=>{
+  document.getElementById('table-body-rka').innerHTML=rows.length?rows.map(r=>{
     const pct=r.avail+r.unavail>0?Math.round(r.avail/(r.avail+r.unavail)*100):0;
     const ts=r.timestamp;
     const bav={NS:{a:0,t:0},HILO:{a:0,t:0},TS:{a:0,t:0}};
@@ -893,14 +893,14 @@ function renderStore(rkaF){
   let rows=Object.values(st).map(v=>({...v,pct:v.a+v.u>0?Math.round(v.a/(v.a+v.u)*100):0}));
   rows.sort((a,b)=>b.pct-a.pct);
 
-  document.getElementById('table-head').innerHTML=`<tr>
+  document.getElementById('table-head-rka').innerHTML=`<tr>
     <th onclick="sortBy('store')">Toko${ar('store')}</th>
     <th onclick="sortBy('area')">Area${ar('area')}</th>
     <th onclick="sortBy('visits')">Visit${ar('visits')}</th>
     <th>AV% Total</th><th>Bar</th>
     <th>NS AV%</th><th>HILO AV%</th><th>TS AV%</th><th>Status</th>
   </tr>`;
-  document.getElementById('table-body').innerHTML=rows.length?rows.map(e=>{
+  document.getElementById('table-body-rka').innerHTML=rows.length?rows.map(e=>{
     function bCell(k){
       const d=e[k];if(!d||!d.t)return'<td><span class="tag b sm">—</span></td>';
       const p=Math.round(d.a/d.t*100);
@@ -923,7 +923,7 @@ function renderStore(rkaF){
 // ── TAB: Beli Barang ────────────────────────────────────────────────────────
 function renderBeli(beliF){
   const rows=doSort(beliF);
-  document.getElementById('table-head').innerHTML=`<tr>
+  document.getElementById('table-head-beli').innerHTML=`<tr>
     <th onclick="sortBy('id')">ID${ar('id')}</th>
     <th onclick="sortBy('timestamp')">Waktu${ar('timestamp')}</th>
     <th onclick="sortBy('mds')">MDS${ar('mds')}</th>
@@ -935,7 +935,7 @@ function renderBeli(beliF){
     <th onclick="sortBy('nominal')">Nota${ar('nominal')}</th>
     <th>Selisih</th>
   </tr>`;
-  document.getElementById('table-body').innerHTML=rows.length?rows.map(r=>{
+  document.getElementById('table-body-beli').innerHTML=rows.length?rows.map(r=>{
     const ts=r.timestamp;
     const nsR=r.groupTotals&&r.groupTotals.NS||0;
     const hiR=r.groupTotals&&r.groupTotals.HILO||0;
@@ -984,7 +984,7 @@ function renderAnalisis(rkaF,beliF){
   let entries=Object.values(mds).map(v=>({...v,storesCnt:v.stores.size,av:v.t?Math.round(v.a/v.t*100):null,k:v.ns*NS_PRICE+v.hi*HILO_PRICE,tdays:Math.floor((new Date()-v.fd)/864e5)}));
   entries.sort((a,b)=>b.visits-a.visits);
 
-  document.getElementById('table-head').innerHTML=`<tr>
+  document.getElementById('table-head-beli').innerHTML=`<tr>
     <th onclick="sortBy('name')">MDS${ar('name')}</th>
     <th>Area</th>
     <th onclick="sortBy('tdays')">Aktif Sejak${ar('tdays')}</th>
@@ -997,7 +997,7 @@ function renderAnalisis(rkaF,beliF){
     <th>Selisih</th>
     <th onclick="sortBy('beli')">Transaksi${ar('beli')}</th>
   </tr>`;
-  document.getElementById('table-body').innerHTML=entries.length?entries.map(e=>{
+  document.getElementById('table-body-beli').innerHTML=entries.length?entries.map(e=>{
     const avL=e.av!==null?avTag(e.av,' sm'):'<span class="tag b sm">—</span>';
     const diff=e.k-e.nom;
     const dTag=diff===0?'<span class="tag t sm">0</span>':diff>0?`<span class="tag g sm">+${rp(diff)}</span>`:`<span class="tag r sm">${rp(diff)}</span>`;
@@ -1026,12 +1026,12 @@ function renderEval(rkaF,beliF){
   beliF.forEach(r=>{const m=r.mds||'—';if(!mds[m])mds[m]={name:m,area:r.area||'—',v:0,a:0,t:0,nom:0,stores:new Set()};mds[m].nom+=(r.nominal||0);mds[m].stores.add(r.store||'?');});
   const rows=Object.values(mds).map(v=>({...v,sc:v.stores.size,av:v.t?Math.round(v.a/v.t*100):null})).sort((a,b)=>b.v-a.v);
 
-  document.getElementById('table-head').innerHTML=`<tr>
+  document.getElementById('table-head-beli').innerHTML=`<tr>
     <th>MDS</th><th>Area</th>
     <th onclick="sortBy('v')">Visit${ar('v')}</th><th>Toko</th>
     <th>AV%</th><th>Bar</th><th>Total Beli</th><th>Status</th>
   </tr>`;
-  document.getElementById('table-body').innerHTML=rows.length?rows.map(e=>{
+  document.getElementById('table-body-beli').innerHTML=rows.length?rows.map(e=>{
     const avL=e.av!==null?avTag(e.av,' sm'):'<span class="tag b sm">—</span>';
     const bw=e.av||0;
     const s=e.av===null?'<span class="tag b sm">No Data</span>':e.av>=80?'<span class="tag g sm">✓ Baik</span>':e.av>=60?'<span class="tag b sm">~ Cukup</span>':'<span class="tag r sm">⚠ Perhatian</span>';
