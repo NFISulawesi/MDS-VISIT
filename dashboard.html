@@ -486,8 +486,9 @@ function initDash(){
     BELI_ALL=[];s.forEach(d=>{const v=d.data();BELI_ALL.push({...v,timestamp:v.timestamp?v.timestamp.toDate():new Date()});});
     buildMonthOpts();render();
   });
-  db.collection('stock_logs').orderBy('timestamp','desc').limit(2000).onSnapshot(s=>{
+  db.collection('stock_logs').limit(2000).onSnapshot(s=>{
     STOCK_ALL=[];s.forEach(d=>{const v=d.data();STOCK_ALL.push({...v,timestamp:v.timestamp?v.timestamp.toDate():new Date()});});
+    STOCK_ALL.sort((a,b)=>b.timestamp-a.timestamp);
     console.log('[stock_logs] loaded',STOCK_ALL.length,'docs');
     render();
   },err=>{console.error('[stock_logs] onSnapshot error:',err.code,err.message);});
