@@ -385,6 +385,7 @@ tr:hover td{background:rgba(255,255,255,.016);}
         <div class="sub-tab stock" id="stab-stock-item" onclick="switchSubTab('stock','item')">📦 Detail per Toko</div>
       </div>
       <div class="panel-shell"><div class="panel-body">
+        <div id="stk-debug" style="font-size:10px;color:#F59E0B;padding:4px 8px;font-family:monospace;opacity:.7"></div>
         <table><thead id="table-head-stock"></thead><tbody id="table-body-stock"></tbody></table>
         <div class="tfoot-row" id="tfoot-stock"></div>
       </div></div>
@@ -732,6 +733,9 @@ function filteredStock(){
   });
 }
 function renderStockLog(stockF){
+  // debug
+  const dbg=document.getElementById('stk-debug');
+  if(dbg)dbg.textContent='DB:'+(typeof db!=='undefined'?'ok':'MISSING')+' | STOCK_ALL:'+STOCK_ALL.length+' | filtered:'+stockF.length+' | DF:'+DF+' | cut:'+getCutoff().toISOString();
   const awal=stockF.filter(r=>r.stockType==='awal').length;
   const akhir=stockF.filter(r=>r.stockType==='akhir').length;
   const totalNilai=stockF.reduce((s,r)=>s+(r.totalNilai||0),0);
