@@ -852,19 +852,19 @@ input[type="file"]{display:none;}
   </div>
 
   <div class="stepper" id="stock-stepper">
-    <div class="s-item active" id="ss0"><div class="s-dot">1</div><div class="s-lbl">MDS</div></div>
+    <div class="s-item active" id="ss0"><div class="s-dot">1</div><div class="s-lbl">Kunjungan</div></div>
     <div class="s-item"        id="ss1"><div class="s-dot">2</div><div class="s-lbl">Toko</div></div>
-    <div class="s-item"        id="ss2"><div class="s-dot">3</div><div class="s-lbl">Awal</div></div>
-    <div class="s-item"        id="ss3"><div class="s-dot">4</div><div class="s-lbl">Akhir</div></div>
+    <div class="s-item"        id="ss2"><div class="s-dot">3</div><div class="s-lbl">Stock</div></div>
+    <div class="s-item"        id="ss3"><div class="s-dot">4</div><div class="s-lbl">Review</div></div>
   </div>
 
   <div class="step-wrap" id="stock-wrap" style="overflow-y:auto;flex:1">
     <div class="step-pad">
 
-      <!-- Step 0: MDS -->
+      <!-- Step 0: Kunjungan -->
       <div class="step-section active" id="stock-s0">
-        <div class="s-title">Pilih MDS</div>
-        <div class="s-sub">Pilih area dan nama MDS</div>
+        <div class="s-title">Info Kunjungan</div>
+        <div class="s-sub">Area, status, dan nama petugas</div>
         <div class="field">
           <label class="f-label">Nama Area</label>
           <select class="f-input sel" id="stock-area-sel" onchange="stockAreaChange()">
@@ -872,17 +872,32 @@ input[type="file"]{display:none;}
           </select>
         </div>
         <div class="field">
+          <label class="f-label">Status</label>
+          <div style="display:flex;gap:10px;margin-top:4px">
+            <label style="flex:1;display:flex;align-items:center;gap:8px;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;cursor:pointer;transition:.2s" id="stock-lbl-mds">
+              <input type="radio" name="stock-status" value="MDS" id="stock-r-mds" onchange="stockStatusChange()" style="accent-color:var(--accent)"> MDS
+            </label>
+            <label style="flex:1;display:flex;align-items:center;gap:8px;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;cursor:pointer;transition:.2s" id="stock-lbl-spg">
+              <input type="radio" name="stock-status" value="SPG" id="stock-r-spg" onchange="stockStatusChange()" style="accent-color:var(--accent)"> SPG
+            </label>
+          </div>
+        </div>
+        <div class="field" id="stock-nama-mds-wrap">
           <label class="f-label">Nama MDS</label>
           <select class="f-input sel" id="stock-mds-sel" onchange="stockCheck(0)">
             <option value="">— Pilih Area dulu —</option>
           </select>
-        </div>
-        <div class="add-trigger" onclick="toggleBox('stock-mds-box')"><span>+</span> Tambah MDS baru</div>
-        <div class="add-box" id="stock-mds-box">
-          <div class="field" style="margin-bottom:0">
-            <label class="f-label">Nama MDS Baru</label>
-            <input type="text" class="f-input" id="stock-mds-new" placeholder="Ketik nama…" oninput="stockCheck(0)">
+          <div class="add-trigger" onclick="toggleBox('stock-mds-box')"><span>+</span> Tambah MDS baru</div>
+          <div class="add-box" id="stock-mds-box">
+            <div class="field" style="margin-bottom:0">
+              <label class="f-label">Nama MDS Baru</label>
+              <input type="text" class="f-input" id="stock-mds-new" placeholder="Ketik nama…" oninput="stockCheck(0)">
+            </div>
           </div>
+        </div>
+        <div class="field" id="stock-nama-spg-wrap" style="display:none">
+          <label class="f-label">Nama SPG</label>
+          <input type="text" class="f-input" id="stock-spg-input" placeholder="Ketik nama SPG…" oninput="stockCheck(0)">
         </div>
         <div class="step-nav">
           <div></div>
@@ -893,7 +908,7 @@ input[type="file"]{display:none;}
       <!-- Step 1: Toko -->
       <div class="step-section" id="stock-s1">
         <div class="s-title">Pilih Toko</div>
-        <div class="s-sub">Toko mana yang dicek stoknya?</div>
+        <div class="s-sub">Toko yang dicek stoknya</div>
         <div class="field">
           <label class="f-label">Nama Toko</label>
           <select class="f-input sel" id="stock-store-sel" onchange="stockCheck(1)">
@@ -907,72 +922,93 @@ input[type="file"]{display:none;}
             <input type="text" class="f-input" id="stock-store-new" placeholder="Ketik nama toko…" oninput="stockCheck(1)">
           </div>
         </div>
+        <div class="field" style="margin-top:16px">
+          <label class="f-label">Jenis Stock</label>
+          <div style="display:flex;gap:10px;margin-top:4px">
+            <label style="flex:1;display:flex;align-items:center;gap:8px;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;cursor:pointer" id="stock-lbl-awal">
+              <input type="radio" name="stock-type" value="awal" id="stock-r-awal" onchange="stockCheck(1)" style="accent-color:var(--accent)" checked> Awal Bulan
+            </label>
+            <label style="flex:1;display:flex;align-items:center;gap:8px;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;cursor:pointer" id="stock-lbl-akhir">
+              <input type="radio" name="stock-type" value="akhir" id="stock-r-akhir" onchange="stockCheck(1)" style="accent-color:var(--accent)"> Akhir Bulan
+            </label>
+          </div>
+        </div>
         <div class="step-nav">
-          <button class="btn btn-s" id="stock-bb" onclick="stockPrev(1)" style="display:none">← Kembali</button>
+          <button class="btn btn-s" onclick="stockPrev(1)">← Kembali</button>
           <button class="btn btn-p" id="stock-next-1" onclick="stockNext(1)" disabled>Lanjut →</button>
         </div>
       </div>
 
-      <!-- Step 2: Stock Awal -->
+      <!-- Step 2: Stock Input -->
       <div class="step-section" id="stock-s2">
-        <div class="s-title">Stock Awal</div>
-        <div class="s-sub">Jumlah renceng per item di awal periode</div>
-        <div id="stock-qty-list-awal"></div>
-        <div class="step-nav">
-          <button class="btn btn-s" onclick="stockPrev(2)">← Kembali</button>
-          <button class="btn btn-p" onclick="stockNext(2)">Lanjut →</button>
+        <div class="s-title" id="stock-input-title">Input Stock</div>
+        <div class="s-sub">Isi jumlah karton dan renceng per item</div>
+        <div style="display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:4px;padding:8px 12px;background:rgba(99,102,241,.07);border-radius:8px;margin-bottom:8px;font-size:10px;color:var(--t2);font-weight:700">
+          <span>ITEM</span><span style="text-align:center;width:72px">KARTON</span><span style="text-align:center;width:72px">RENCENG</span>
         </div>
-      </div>
-
-      <!-- Step 3: Stock Akhir -->
-      <div class="step-section" id="stock-s3">
-        <div class="s-title">Stock Akhir</div>
-        <div class="s-sub">Jumlah renceng per item saat ini (akhir periode)</div>
-        <div id="stock-qty-list-akhir"></div>
-        <div class="step-nav">
-          <button class="btn btn-s" onclick="stockPrev(3)">← Kembali</button>
+        <div id="stock-item-list"></div>
+        <div style="margin-top:16px;padding:14px 16px;background:rgba(22,163,74,.07);border:1px solid rgba(22,163,74,.18);border-radius:12px">
+          <div style="font-size:11px;color:var(--t2);margin-bottom:4px">Total Nilai Stock</div>
+          <div id="stock-total-rp" style="font-size:20px;font-weight:800;color:var(--ok)">Rp 0</div>
+          <div style="font-size:10px;color:var(--t3);margin-top:2px">Berdasarkan renceng × harga per renceng</div>
+        </div>
+        <div class="step-nav" style="margin-top:16px">
+          <button class="btn btn-s" onclick="stockPrev(2)">← Kembali</button>
           <button class="btn btn-p" onclick="stockGoReview()">Review →</button>
         </div>
       </div>
 
-      <!-- Step 4: Review & Submit -->
-      <div class="step-section" id="stock-s4">
-        <div class="s-title">Review & Submit</div>
+      <!-- Step 3: Review -->
+      <div class="step-section" id="stock-s3">
+        <div class="s-title">Review</div>
         <div class="s-sub">Periksa data sebelum disimpan</div>
-        <div style="background:rgba(99,102,241,.07);border:1px solid rgba(99,102,241,.18);border-radius:14px;padding:14px 16px;margin-bottom:16px;font-size:12px">
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <div style="background:rgba(99,102,241,.07);border:1px solid rgba(99,102,241,.18);border-radius:14px;padding:14px 16px;margin-bottom:14px;font-size:12px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px">
             <span style="color:var(--t2)">Area</span><span id="stock-rev-area" style="font-weight:700"></span>
           </div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-            <span style="color:var(--t2)">MDS</span><span id="stock-rev-mds" style="font-weight:700"></span>
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+            <span style="color:var(--t2)">Status</span><span id="stock-rev-status" style="font-weight:700"></span>
           </div>
-          <div style="display:flex;justify-content:space-between">
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+            <span style="color:var(--t2)">Nama</span><span id="stock-rev-nama" style="font-weight:700"></span>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px">
             <span style="color:var(--t2)">Toko</span><span id="stock-rev-store" style="font-weight:700"></span>
           </div>
+          <div style="display:flex;justify-content:space-between">
+            <span style="color:var(--t2)">Jenis Stock</span><span id="stock-rev-type" style="font-weight:700;text-transform:capitalize"></span>
+          </div>
         </div>
-        <table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:16px">
+        <table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:14px">
           <thead>
             <tr style="background:rgba(99,102,241,.08)">
-              <th style="text-align:left;padding:8px;border-bottom:1px solid var(--border)">Item</th>
-              <th style="text-align:center;padding:8px;border-bottom:1px solid var(--border);white-space:nowrap">Stok Awal</th>
-              <th style="text-align:center;padding:8px;border-bottom:1px solid var(--border);white-space:nowrap">Stok Akhir</th>
+              <th style="text-align:left;padding:7px 8px;border-bottom:1px solid var(--border)">Item</th>
+              <th style="text-align:center;padding:7px 8px;border-bottom:1px solid var(--border);white-space:nowrap">Krt</th>
+              <th style="text-align:center;padding:7px 8px;border-bottom:1px solid var(--border);white-space:nowrap">Rncg</th>
+              <th style="text-align:right;padding:7px 8px;border-bottom:1px solid var(--border);white-space:nowrap">Nilai</th>
             </tr>
           </thead>
           <tbody id="stock-review-body"></tbody>
+          <tfoot>
+            <tr style="font-weight:800;background:rgba(22,163,74,.07)">
+              <td colspan="3" style="padding:8px;font-size:11px">TOTAL NILAI</td>
+              <td id="stock-rev-total" style="padding:8px;text-align:right;font-size:11px;color:var(--ok)"></td>
+            </tr>
+          </tfoot>
         </table>
         <div class="step-nav">
-          <button class="btn btn-s" onclick="stockPrev(4)">← Edit</button>
+          <button class="btn btn-s" onclick="stockPrev(3)">← Edit</button>
           <button class="btn btn-p" onclick="submitStock()">✓ Simpan</button>
         </div>
       </div>
 
-      <!-- Step 5: Sukses -->
-      <div class="step-section" id="stock-s5">
+      <!-- Step 4: Sukses -->
+      <div class="step-section" id="stock-s4">
         <div style="text-align:center;padding:48px 16px">
           <div style="font-size:48px;margin-bottom:12px">📦</div>
           <div style="font-size:18px;font-weight:800;color:var(--primary);margin-bottom:6px">Stock Tercatat!</div>
-          <div style="font-size:13px;color:var(--t2);margin-bottom:8px" id="stock-success-store"></div>
-          <div style="font-size:11px;color:var(--t3);margin-bottom:24px">Data stock berhasil disimpan ke sistem</div>
+          <div style="font-size:13px;color:var(--t2);margin-bottom:4px" id="stock-success-store"></div>
+          <div style="font-size:12px;color:var(--ok);font-weight:700;margin-bottom:24px" id="stock-success-total"></div>
           <button class="btn btn-p" style="width:100%" onclick="resetStock()">+ Entri Baru</button>
         </div>
       </div>
@@ -980,6 +1016,7 @@ input[type="file"]{display:none;}
     </div><!-- step-pad -->
   </div><!-- step-wrap -->
 </div><!-- s-stock -->
+
 
 </div><!-- #app -->
 
@@ -24878,8 +24915,12 @@ document.addEventListener('click',e=>{
 });
 
 
+
 /* ─────────── STOCK SELL OUT ─────────── */
-const SK = { area:'', mds:'', store:'', awal:{}, akhir:{} };
+// Price per renceng by group
+const STOCK_PRICE = { HILO: 16000, HILOPLS: 31500, NS: 11250 };
+
+const SK = { area:'', status:'', nama:'', store:'', stockType:'awal', items:{} };
 let stockStep = 0;
 
 function openStock(){
@@ -24889,17 +24930,23 @@ function openStock(){
 
 function initStock(){
   stockStep=0;
-  SK.area=''; SK.mds=''; SK.store=''; SK.awal={}; SK.akhir={};
+  SK.area=''; SK.status=''; SK.nama=''; SK.store=''; SK.stockType='awal'; SK.items={};
   const as=document.getElementById('stock-area-sel');
   as.innerHTML='<option value="">— Pilih Area —</option>';
   AREAS.forEach(n=>{ const o=document.createElement('option'); o.value=n; o.textContent=n; as.appendChild(o); });
   document.getElementById('stock-mds-sel').innerHTML='<option value="">— Pilih Area dulu —</option>';
   document.getElementById('stock-mds-new').value='';
+  document.getElementById('stock-spg-input').value='';
   document.getElementById('stock-store-sel').innerHTML='<option value="">— Pilih Toko —</option>';
   document.getElementById('stock-store-new').value='';
+  // reset radios
+  document.getElementById('stock-r-mds').checked=false;
+  document.getElementById('stock-r-spg').checked=false;
+  document.getElementById('stock-r-awal').checked=true;
   document.getElementById('stock-next-0').disabled=true;
   document.getElementById('stock-next-1').disabled=true;
-  document.getElementById('stock-bb').style.display='none';
+  document.getElementById('stock-nama-mds-wrap').style.display='block';
+  document.getElementById('stock-nama-spg-wrap').style.display='none';
   stockUpdateStepper();
   document.querySelectorAll('#s-stock .step-section').forEach((s,i)=>s.classList.toggle('active',i===0));
 }
@@ -24914,12 +24961,27 @@ function stockAreaChange(){
   stockCheck(0);
 }
 
+function stockStatusChange(){
+  const isMds=document.getElementById('stock-r-mds').checked;
+  document.getElementById('stock-nama-mds-wrap').style.display=isMds?'block':'none';
+  document.getElementById('stock-nama-spg-wrap').style.display=isMds?'none':'block';
+  stockCheck(0);
+}
+
 function stockCheck(step){
   let ok=false;
   if(step===0){
     const area=document.getElementById('stock-area-sel').value;
-    const mds=document.getElementById('stock-mds-sel').value||document.getElementById('stock-mds-new').value.trim();
-    ok=!!(area&&mds);
+    const isMds=document.getElementById('stock-r-mds').checked;
+    const isSpg=document.getElementById('stock-r-spg').checked;
+    let nama='';
+    if(isMds){
+      const box=document.getElementById('stock-mds-box');
+      nama=(box.classList.contains('open')&&document.getElementById('stock-mds-new').value.trim())||document.getElementById('stock-mds-sel').value;
+    } else if(isSpg){
+      nama=document.getElementById('stock-spg-input').value.trim();
+    }
+    ok=!!(area&&(isMds||isSpg)&&nama);
     document.getElementById('stock-next-0').disabled=!ok;
   } else if(step===1){
     const store=document.getElementById('stock-store-sel').value||document.getElementById('stock-store-new').value.trim();
@@ -24930,18 +24992,25 @@ function stockCheck(step){
 }
 
 function stockNext(step){
-  if(!stockCheck(step)&&step<2) return;
   if(step===0){
+    if(!stockCheck(0)) return;
     SK.area=document.getElementById('stock-area-sel').value;
-    const box=document.getElementById('stock-mds-box');
-    const nw=document.getElementById('stock-mds-new').value.trim();
-    SK.mds=(box.classList.contains('open')&&nw)?nw:document.getElementById('stock-mds-sel').value;
-    if(box.classList.contains('open')&&nw&&!MDS_BY_AREA[SK.area].includes(nw)) MDS_BY_AREA[SK.area].push(nw);
+    const isMds=document.getElementById('stock-r-mds').checked;
+    SK.status=isMds?'MDS':'SPG';
+    if(isMds){
+      const box=document.getElementById('stock-mds-box');
+      const nw=document.getElementById('stock-mds-new').value.trim();
+      SK.nama=(box.classList.contains('open')&&nw)?nw:document.getElementById('stock-mds-sel').value;
+      if(box.classList.contains('open')&&nw&&MDS_BY_AREA[SK.area]&&!MDS_BY_AREA[SK.area].includes(nw)) MDS_BY_AREA[SK.area].push(nw);
+    } else {
+      SK.nama=document.getElementById('stock-spg-input').value.trim();
+    }
     // fill stores
     const ss=document.getElementById('stock-store-sel');
     ss.innerHTML='<option value="">— Pilih Toko —</option>';
     (BELI_STORES_BY_AREA[SK.area]||[]).forEach(n=>{ const o=document.createElement('option'); o.value=n; o.textContent=n; ss.appendChild(o); });
   } else if(step===1){
+    if(!stockCheck(1)) return;
     const box=document.getElementById('stock-store-box');
     const nw=document.getElementById('stock-store-new').value.trim();
     SK.store=(box.classList.contains('open')&&nw)?nw:document.getElementById('stock-store-sel').value;
@@ -24949,18 +25018,9 @@ function stockNext(step){
       if(!BELI_STORES_BY_AREA[SK.area]) BELI_STORES_BY_AREA[SK.area]=[];
       if(!BELI_STORES_BY_AREA[SK.area].includes(nw)){ BELI_STORES_BY_AREA[SK.area].push(nw); const o=document.createElement('option'); o.value=nw; o.textContent=nw; document.getElementById('stock-store-sel').appendChild(o); }
     }
-    renderStockQty('awal');
-  } else if(step===2){
-    // save awal
-    SK.awal={};
-    let fi=0;
-    BELI_PRODUCTS.forEach(g=>g.items.forEach((name)=>{
-      const el=document.getElementById('sqval-awal-'+fi);
-      const v=parseInt(el&&el.value)||0;
-      if(v) SK.awal[name]=v;
-      fi++;
-    }));
-    renderStockQty('akhir');
+    SK.stockType=document.getElementById('stock-r-awal').checked?'awal':'akhir';
+    document.getElementById('stock-input-title').textContent='Stock '+(SK.stockType==='awal'?'Awal':'Akhir')+' Bulan';
+    renderStockItems();
   }
   stockStep=step+1;
   stockUpdateStepper();
@@ -24975,80 +25035,129 @@ function stockPrev(step){
   document.getElementById('stock-wrap').scrollTop=0;
 }
 
-function stockGoReview(){
-  // save akhir
-  SK.akhir={};
+function renderStockItems(){
+  const list=document.getElementById('stock-item-list');
+  list.innerHTML='';
   let fi=0;
-  BELI_PRODUCTS.forEach(g=>g.items.forEach((name)=>{
-    const el=document.getElementById('sqval-akhir-'+fi);
-    const v=parseInt(el&&el.value)||0;
-    if(v) SK.akhir[name]=v;
-    fi++;
-  }));
+  BELI_PRODUCTS.forEach(group=>{
+    const grpPrice=STOCK_PRICE[group.group]||0;
+    const hdr=document.createElement('div');
+    hdr.className='qty-group-hdr'; hdr.textContent=group.group+' (Rp '+grpPrice.toLocaleString('id-ID')+'/rncg)';
+    list.appendChild(hdr);
+    group.items.forEach((name,gi)=>{
+      const i=fi++;
+      const isPri=group.priority&&gi<group.priority;
+      const row=document.createElement('div');
+      row.className='qty-row'+(isPri?' beli-priority':'');
+      row.setAttribute('data-grp',group.group);
+      row.setAttribute('data-fi',i);
+      row.innerHTML=
+        '<div class="qty-name" style="flex:1;font-size:10px">'+name+'</div>'+
+        '<div style="display:flex;flex-direction:column;align-items:center;width:72px;gap:2px">'+
+          '<span style="font-size:9px;color:var(--t3);margin-bottom:1px">Karton</span>'+
+          '<div class="qty-ctrl" style="width:100%">'+
+            '<button class="qty-btn" onclick="adjSK('+i+',\'krt\',-1)" style="width:20px;font-size:12px">−</button>'+
+            '<input type="number" class="qty-val" id="sk-krt-'+i+'" value="0" min="0" style="width:28px;font-size:11px" oninput="stockCalcTotal()">'+
+            '<button class="qty-btn" onclick="adjSK('+i+',\'krt\',1)" style="width:20px;font-size:12px">+</button>'+
+          '</div>'+
+        '</div>'+
+        '<div style="display:flex;flex-direction:column;align-items:center;width:72px;gap:2px">'+
+          '<span style="font-size:9px;color:var(--t3);margin-bottom:1px">Renceng</span>'+
+          '<div class="qty-ctrl" style="width:100%">'+
+            '<button class="qty-btn" onclick="adjSK('+i+',\'rncg\',-1)" style="width:20px;font-size:12px">−</button>'+
+            '<input type="number" class="qty-val" id="sk-rncg-'+i+'" value="0" min="0" style="width:28px;font-size:11px" oninput="stockCalcTotal()">'+
+            '<button class="qty-btn" onclick="adjSK('+i+',\'rncg\',1)" style="width:20px;font-size:12px">+</button>'+
+          '</div>'+
+        '</div>';
+      list.appendChild(row);
+    });
+  });
+  stockCalcTotal();
+}
+
+function adjSK(i,field,d){
+  const id='sk-'+field+'-'+i;
+  const el=document.getElementById(id); if(!el) return;
+  el.value=Math.max(0,(parseInt(el.value)||0)+d);
+  stockCalcTotal();
+}
+
+function stockCalcTotal(){
+  let total=0;
+  let fi=0;
+  BELI_PRODUCTS.forEach(group=>{
+    const price=STOCK_PRICE[group.group]||0;
+    group.items.forEach(()=>{
+      const rncg=parseInt(document.getElementById('sk-rncg-'+fi)?.value)||0;
+      total+=rncg*price;
+      fi++;
+    });
+  });
+  document.getElementById('stock-total-rp').textContent='Rp '+total.toLocaleString('id-ID');
+  return total;
+}
+
+function stockGoReview(){
+  // collect items
+  SK.items={};
+  let fi=0;
+  BELI_PRODUCTS.forEach(group=>{
+    const price=STOCK_PRICE[group.group]||0;
+    group.items.forEach(name=>{
+      const krt=parseInt(document.getElementById('sk-krt-'+fi)?.value)||0;
+      const rncg=parseInt(document.getElementById('sk-rncg-'+fi)?.value)||0;
+      if(krt||rncg) SK.items[name]={krt,rncg,price,nilai:rncg*price};
+      fi++;
+    });
+  });
   // build review
-  const allItems=[...new Set([...Object.keys(SK.awal),...Object.keys(SK.akhir)])];
+  document.getElementById('stock-rev-area').textContent=SK.area;
+  document.getElementById('stock-rev-status').textContent=SK.status;
+  document.getElementById('stock-rev-nama').textContent=SK.nama;
+  document.getElementById('stock-rev-store').textContent=SK.store;
+  document.getElementById('stock-rev-type').textContent=SK.stockType==='awal'?'Awal Bulan':'Akhir Bulan';
   const tbody=document.getElementById('stock-review-body');
   tbody.innerHTML='';
-  if(!allItems.length){
-    tbody.innerHTML='<tr><td colspan="3" style="text-align:center;color:var(--t2);padding:16px">Tidak ada item yang diisi</td></tr>';
+  let grandTotal=0;
+  const entries=Object.entries(SK.items);
+  if(!entries.length){
+    tbody.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--t3);padding:14px;font-size:11px">Tidak ada item yang diisi</td></tr>';
   } else {
-    allItems.forEach(name=>{
-      const a=SK.awal[name]||0, k=SK.akhir[name]||0;
+    entries.forEach(([name,{krt,rncg,nilai}])=>{
+      grandTotal+=nilai;
       const tr=document.createElement('tr');
-      tr.innerHTML='<td style="font-size:10px;padding:5px 8px;border-bottom:1px solid var(--border)">'+name+'</td><td style="text-align:center;padding:5px 8px;border-bottom:1px solid var(--border);font-weight:700">'+a+'</td><td style="text-align:center;padding:5px 8px;border-bottom:1px solid var(--border);font-weight:700">'+k+'</td>';
+      tr.innerHTML='<td style="font-size:10px;padding:5px 8px;border-bottom:1px solid var(--border)">'+name+'</td>'+
+        '<td style="text-align:center;padding:5px 8px;border-bottom:1px solid var(--border);font-weight:700">'+krt+'</td>'+
+        '<td style="text-align:center;padding:5px 8px;border-bottom:1px solid var(--border);font-weight:700">'+rncg+'</td>'+
+        '<td style="text-align:right;padding:5px 8px;border-bottom:1px solid var(--border);font-size:10px">'+(nilai?'Rp '+nilai.toLocaleString('id-ID'):'-')+'</td>';
       tbody.appendChild(tr);
     });
   }
-  document.getElementById('stock-rev-mds').textContent=SK.mds;
-  document.getElementById('stock-rev-store').textContent=SK.store;
-  document.getElementById('stock-rev-area').textContent=SK.area;
-  stockStep=4;
+  document.getElementById('stock-rev-total').textContent='Rp '+grandTotal.toLocaleString('id-ID');
+  stockStep=3;
   stockUpdateStepper();
   document.querySelectorAll('#s-stock .step-section').forEach((s,i)=>s.classList.toggle('active',i===stockStep));
   document.getElementById('stock-wrap').scrollTop=0;
 }
 
-function renderStockQty(type){
-  const list=document.getElementById('stock-qty-list-'+type);
-  list.innerHTML='';
-  let fi=0;
-  BELI_PRODUCTS.forEach(group=>{
-    const hdr=document.createElement('div');
-    hdr.className='qty-group-hdr'; hdr.textContent=group.group;
-    list.appendChild(hdr);
-    group.items.forEach((name,gi)=>{
-      const i=fi++;
-      const isPri=group.priority&&gi<group.priority;
-      const prevVal=type==='akhir'?(SK.awal[name]||0):0;
-      const hint=type==='akhir'&&prevVal?'<span style="font-size:9px;opacity:.5;margin-left:4px">awal:'+prevVal+'</span>':'';
-      const row=document.createElement('div');
-      row.className='qty-row'+(isPri?' beli-priority':'');
-      row.innerHTML='<div class="qty-name">'+name+hint+'</div><div class="qty-ctrl"><button class="qty-btn" onclick="adjSK(\''+type+'\','+i+',-1)">−</button><input type="number" class="qty-val" id="sqval-'+type+'-'+i+'" value="0" min="0" oninput="this.closest(\'.qty-row\').classList.toggle(\'has-val\',+this.value>0)"><button class="qty-btn" onclick="adjSK(\''+type+'\','+i+',1)">+</button></div>';
-      list.appendChild(row);
-    });
-  });
-}
-
-function adjSK(type,i,d){
-  const el=document.getElementById('sqval-'+type+'-'+i);
-  if(!el) return;
-  const v=Math.max(0,(parseInt(el.value)||0)+d);
-  el.value=v;
-  el.closest('.qty-row').classList.toggle('has-val',v>0);
-}
-
 function submitStock(){
   const id='STOCK-'+String(Math.floor(Math.random()*9000)+1000);
-  document.getElementById('stock-success-store').textContent=SK.store+' · '+SK.area;
+  let grandTotal=Object.values(SK.items).reduce((s,v)=>s+v.nilai,0);
+  document.getElementById('stock-success-store').textContent=SK.store+' · '+SK.area+' ('+SK.stockType==='awal'?'Awal Bulan':'Akhir Bulan'+')';
+  document.getElementById('stock-success-total').textContent='Nilai: Rp '+grandTotal.toLocaleString('id-ID');
+  // flatten items for Firestore
+  const itemsFlat={};
+  Object.entries(SK.items).forEach(([name,v])=>{ itemsFlat[name]={krt:v.krt,rncg:v.rncg}; });
   if(typeof db!=='undefined'){
     db.collection('stock_logs').add({
-      id,area:SK.area,mds:SK.mds,store:SK.store,
+      id, area:SK.area, status:SK.status, nama:SK.nama, store:SK.store,
+      stockType:SK.stockType,
       timestamp:firebase.firestore.FieldValue.serverTimestamp(),
-      stockAwal:Object.assign({},SK.awal),
-      stockAkhir:Object.assign({},SK.akhir)
+      items:itemsFlat,
+      totalNilai:grandTotal
     }).catch(e=>console.warn('Firestore stock failed',e));
   }
-  stockStep=5;
+  stockStep=4;
   stockUpdateStepper();
   document.querySelectorAll('#s-stock .step-section').forEach((s,i)=>s.classList.toggle('active',i===stockStep));
   document.getElementById('stock-wrap').scrollTop=0;
@@ -25062,8 +25171,6 @@ function stockUpdateStepper(){
     el.className='s-item'+(i<stockStep?' done':i===stockStep?' active':'');
     el.querySelector('.s-dot').textContent=i<stockStep?'✓':(i+1);
   });
-  const bb=document.getElementById('stock-bb');
-  if(bb) bb.style.display=stockStep===0?'none':'';
 }
 
 </script>
