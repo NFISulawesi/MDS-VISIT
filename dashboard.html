@@ -211,6 +211,7 @@ tr:hover td{background:rgba(255,255,255,.016);}
     <div class="tb-right">
       <div class="live-pill"><div class="live-dot"></div>Live</div>
       <div class="tb-date" id="tb-date"></div>
+      <div style="font-size:9px;color:var(--t3);opacity:.5">v5</div>
     </div>
   </div>
   <div class="main-nav">
@@ -476,23 +477,41 @@ function tenure(d){
 }
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
+function loadAll(){
+  db.collection('rka_logs').orderBy('timestamp','desc').limit(2000).get().then(s=>{
+    RKA_ALL=[];s.forEach(d=>{const v=d.data();RKA_ALL.push({...v,timestamp:v.timestamp?v.timestamp.toDate():new Date()});});
+    buildMonthOpts();render();
+  }).catch(e=>console.error('rka_logs get failed',e));
+  db.collection('beli_logs').orderBy('timestamp','desc').limit(2000).get().then(s=>{
+    BELI_ALL=[];s.forEach(d=>{const v=d.data();BELI_ALL.push({...v,timestamp:v.timestamp?v.timestamp.toDate():new Date()});});
+    buildMonthOpts();render();
+  }).catch(e=>console.error('beli_logs get failed',e));
+  db.collection('stock_logs').get().then(s=>{
+    STOCK_ALL=[];s.forEach(d=>{const v=d.data();STOCK_ALL.push({...v,timestamp:v.timestamp?v.timestamp.toDate():new Date()});});
+    STOCK_ALL.sort((a,b)=>b.timestamp-a.timestamp);
+    console.log('[stock_logs] GET loaded',STOCK_ALL.length,'docs');
+    render();
+  }).catch(e=>console.error('stock_logs get failed',e));
+}
 function initDash(){
   switchTab('rka');
   document.getElementById('tb-date').textContent=new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  loadAll();
+  setInterval(loadAll,30000);
   db.collection('rka_logs').orderBy('timestamp','desc').limit(2000).onSnapshot(s=>{
     RKA_ALL=[];s.forEach(d=>{const v=d.data();RKA_ALL.push({...v,timestamp:v.timestamp?v.timestamp.toDate():new Date()});});
     buildMonthOpts();render();
-  });
+  },e=>console.error('rka snap err',e));
   db.collection('beli_logs').orderBy('timestamp','desc').limit(2000).onSnapshot(s=>{
     BELI_ALL=[];s.forEach(d=>{const v=d.data();BELI_ALL.push({...v,timestamp:v.timestamp?v.timestamp.toDate():new Date()});});
     buildMonthOpts();render();
-  });
+  },e=>console.error('beli snap err',e));
   db.collection('stock_logs').limit(2000).onSnapshot(s=>{
     STOCK_ALL=[];s.forEach(d=>{const v=d.data();STOCK_ALL.push({...v,timestamp:v.timestamp?v.timestamp.toDate():new Date()});});
     STOCK_ALL.sort((a,b)=>b.timestamp-a.timestamp);
-    console.log('[stock_logs] loaded',STOCK_ALL.length,'docs');
+    console.log('[stock_logs] SNAP loaded',STOCK_ALL.length,'docs');
     render();
-  },err=>{console.error('[stock_logs] onSnapshot error:',err.code,err.message);});
+  },e=>console.error('stock snap err',e));
 }
 function buildMonthOpts(){
   const ms=new Set([...RKA_ALL,...BELI_ALL].map(r=>{const d=r.timestamp;return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;}));
