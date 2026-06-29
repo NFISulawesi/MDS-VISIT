@@ -1151,7 +1151,11 @@ function openMDS(name){
     if(r.items)Object.entries(r.items).forEach(([n,v])=>{const b=brandOf(n);if(bav[b]){bav[b].t++;if(v)bav[b].a++;}});
     function bT(b){const d=bav[b];if(!d||!d.t)return'—';return Math.round(d.a/d.t*100)+'%';}
     const ts=r.timestamp;
-    return`<tr><td class="td-dim">${ts.toLocaleDateString('id-ID',{day:'numeric',month:'short'})} ${ts.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</td><td class="td-mid">${r.store||'—'}</td><td class="td-dim">${r.area||'—'}</td><td>${r.avail||0}</td><td>${r.unavail||0}</td><td>${avTag(pct,' sm')}</td><td style="color:var(--blue)">${bT('NS')}</td><td style="color:var(--gold)">${bT('HILO')}</td><td style="color:var(--t3)">${bT('TS')}</td></tr>`;
+    const hasItems=r.items&&Object.keys(r.items).length>0;
+    const hasPhotos=r.photoUrls&&Object.keys(r.photoUrls).length>0;
+    const canExpand=hasItems||hasPhotos;
+    const enc=canExpand?encodeURIComponent(JSON.stringify({items:r.items||{},photos:r.photoUrls||{}})):'';
+    return`<tr class="${canExpand?'clickrow':''}" ${canExpand?`onclick="toggleRkaDetail(this,'${enc}')"`:''}><td class="td-dim">${ts.toLocaleDateString('id-ID',{day:'numeric',month:'short'})} ${ts.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</td><td class="td-mid">${r.store||'—'}${canExpand?' <span style="font-size:9px;color:var(--t3)">▾</span>':''}</td><td class="td-dim">${r.area||'—'}</td><td>${r.avail||0}</td><td>${r.unavail||0}</td><td>${avTag(pct,' sm')}</td><td style="color:var(--blue)">${bT('NS')}</td><td style="color:var(--gold)">${bT('HILO')}</td><td style="color:var(--t3)">${bT('TS')}</td></tr>`;
   }).join(''):'<tr><td colspan="9" style="text-align:center;padding:14px;color:var(--t3)">Tidak ada data</td></tr>';
 
   // Beli log
@@ -1164,6 +1168,49 @@ function openMDS(name){
   }).join(''):'<tr><td colspan="8" style="text-align:center;padding:14px;color:var(--t3)">Tidak ada data</td></tr>';
 
   document.getElementById('mds-modal').classList.remove('hidden');
+}
+
+// ── ITEM DETAIL TOGGLE ───────────────────────────────────────────────────────
+function toggleRkaDetail(tr, enc){
+  const next=tr.nextElementSibling;
+  if(next&&next.classList.contains('item-detail-row')){
+    next.style.display=next.style.display==='none'?'':'none';
+    tr.querySelector('span[style*="▾"]').textContent=next.style.display===''?'▴':'▾';
+    return;
+  }
+  const data=JSON.parse(decodeURIComponent(enc));
+  const items=data.items||data;
+  const photos=data.photos||{};
+  const groups={NS:[],HILO:[],TS:[],O:[]};
+  Object.entries(items).sort(([a],[b])=>a.localeCompare(b)).forEach(([n,ada])=>{
+    const b=brandOf(n); (groups[b]||groups.O).push({n,ada});
+  });
+  let html='<td colspan="9" style="padding:6px 16px 12px;background:rgba(255,255,255,.015);border-top:none">';
+  const photoVals=Object.values(photos).filter(Boolean);
+  const photoLabels=['TS Sweetener','HILO Box','NS & HILO Polos'];
+  if(photoVals.length){
+    html+='<div style="display:flex;gap:8px;margin-bottom:10px">';
+    Object.entries(photos).forEach(([idx,url])=>{
+      if(!url)return;
+      html+=`<div style="flex:1;max-width:140px"><div style="font-size:8px;color:var(--t3);margin-bottom:3px;text-transform:uppercase;letter-spacing:.08em">${photoLabels[idx]||'Foto '+(+idx+1)}</div><a href="${url}" target="_blank"><img src="${url}" style="width:100%;border-radius:8px;border:1px solid var(--border);object-fit:cover;aspect-ratio:4/3" loading="lazy"></a></div>`;
+    });
+    html+='</div>';
+  }
+  ['NS','HILO','TS'].forEach(brand=>{
+    const list=groups[brand]; if(!list.length)return;
+    html+=`<div style="margin-bottom:7px"><div style="font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);margin-bottom:4px">${brand}</div><div style="display:flex;flex-wrap:wrap;gap:3px">`;
+    list.forEach(({n,ada})=>{
+      const short=n.replace(/^(NS|HI LO|HILO|TS)\s+/i,'').replace(/\s+PLS.*$/i,'').trim();
+      html+=`<span style="font-size:9px;padding:2px 7px;border-radius:5px;background:${ada?'rgba(16,214,106,.12)':'rgba(239,68,68,.1)'};color:${ada?'var(--accent)':'var(--red)'};font-weight:600">${ada?'✓':'✗'} ${short}</span>`;
+    });
+    html+='</div></div>';
+  });
+  html+='</td>';
+  const det=document.createElement('tr');
+  det.className='item-detail-row';
+  det.innerHTML=html;
+  tr.parentNode.insertBefore(det,tr.nextSibling);
+  tr.querySelector('span[style*="▾"]').textContent='▴';
 }
 
 // ── EXPORT CSV ────────────────────────────────────────────────────────────────

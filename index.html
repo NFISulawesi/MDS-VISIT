@@ -24537,7 +24537,7 @@ function setItem(i,v){
   rkaCheck(3);
 }
 
-function submitRka(){
+async function submitRka(){
   const avail=Object.values(R.items).filter(v=>v===true).length;
   const unavail=Object.values(R.items).filter(v=>v===false).length;
   const id='VISIT-'+String(Math.floor(Math.random()*9000)+1000);
@@ -24549,7 +24549,17 @@ function submitRka(){
     _rkaLog.push({id,area:R.area,mds:R.mds,store:R.store,timestamp:now.toISOString(),avail,unavail});
     localStorage.setItem('mds_rka_log',JSON.stringify(_rkaLog));
   }catch(e){console.warn('localStorage write failed',e);}
-  if(typeof db!=='undefined') db.collection('rka_logs').add({id,area:R.area,mds:R.mds,store:R.store,timestamp:firebase.firestore.FieldValue.serverTimestamp(),avail,unavail,items:Object.assign({},R.items)}).catch(e=>console.warn('Firestore rka failed',e));
+
+  const photoUrls={};
+  if(window.storage){
+    const labels=['ts-sweetener','hilo-box','ns-hilo-polos'];
+    for(const [idx,dataUrl] of Object.entries(R.photos)){
+      if(!dataUrl)continue;
+      try{ photoUrls[idx]=await compressAndUpload(dataUrl,`rka/${id}/photo${idx}_${labels[idx]||idx}.jpg`); }
+      catch(e){ console.warn('photo upload failed',idx,e); }
+    }
+  }
+  if(typeof db!=='undefined') db.collection('rka_logs').add({id,area:R.area,mds:R.mds,store:R.store,timestamp:firebase.firestore.FieldValue.serverTimestamp(),avail,unavail,items:Object.assign({},R.items),photoUrls}).catch(e=>console.warn('Firestore rka failed',e));
 
   document.getElementById('rka-sid').textContent='ID: #'+id;
   document.getElementById('rka-savail').textContent=avail;
@@ -24722,7 +24732,11 @@ function submitBeli(){
     _beliLog.push({id,area:B.area,mds:B.mds,store:B.store,timestamp:now.toISOString(),nominal:Number(document.getElementById('beli-nominal').value),groupTotals:Object.assign({},groupTotals),totalRenceng});
     localStorage.setItem('mds_beli_log',JSON.stringify(_beliLog));
   }catch(e){console.warn('localStorage write failed',e);}
-  if(typeof db!=='undefined'){const _iq={};BELI_FLAT.forEach((nm,ii)=>{if(B.qty[ii])_iq[nm]=B.qty[ii];});db.collection('beli_logs').add({id,area:B.area,mds:B.mds,store:B.store,timestamp:firebase.firestore.FieldValue.serverTimestamp(),nominal:Number(document.getElementById('beli-nominal').value),groupTotals:Object.assign({},groupTotals),totalRenceng,itemQty:_iq}).catch(e=>console.warn('Firestore beli failed',e));}
+  if(typeof db!=='undefined'){
+    const _iq={};BELI_FLAT.forEach((nm,ii)=>{if(B.qty[ii])_iq[nm]=B.qty[ii];});
+    const _save=(photoUrl)=>db.collection('beli_logs').add({id,area:B.area,mds:B.mds,store:B.store,timestamp:firebase.firestore.FieldValue.serverTimestamp(),nominal:Number(document.getElementById('beli-nominal').value),groupTotals:Object.assign({},groupTotals),totalRenceng,itemQty:_iq,photoUrl:photoUrl||''}).catch(e=>console.warn('Firestore beli failed',e));
+    if(window.storage&&B.photo){compressAndUpload(B.photo,`beli/${id}/nota.jpg`).then(_save).catch(()=>_save(''));}else{_save('');}
+  }
 
   document.getElementById('beli-sm-qty-hilo').textContent=(groupTotals['HILO']||0)+' renceng';
   document.getElementById('beli-sm-qty-ns').textContent=(groupTotals['NS']||0)+' renceng';
@@ -25172,12 +25186,27 @@ function stockUpdateStepper(){
 </script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
 <script>
 try{
   const firebaseConfig={apiKey:"AIzaSyCtYc8uZICLzQrA1b7l00Yo_9V_rqNVOu0",authDomain:"mds-visit.firebaseapp.com",projectId:"mds-visit",storageBucket:"mds-visit.firebasestorage.app",messagingSenderId:"732603054928",appId:"1:732603054928:web:9f946bfa13d56d860a8a55"};
   firebase.initializeApp(firebaseConfig);
   window.db=firebase.firestore();
+  window.storage=firebase.storage();
 }catch(e){console.warn('Firebase init failed',e);}
+
+async function compressAndUpload(dataUrl,path){
+  const img=new Image();
+  await new Promise(r=>{img.onload=r;img.src=dataUrl;});
+  const MAX=1200;let w=img.width,h=img.height;
+  if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}}
+  const c=document.createElement('canvas');c.width=w;c.height=h;
+  c.getContext('2d').drawImage(img,0,0,w,h);
+  const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',0.72));
+  const ref=window.storage.ref(path);
+  await ref.put(blob);
+  return await ref.getDownloadURL();
+}
 </script>
 </body>
 </html>
