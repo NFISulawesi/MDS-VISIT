@@ -488,8 +488,9 @@ function initDash(){
   });
   db.collection('stock_logs').orderBy('timestamp','desc').limit(2000).onSnapshot(s=>{
     STOCK_ALL=[];s.forEach(d=>{const v=d.data();STOCK_ALL.push({...v,timestamp:v.timestamp?v.timestamp.toDate():new Date()});});
+    console.log('[stock_logs] loaded',STOCK_ALL.length,'docs');
     render();
-  });
+  },err=>{console.error('[stock_logs] onSnapshot error:',err.code,err.message);});
 }
 function buildMonthOpts(){
   const ms=new Set([...RKA_ALL,...BELI_ALL].map(r=>{const d=r.timestamp;return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;}));
