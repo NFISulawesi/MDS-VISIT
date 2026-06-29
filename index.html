@@ -25128,7 +25128,14 @@ function submitStock(){
       timestamp:firebase.firestore.FieldValue.serverTimestamp(),
       items:itemsFlat,
       totalNilai:grandTotal
-    }).catch(e=>console.warn('Firestore stock failed',e));
+    }).then(()=>{
+      console.log('stock_logs write OK', id);
+    }).catch(e=>{
+      console.error('stock_logs FAILED',e);
+      alert('Firestore error: '+e.code+' — '+e.message);
+    });
+  } else {
+    alert('DB not initialized — Firebase failed to load');
   }
   stockStep=4;
   stockUpdateStepper();
