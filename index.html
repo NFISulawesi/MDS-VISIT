@@ -882,22 +882,9 @@ input[type="file"]{display:none;}
             </label>
           </div>
         </div>
-        <div class="field" id="stock-nama-mds-wrap">
-          <label class="f-label">Nama MDS</label>
-          <select class="f-input sel" id="stock-mds-sel" onchange="stockCheck(0)">
-            <option value="">— Pilih Area dulu —</option>
-          </select>
-          <div class="add-trigger" onclick="toggleBox('stock-mds-box')"><span>+</span> Tambah MDS baru</div>
-          <div class="add-box" id="stock-mds-box">
-            <div class="field" style="margin-bottom:0">
-              <label class="f-label">Nama MDS Baru</label>
-              <input type="text" class="f-input" id="stock-mds-new" placeholder="Ketik nama…" oninput="stockCheck(0)">
-            </div>
-          </div>
-        </div>
-        <div class="field" id="stock-nama-spg-wrap" style="display:none">
-          <label class="f-label">Nama SPG</label>
-          <input type="text" class="f-input" id="stock-spg-input" placeholder="Ketik nama SPG…" oninput="stockCheck(0)">
+        <div class="field" id="stock-nama-wrap">
+          <label class="f-label" id="stock-nama-label">Nama MDS</label>
+          <input type="text" class="f-input" id="stock-nama-input" placeholder="Ketik nama…" oninput="stockCheck(0)">
         </div>
         <div class="step-nav">
           <div></div>
@@ -24934,9 +24921,7 @@ function initStock(){
   const as=document.getElementById('stock-area-sel');
   as.innerHTML='<option value="">— Pilih Area —</option>';
   AREAS.forEach(n=>{ const o=document.createElement('option'); o.value=n; o.textContent=n; as.appendChild(o); });
-  document.getElementById('stock-mds-sel').innerHTML='<option value="">— Pilih Area dulu —</option>';
-  document.getElementById('stock-mds-new').value='';
-  document.getElementById('stock-spg-input').value='';
+  document.getElementById('stock-nama-input').value='';
   document.getElementById('stock-store-sel').innerHTML='<option value="">— Pilih Toko —</option>';
   document.getElementById('stock-store-new').value='';
   // reset radios
@@ -24963,8 +24948,8 @@ function stockAreaChange(){
 
 function stockStatusChange(){
   const isMds=document.getElementById('stock-r-mds').checked;
-  document.getElementById('stock-nama-mds-wrap').style.display=isMds?'block':'none';
-  document.getElementById('stock-nama-spg-wrap').style.display=isMds?'none':'block';
+  document.getElementById('stock-nama-label').textContent=isMds?'Nama MDS':'Nama SPG';
+  document.getElementById('stock-nama-input').value='';
   stockCheck(0);
 }
 
@@ -24972,16 +24957,9 @@ function stockCheck(step){
   let ok=false;
   if(step===0){
     const area=document.getElementById('stock-area-sel').value;
-    const isMds=document.getElementById('stock-r-mds').checked;
-    const isSpg=document.getElementById('stock-r-spg').checked;
-    let nama='';
-    if(isMds){
-      const box=document.getElementById('stock-mds-box');
-      nama=(box.classList.contains('open')&&document.getElementById('stock-mds-new').value.trim())||document.getElementById('stock-mds-sel').value;
-    } else if(isSpg){
-      nama=document.getElementById('stock-spg-input').value.trim();
-    }
-    ok=!!(area&&(isMds||isSpg)&&nama);
+    const hasStatus=document.getElementById('stock-r-mds').checked||document.getElementById('stock-r-spg').checked;
+    const nama=document.getElementById('stock-nama-input').value.trim();
+    ok=!!(area&&hasStatus&&nama);
     document.getElementById('stock-next-0').disabled=!ok;
   } else if(step===1){
     const store=document.getElementById('stock-store-sel').value||document.getElementById('stock-store-new').value.trim();
@@ -24995,16 +24973,8 @@ function stockNext(step){
   if(step===0){
     if(!stockCheck(0)) return;
     SK.area=document.getElementById('stock-area-sel').value;
-    const isMds=document.getElementById('stock-r-mds').checked;
-    SK.status=isMds?'MDS':'SPG';
-    if(isMds){
-      const box=document.getElementById('stock-mds-box');
-      const nw=document.getElementById('stock-mds-new').value.trim();
-      SK.nama=(box.classList.contains('open')&&nw)?nw:document.getElementById('stock-mds-sel').value;
-      if(box.classList.contains('open')&&nw&&MDS_BY_AREA[SK.area]&&!MDS_BY_AREA[SK.area].includes(nw)) MDS_BY_AREA[SK.area].push(nw);
-    } else {
-      SK.nama=document.getElementById('stock-spg-input').value.trim();
-    }
+    SK.status=document.getElementById('stock-r-mds').checked?'MDS':'SPG';
+    SK.nama=document.getElementById('stock-nama-input').value.trim();
     // fill stores
     const ss=document.getElementById('stock-store-sel');
     ss.innerHTML='<option value="">— Pilih Toko —</option>';
