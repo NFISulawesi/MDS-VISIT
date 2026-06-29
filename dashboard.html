@@ -478,12 +478,14 @@ function tenure(d){
 function loadAll(){
   if(!db){console.error('loadAll: db undefined');return;}
   const SRV={source:'server'};
-  db.collection('rka_logs').orderBy('timestamp','desc').limit(2000).get(SRV).then(s=>{
+  db.collection('rka_logs').limit(2000).get(SRV).then(s=>{
     RKA_ALL=[];s.forEach(d=>{const v=d.data();RKA_ALL.push({...v,timestamp:v.timestamp?v.timestamp.toDate():new Date()});});
+    RKA_ALL.sort((a,b)=>b.timestamp-a.timestamp);
     buildMonthOpts();render();
   }).catch(e=>console.error('rka_logs get failed',e.code,e.message));
-  db.collection('beli_logs').orderBy('timestamp','desc').limit(2000).get(SRV).then(s=>{
+  db.collection('beli_logs').limit(2000).get(SRV).then(s=>{
     BELI_ALL=[];s.forEach(d=>{const v=d.data();BELI_ALL.push({...v,timestamp:v.timestamp?v.timestamp.toDate():new Date()});});
+    BELI_ALL.sort((a,b)=>b.timestamp-a.timestamp);
     buildMonthOpts();render();
   }).catch(e=>console.error('beli_logs get failed',e.code,e.message));
   db.collection('stock_logs').get(SRV).then(s=>{
@@ -498,14 +500,16 @@ function initDash(){
   document.getElementById('tb-date').textContent=new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   loadAll();
   setInterval(loadAll,30000);
-  db.collection('rka_logs').orderBy('timestamp','desc').limit(2000).onSnapshot({includeMetadataChanges:true},s=>{
+  db.collection('rka_logs').limit(2000).onSnapshot({includeMetadataChanges:true},s=>{
     if(s.metadata.fromCache)return;
     RKA_ALL=[];s.forEach(d=>{const v=d.data();RKA_ALL.push({...v,timestamp:v.timestamp?v.timestamp.toDate():new Date()});});
+    RKA_ALL.sort((a,b)=>b.timestamp-a.timestamp);
     buildMonthOpts();render();
   },e=>console.error('rka snap err',e));
-  db.collection('beli_logs').orderBy('timestamp','desc').limit(2000).onSnapshot({includeMetadataChanges:true},s=>{
+  db.collection('beli_logs').limit(2000).onSnapshot({includeMetadataChanges:true},s=>{
     if(s.metadata.fromCache)return;
     BELI_ALL=[];s.forEach(d=>{const v=d.data();BELI_ALL.push({...v,timestamp:v.timestamp?v.timestamp.toDate():new Date()});});
+    BELI_ALL.sort((a,b)=>b.timestamp-a.timestamp);
     buildMonthOpts();render();
   },e=>console.error('beli snap err',e));
   db.collection('stock_logs').limit(2000).onSnapshot({includeMetadataChanges:true},s=>{
