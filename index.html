@@ -335,6 +335,8 @@ body {
   letter-spacing:.3px;
 }
 .photo-zone.shot .ph-retake{display:block;}
+.ph-upstatus{position:absolute;top:7px;right:7px;background:rgba(0,0,0,.72);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;pointer-events:none;display:none;}
+.photo-zone.shot .ph-upstatus{display:block;}
 .dt-pill{
   display:inline-flex;align-items:center;gap:7px;
   background:var(--primary);color:rgba(255,255,255,.72);
@@ -636,6 +638,7 @@ input[type="file"]{display:none;}
             <div class="ph-sub">Tap untuk buka kamera</div>
           </div>
           <img class="ph-preview" id="rka-pview0" alt="">
+          <div class="ph-upstatus" id="rka-upstatus0">⬆ Uploading...</div>
           <div class="ph-retake">↺ Ganti Foto</div>
         </div>
         <input type="file" id="rka-cam0" accept="image/*" capture="environment" onchange="handleRkaPhoto(0)">
@@ -649,6 +652,7 @@ input[type="file"]{display:none;}
             <div class="ph-sub">Tap untuk buka kamera</div>
           </div>
           <img class="ph-preview" id="rka-pview1" alt="">
+          <div class="ph-upstatus" id="rka-upstatus1">⬆ Uploading...</div>
           <div class="ph-retake">↺ Ganti Foto</div>
         </div>
         <input type="file" id="rka-cam1" accept="image/*" capture="environment" onchange="handleRkaPhoto(1)">
@@ -662,6 +666,7 @@ input[type="file"]{display:none;}
             <div class="ph-sub">Tap untuk buka kamera</div>
           </div>
           <img class="ph-preview" id="rka-pview2" alt="">
+          <div class="ph-upstatus" id="rka-upstatus2">⬆ Uploading...</div>
           <div class="ph-retake">↺ Ganti Foto</div>
         </div>
         <input type="file" id="rka-cam2" accept="image/*" capture="environment" onchange="handleRkaPhoto(2)">
@@ -785,6 +790,7 @@ input[type="file"]{display:none;}
             <div class="ph-sub">Tap untuk buka kamera</div>
           </div>
           <img class="ph-preview" id="beli-pview" alt="">
+          <div class="ph-upstatus" id="beli-upstatus">⬆ Uploading...</div>
           <div class="ph-retake">↺ Ganti Foto</div>
         </div>
         <input type="file" id="beli-cam" accept="image/*" capture="environment" onchange="handlePhoto('beli')">
@@ -24965,7 +24971,11 @@ function handleRkaPhoto(idx){
     }
     rkaCheck(2);
     const _lbl=['ts-sweetener','hilo-box','ns-hilo-polos'];
-    R.photoUploads[idx]=compressAndUpload(src,`rka_${Date.now()}_${_lbl[idx]||idx}`);
+    const _st=document.getElementById('rka-upstatus'+idx);
+    if(_st){_st.textContent='⬆ Uploading...';}
+    R.photoUploads[idx]=compressAndUpload(src,`rka_${Date.now()}_${_lbl[idx]||idx}`)
+      .then(url=>{if(_st)_st.textContent='✅ Tersimpan';return url;})
+      .catch(e=>{if(_st)_st.textContent='⚠️ Gagal';throw e;});
   };
   reader.readAsDataURL(file);
 }
@@ -24979,7 +24989,11 @@ function handlePhoto(mod){
     document.getElementById(mod+'-pzone').classList.add('shot');
     B.photo=src;
     beliCheck(2);
-    B.photoUpload=compressAndUpload(src,`beli_${Date.now()}_nota`);
+    const _bst=document.getElementById('beli-upstatus');
+    if(_bst){_bst.textContent='⬆ Uploading...';}
+    B.photoUpload=compressAndUpload(src,`beli_${Date.now()}_nota`)
+      .then(url=>{if(_bst)_bst.textContent='✅ Tersimpan';return url;})
+      .catch(e=>{if(_bst)_bst.textContent='⚠️ Gagal';throw e;});
   };
   r.readAsDataURL(file);
 }
