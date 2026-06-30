@@ -492,12 +492,14 @@ function loadAll(){
     BELI_ALL.sort((a,b)=>b.timestamp-a.timestamp);
     buildMonthOpts();render();
   }).catch(e=>console.error('beli_logs get failed',e.code,e.message));
-  db.collection('stock_logs').get(SRV).then(s=>{
+  db.collection('stock_logs').get(SRV)
+    .catch(()=>db.collection('stock_logs').get())
+    .then(s=>{
     STOCK_ALL=[];s.forEach(d=>{const v=d.data();STOCK_ALL.push({...v,timestamp:v.timestamp?v.timestamp.toDate():new Date()});});
     STOCK_ALL.sort((a,b)=>b.timestamp-a.timestamp);
-    console.log('[stock_logs] GET loaded',STOCK_ALL.length,'docs');
+    console.log('[stock_logs] loaded',STOCK_ALL.length,'docs');
     render();
-  }).catch(e=>console.error('stock_logs get failed',e.code,e.message));
+  }).catch(e=>console.error('stock_logs FAILED',e.code,e.message));
 }
 function initDash(){
   switchTab('rka');
@@ -793,7 +795,7 @@ function renderStockLog(stockF){
       '<td><span class="tag b sm">'+cnt+'</span></td>'+
       '<td class="td-main" style="color:var(--amber)">'+(r.totalNilai?rp(r.totalNilai):'—')+'</td>'+
     '</tr>';
-  }).join(''):'<tr><td colspan="9" style="text-align:center;color:var(--t3);padding:32px">Belum ada data stock</td></tr>';
+  }).join(''):'<tr><td colspan="9" style="text-align:center;color:var(--t3);padding:32px">Belum ada data stock ('+STOCK_ALL.length+' doc di Firestore, '+stockF.length+' setelah filter)</td></tr>';
   if(tf)tf.innerHTML=stockF.length?'<span style="color:var(--t3);font-size:11px">'+stockF.length+' entri · Total Nilai: <strong style="color:var(--amber)">'+rp(totalNilai)+'</strong></span>':'';
 }
 function renderStockItem(stockF){
