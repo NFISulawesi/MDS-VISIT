@@ -24807,7 +24807,7 @@ async function submitBeli(){
       document.getElementById('beli-sm-foto').textContent='✅ Foto tersimpan';
     }catch(e){
       console.warn('beli photo failed',e);
-      document.getElementById('beli-sm-foto').textContent='⚠️ Foto gagal upload';
+      document.getElementById('beli-sm-foto').textContent='⚠️ Gagal — '+(e.message||String(e));
     }
   }
 }
