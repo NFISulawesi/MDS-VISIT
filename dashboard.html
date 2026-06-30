@@ -936,12 +936,14 @@ function renderBeli(beliF){
     const k=nsR*NS_PRICE+hiR*HILO_PRICE;
     const nota=r.nominal||0, diff=k-nota;
     const dTag=diff===0?'<span class="tag t sm">0</span>':diff>0?`<span class="tag g sm">+${rp(diff)}</span>`:`<span class="tag r sm">${rp(diff)}</span>`;
-    return`<tr>
+    const hasPhoto=!!(r.photoData||r.photoUrl);
+    const bid=r.id||'';
+    return`<tr class="${hasPhoto?'clickrow':''}" ${hasPhoto?`data-bid="${bid}" onclick="toggleBeliDetail(this,'${bid}')"`:''}style="cursor:${hasPhoto?'pointer':'default'}">
       <td class="td-id">${r.id||'—'}</td>
       <td class="td-dim">${ts.toLocaleDateString('id-ID',{day:'numeric',month:'short'})} ${ts.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</td>
       <td class="td-main">${r.mds||'—'}</td>
       <td class="td-dim">${r.area||'—'}</td>
-      <td class="td-mid">${r.store||'—'}</td>
+      <td class="td-mid">${r.store||'—'}${hasPhoto?' <span style="font-size:9px;color:var(--accent)">📷</span>':''}</td>
       <td><span class="tag b sm">${nsR}</span></td>
       <td><span class="tag au sm">${hiR}</span></td>
       <td><span class="tag t sm">${r.totalRenceng||0}</span></td>
@@ -1170,7 +1172,9 @@ function openMDS(name){
     const ts=r.timestamp;
     const nsR=r.groupTotals&&r.groupTotals.NS||0,hiR=r.groupTotals&&r.groupTotals.HILO||0;
     const k=nsR*NS_PRICE+hiR*HILO_PRICE,nota=r.nominal||0,diff=k-nota;
-    return`<tr><td class="td-dim">${ts.toLocaleDateString('id-ID',{day:'numeric',month:'short'})} ${ts.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</td><td class="td-mid">${r.store||'—'}</td><td style="color:var(--blue)">${nsR}</td><td style="color:var(--gold)">${hiR}</td><td>${r.totalRenceng||0}</td><td style="color:var(--accent);font-weight:700">${k?rp(k):'—'}</td><td class="td-dim">${nota?rp(nota):'—'}</td><td style="color:${diff>0?'var(--accent)':diff<0?'var(--red)':'var(--t3)'}">${diff?rp(diff):'—'}</td></tr>`;
+    const hasPhoto=!!(r.photoData||r.photoUrl);
+    const bid=r.id||'';
+    return`<tr class="${hasPhoto?'clickrow':''}" ${hasPhoto?`data-bid="${bid}" onclick="toggleBeliDetail(this,'${bid}')"`:''}><td class="td-dim">${ts.toLocaleDateString('id-ID',{day:'numeric',month:'short'})} ${ts.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</td><td class="td-mid">${r.store||'—'}${hasPhoto?' <span style="font-size:9px;color:var(--accent)">📷</span>':''}</td><td style="color:var(--blue)">${nsR}</td><td style="color:var(--gold)">${hiR}</td><td>${r.totalRenceng||0}</td><td style="color:var(--accent);font-weight:700">${k?rp(k):'—'}</td><td class="td-dim">${nota?rp(nota):'—'}</td><td style="color:${diff>0?'var(--accent)':diff<0?'var(--red)':'var(--t3)'}">${diff?rp(diff):'—'}</td></tr>`;
   }).join(''):'<tr><td colspan="8" style="text-align:center;padding:14px;color:var(--t3)">Tidak ada data</td></tr>';
 
   document.getElementById('mds-modal').classList.remove('hidden');
@@ -1219,6 +1223,29 @@ function toggleRkaDetail(tr, vid){
   det.innerHTML=html;
   tr.parentNode.insertBefore(det,tr.nextSibling);
   tr.querySelector('span[style*="▾"]').textContent='▴';
+}
+
+function toggleBeliDetail(tr, bid){
+  const next=tr.nextElementSibling;
+  if(next&&next.classList.contains('item-detail-row')){
+    next.style.display=next.style.display==='none'?'':'none';
+    const sp=tr.querySelector('span[style*="▾"]')||tr.querySelector('span[style*="▴"]');
+    if(sp)sp.textContent=next.style.display===''?'▴':'▾';
+    return;
+  }
+  const r=BELI_ALL.find(x=>x.id===bid)||{};
+  const photo=r.photoData||r.photoUrl||'';
+  if(!photo)return;
+  const isData=photo.startsWith('data:');
+  const imgHtml=isData
+    ?`<img src="${photo}" style="max-width:260px;width:100%;border-radius:8px;border:1px solid var(--border);object-fit:contain;cursor:zoom-in" onclick="this.style.maxWidth=this.style.maxWidth?'':'none';this.style.width=this.style.width==='auto'?'100%':'auto'">`
+    :`<a href="${photo}" target="_blank"><img src="${photo}" style="max-width:260px;width:100%;border-radius:8px;border:1px solid var(--border);object-fit:contain" loading="lazy"></a>`;
+  const det=document.createElement('tr');
+  det.className='item-detail-row';
+  det.innerHTML=`<td colspan="99" style="padding:8px 16px 14px;background:rgba(255,255,255,.015);border-top:none"><div style="font-size:8px;color:var(--t3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.08em">Foto Nota</div>${imgHtml}</td>`;
+  tr.parentNode.insertBefore(det,tr.nextSibling);
+  const sp=tr.querySelector('span[style*="📷"]');
+  if(sp)sp.textContent='▴';
 }
 
 // ── EXPORT CSV ────────────────────────────────────────────────────────────────
