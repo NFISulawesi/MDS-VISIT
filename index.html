@@ -24605,16 +24605,16 @@ async function submitRka(){
   const photoCount=Object.values(R.photos).filter(Boolean).length;
   if(window.storage&&photoCount>0&&rkaDocRef){
     const labels=['ts-sweetener','hilo-box','ns-hilo-polos'];
-    const photoUrls={};let photoOk=0;
+    const photoUrls={};let photoOk=0;let lastErr='';
     for(const [idx,dataUrl] of Object.entries(R.photos)){
       if(!dataUrl)continue;
       try{
-        photoUrls[idx]=await Promise.race([compressAndUpload(dataUrl,`rka/${id}/photo${idx}_${labels[idx]||idx}.jpg`),new Promise((_,r)=>setTimeout(()=>r(new Error('foto timeout')),20000))]);
+        photoUrls[idx]=await Promise.race([compressAndUpload(dataUrl,`rka/${id}/photo${idx}_${labels[idx]||idx}.jpg`),new Promise((_,r)=>setTimeout(()=>r(new Error('timeout')),20000))]);
         photoOk++;
-      }catch(e){console.warn('photo upload failed',idx,e);}
+      }catch(e){lastErr=e.message||String(e);console.warn('photo upload failed',idx,e);}
     }
     if(photoOk>0) await rkaDocRef.update({photoUrls});
-    document.getElementById('rka-sm-foto').textContent=photoOk===photoCount?`✅ ${photoOk} foto tersimpan`:`⚠️ ${photoOk}/${photoCount} foto`;
+    document.getElementById('rka-sm-foto').textContent=photoOk===photoCount?`✅ ${photoOk} foto tersimpan`:`⚠️ ${photoOk}/${photoCount} foto — ${lastErr}`;
   }else{
     document.getElementById('rka-sm-foto').textContent=photoCount===0?'—':'⚠️ Storage belum terhubung';
   }
