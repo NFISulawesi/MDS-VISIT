@@ -1,8 +1,3 @@
 <!DOCTYPE html><html><head><title>MDS Visit</title>
-<script>
-fetch('dashboard.html',{cache:'no-store',headers:{'Pragma':'no-cache','Cache-Control':'no-cache, no-store'}})
-  .then(r=>r.text())
-  .then(html=>{document.open();document.write(html);document.close();})
-  .catch(()=>{location.href='dashboard.html?_='+Date.now();});
-</script>
+<script>location.replace('dashboard.html?v='+Date.now());</script>
 </head><body style="background:#04050a;color:#9ba098;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;font-size:14px">Loading MDS Visit...</body></html>
