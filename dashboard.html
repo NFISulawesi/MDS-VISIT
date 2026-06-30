@@ -1235,17 +1235,39 @@ function toggleBeliDetail(tr, bid){
   }
   const r=BELI_ALL.find(x=>x.id===bid)||{};
   const photo=r.photoData||r.photoUrl||'';
-  if(!photo)return;
-  const isData=photo.startsWith('data:');
-  const imgHtml=isData
-    ?`<img src="${photo}" style="max-width:260px;width:100%;border-radius:8px;border:1px solid var(--border);object-fit:contain;cursor:zoom-in" onclick="this.style.maxWidth=this.style.maxWidth?'':'none';this.style.width=this.style.width==='auto'?'100%':'auto'">`
-    :`<a href="${photo}" target="_blank"><img src="${photo}" style="max-width:260px;width:100%;border-radius:8px;border:1px solid var(--border);object-fit:contain" loading="lazy"></a>`;
+  const iq=r.itemQty||{};
+  let html='<td colspan="99" style="padding:8px 16px 14px;background:rgba(255,255,255,.015);border-top:none;display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start">';
+  // photo
+  if(photo){
+    const isData=photo.startsWith('data:');
+    const imgHtml=isData
+      ?`<img src="${photo}" style="max-width:220px;width:100%;border-radius:8px;border:1px solid var(--border);object-fit:contain;cursor:zoom-in" onclick="this.style.maxWidth=this.style.maxWidth?'':'none';this.style.width=this.style.width==='auto'?'100%':'auto'">`
+      :`<a href="${photo}" target="_blank"><img src="${photo}" style="max-width:220px;width:100%;border-radius:8px;border:1px solid var(--border);object-fit:contain" loading="lazy"></a>`;
+    html+=`<div><div style="font-size:8px;color:var(--t3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.08em">Foto Nota</div>${imgHtml}</div>`;
+  }
+  // items
+  if(Object.keys(iq).length){
+    const groups={NS:[],HILO:[],O:[]};
+    Object.entries(iq).sort(([a],[b])=>a.localeCompare(b)).forEach(([n,qty])=>{
+      const b=brandOf(n);(groups[b]||groups.O).push({n,qty});
+    });
+    let ihtml='<div style="flex:1;min-width:180px"><div style="font-size:8px;color:var(--t3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.08em">Item Dibeli</div><div style="display:flex;flex-direction:column;gap:4px">';
+    ['NS','HILO','O'].forEach(brand=>{
+      const list=groups[brand];if(!list.length)return;
+      list.forEach(({n,qty})=>{
+        const short=n.replace(/^(NS|HI LO|HILO|TS)\s+/i,'').replace(/\s+PLS.*$/i,'').trim();
+        const col=brand==='NS'?'var(--blue)':brand==='HILO'?'var(--gold)':'var(--t3)';
+        ihtml+=`<div style="display:flex;justify-content:space-between;align-items:center;font-size:10px"><span style="color:var(--t2)">${short}</span><span style="font-weight:700;color:${col};background:rgba(255,255,255,.06);padding:1px 8px;border-radius:4px">${qty} rnc</span></div>`;
+      });
+    });
+    ihtml+='</div></div>';
+    html+=ihtml;
+  }
+  html+='</td>';
   const det=document.createElement('tr');
   det.className='item-detail-row';
-  det.innerHTML=`<td colspan="99" style="padding:8px 16px 14px;background:rgba(255,255,255,.015);border-top:none"><div style="font-size:8px;color:var(--t3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.08em">Foto Nota</div>${imgHtml}</td>`;
+  det.innerHTML=html;
   tr.parentNode.insertBefore(det,tr.nextSibling);
-  const sp=tr.querySelector('span[style*="📷"]');
-  if(sp)sp.textContent='▴';
 }
 
 // ── EXPORT CSV ────────────────────────────────────────────────────────────────
