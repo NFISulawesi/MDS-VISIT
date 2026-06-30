@@ -853,12 +853,16 @@ function renderRKA(rkaF){
     const bav={NS:{a:0,t:0},HILO:{a:0,t:0},TS:{a:0,t:0}};
     if(r.items)Object.entries(r.items).forEach(([n,v])=>{const b=brandOf(n);if(bav[b]){bav[b].t++;if(v)bav[b].a++;}});
     function bTag(b){const d=bav[b];if(!d||!d.t)return'<span class="tag b sm">—</span>';const p=Math.round(d.a/d.t*100);return avTag(p,' sm');}
-    return`<tr>
+    const hasPhotos=r.photoUrls&&Object.keys(r.photoUrls).filter(k=>r.photoUrls[k]).length>0;
+    const hasItems=r.items&&Object.keys(r.items).length>0;
+    const canExpand=hasPhotos||hasItems;
+    const enc=canExpand?encodeURIComponent(JSON.stringify({items:r.items||{},photos:r.photoUrls||{}})):'';
+    return`<tr class="${canExpand?'clickrow':''}" ${canExpand?`onclick="toggleRkaDetail(this,'${enc}')"`:''}style="cursor:${canExpand?'pointer':'default'}">
       <td class="td-id">${r.id||'—'}</td>
       <td class="td-dim">${ts.toLocaleDateString('id-ID',{day:'numeric',month:'short'})} ${ts.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</td>
       <td class="td-main">${r.mds||'—'}</td>
       <td class="td-dim">${r.area||'—'}</td>
-      <td class="td-mid">${r.store||'—'}</td>
+      <td class="td-mid">${r.store||'—'}${hasPhotos?' <span style="font-size:9px;color:var(--accent)">📷</span>':canExpand?' <span style="font-size:9px;color:var(--t3)">▾</span>':''}</td>
       <td><span class="tag g sm">${r.avail||0}</span></td>
       <td><span class="tag r sm">${r.unavail||0}</span></td>
       <td>${avTag(pct,' sm')}</td>
@@ -1187,7 +1191,7 @@ function toggleRkaDetail(tr, enc){
   Object.entries(items).sort(([a],[b])=>a.localeCompare(b)).forEach(([n,ada])=>{
     const b=brandOf(n); (groups[b]||groups.O).push({n,ada});
   });
-  let html='<td colspan="9" style="padding:6px 16px 12px;background:rgba(255,255,255,.015);border-top:none">';
+  let html='<td colspan="99" style="padding:6px 16px 12px;background:rgba(255,255,255,.015);border-top:none">';
   const photoVals=Object.values(photos).filter(Boolean);
   const photoLabels=['TS Sweetener','HILO Box','NS & HILO Polos'];
   if(photoVals.length){
