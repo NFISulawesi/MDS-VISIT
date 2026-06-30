@@ -25263,11 +25263,11 @@ const GAS_UPLOAD_URL='https://script.google.com/macros/s/AKfycbybKzAP9rgDWQaWLX2
 async function compressAndUpload(dataUrl,path){
   const img=new Image();
   await new Promise(r=>{img.onload=r;img.src=dataUrl;});
-  const MAX=1200;let w=img.width,h=img.height;
+  const MAX=800;let w=img.width,h=img.height;
   if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}}
   const c=document.createElement('canvas');c.width=w;c.height=h;
   c.getContext('2d').drawImage(img,0,0,w,h);
-  const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',0.72));
+  const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',0.6));
   const base64=await new Promise(r=>{const rd=new FileReader();rd.onload=()=>r(rd.result.split(',')[1]);rd.readAsDataURL(blob);});
   const name=path.replace(/\//g,'_')+'.jpg';
   const res=await fetch(GAS_UPLOAD_URL,{method:'POST',body:JSON.stringify({image:base64,name})});
