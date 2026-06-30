@@ -225,7 +225,7 @@ tr:hover td{background:rgba(255,255,255,.016);}
         <option value="today">Hari Ini</option>
         <option value="week">7 Hari</option>
         <option value="30d">30 Hari</option>
-        <option value="all">Semua</option>
+        <option value="all" selected>Semua</option>
       </select>
       <div class="fsep"></div>
       <span class="fl">Bulan</span>
@@ -438,7 +438,7 @@ try{const FB={apiKey:"AIzaSyCtYc8uZICLzQrA1b7l00Yo_9V_rqNVOu0",authDomain:"mds-v
 firebase.initializeApp(FB);
 db=firebase.firestore();}catch(e){console.warn("Firebase init failed",e);}
 
-let RKA_ALL=[],BELI_ALL=[],TAB='rka',DF='today',NM=0,MF='',SC='timestamp',SD=-1;
+let RKA_ALL=[],BELI_ALL=[],TAB='rka',DF='',NM=0,MF='',SC='timestamp',SD=-1;
 let cAV=null,cTrend=null,cBrand=null,mcAV=null,mcBrand=null;
 
 // ── PIN ─────────────────────────────────────────────────────────────────────
@@ -579,10 +579,10 @@ function setMonthFilter(m){
   render();
 }
 function clearFilters(){
-  DF='today';NM=0;MF='';
+  DF='';NM=0;MF='';
   ['f-area','f-mds','f-store'].forEach(id=>document.getElementById(id).value='');
   document.querySelectorAll('.pill[data-f],.pill[data-mn]').forEach(p=>p.classList.remove('on'));
-  document.querySelector('[data-f="today"]').classList.add('on');
+  const ps=document.getElementById('f-period-sel');if(ps)ps.value='all';
   render();
 }
 function filtered(data){
@@ -1215,23 +1215,35 @@ function toggleRkaDetail(tr, enc){
 
 // ── EXPORT CSV ────────────────────────────────────────────────────────────────
 function exportCSV(){
-  const rkaF=filtered(RKA_ALL),beliF=filtered(BELI_ALL);
+  const rkaF=filtered(RKA_ALL),beliF=filtered(BELI_ALL),stockF=filtered(STOCK_ALL);
+  const q=s=>`"${(s||'').toString().replace(/"/g,'""')}"`;
   let csv='',fn='MDS';
   if(TAB==='rka'){
-    csv='ID,Waktu,MDS,Area,Toko,Ada,Tdk,AV%,NS AV%,HILO AV%\n';
+    csv='ID,Waktu,MDS,Area,Toko,Ada,Tdk,AV%,NS AV%,HILO AV%,TS AV%,Item ADA,Item TDK\n';
     csv+=doSort(rkaF).map(r=>{
       const ts=r.timestamp,pct=r.avail+r.unavail>0?Math.round(r.avail/(r.avail+r.unavail)*100):0;
-      const bav={NS:{a:0,t:0},HILO:{a:0,t:0}};
-      if(r.items)Object.entries(r.items).forEach(([n,v])=>{const b=brandOf(n);if(bav[b]){bav[b].t++;if(v)bav[b].a++;}});
+      const bav={NS:{a:0,t:0},HILO:{a:0,t:0},TS:{a:0,t:0}};
+      const ada=[],tdk=[];
+      if(r.items)Object.entries(r.items).forEach(([n,v])=>{
+        const b=brandOf(n);if(bav[b]){bav[b].t++;if(v){bav[b].a++;ada.push(n);}else{tdk.push(n);}}
+      });
       const bp=b=>bav[b].t?Math.round(bav[b].a/bav[b].t*100)+'%':'—';
-      return[r.id,ts.toLocaleString('id-ID'),r.mds,r.area,`"${r.store}"`,r.avail,r.unavail,pct+'%',bp('NS'),bp('HILO')].join(',');
+      return[r.id,ts.toLocaleString('id-ID'),r.mds,r.area,q(r.store),r.avail,r.unavail,pct+'%',bp('NS'),bp('HILO'),bp('TS'),q(ada.join('; ')),q(tdk.join('; '))].join(',');
     }).join('\n');fn='RKA';
   }else if(TAB==='beli'){
-    csv='ID,Waktu,MDS,Area,Toko,NS Rnc,HILO Rnc,Total Rnc,Kalkulasi,Nota,Selisih\n';
+    csv='ID,Waktu,MDS,Area,Toko,NS Rnc,HILO Rnc,Total Rnc,Kalkulasi,Nota,Selisih,Detail Item\n';
     csv+=doSort(beliF).map(r=>{
       const ts=r.timestamp,nsR=r.groupTotals&&r.groupTotals.NS||0,hiR=r.groupTotals&&r.groupTotals.HILO||0,k=nsR*NS_PRICE+hiR*HILO_PRICE;
-      return[r.id,ts.toLocaleString('id-ID'),r.mds,r.area,`"${r.store}"`,nsR,hiR,r.totalRenceng||0,k,r.nominal||0,k-(r.nominal||0)].join(',');
+      const detail=r.itemQty?Object.entries(r.itemQty).map(([n,v])=>`${n}:${v}`).join('; '):'';
+      return[r.id,ts.toLocaleString('id-ID'),r.mds,r.area,q(r.store),nsR,hiR,r.totalRenceng||0,k,r.nominal||0,k-(r.nominal||0),q(detail)].join(',');
     }).join('\n');fn='Beli';
+  }else if(TAB==='stock'){
+    csv='ID,Waktu,Nama,Status,Area,Toko,Tipe,Total Nilai,Detail Item\n';
+    csv+=stockF.map(r=>{
+      const ts=r.timestamp;
+      const detail=r.items?Object.entries(r.items).map(([n,v])=>`${n}:${v.krt||0}krt/${v.rncg||0}rncg`).join('; '):'';
+      return[r.id,ts.toLocaleString('id-ID'),r.nama,r.status,r.area,q(r.store),r.stockType==='awal'?'Awal':'Akhir',r.totalNilai||0,q(detail)].join(',');
+    }).join('\n');fn='Stock';
   }
   const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});
   const url=URL.createObjectURL(blob);
