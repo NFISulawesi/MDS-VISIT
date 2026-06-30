@@ -1225,22 +1225,18 @@ function exportCSV(){
   const q=s=>`"${(s||'').toString().replace(/"/g,'""')}"`;
   let csv='',fn='MDS';
   if(TAB==='rka'){
-    // collect all unique item names across filtered data, sorted by brand then name
-    const allItemsSet=new Set();
-    doSort(rkaF).forEach(r=>{if(r.items)Object.keys(r.items).forEach(n=>allItemsSet.add(n));});
-    const brandOrder={'NS':0,'HILO':1,'TS':2,'O':3};
-    const allItems=[...allItemsSet].sort((a,b)=>{
-      const ba=brandOrder[brandOf(a)]??3,bb=brandOrder[brandOf(b)]??3;
-      return ba!==bb?ba-bb:a.localeCompare(b);
-    });
-    csv='ID,Waktu,MDS,Area,Toko,Ada,Tdk,AV%,NS AV%,HILO AV%,TS AV%,'+allItems.map(n=>q(n)).join(',')+'\n';
+    csv='ID,Waktu,MDS,Area,Toko,Ada,Tdk,AV%,NS AV%,HILO AV%,TS AV%,Item Ada,Item Tidak Ada\n';
     csv+=doSort(rkaF).map(r=>{
       const ts=r.timestamp,pct=r.avail+r.unavail>0?Math.round(r.avail/(r.avail+r.unavail)*100):0;
       const bav={NS:{a:0,t:0},HILO:{a:0,t:0},TS:{a:0,t:0}};
-      if(r.items)Object.entries(r.items).forEach(([n,v])=>{const b=brandOf(n);if(bav[b]){bav[b].t++;if(v)bav[b].a++;}});
+      const ada=[],tdk=[];
+      if(r.items)Object.entries(r.items).forEach(([n,v])=>{
+        const b=brandOf(n);
+        if(b!=='O'){bav[b].t++;if(v)bav[b].a++;}
+        if(v===true)ada.push(n);else if(v===false)tdk.push(n);
+      });
       const bp=b=>bav[b].t?Math.round(bav[b].a/bav[b].t*100)+'%':'—';
-      const itemCols=allItems.map(n=>r.items&&n in r.items?(r.items[n]?'1':'0'):'');
-      return[r.id,ts.toLocaleString('id-ID'),r.mds,r.area,q(r.store),r.avail,r.unavail,pct+'%',bp('NS'),bp('HILO'),bp('TS'),...itemCols].join(',');
+      return[r.id,ts.toLocaleString('id-ID'),r.mds,r.area,q(r.store),r.avail,r.unavail,pct+'%',bp('NS'),bp('HILO'),bp('TS'),q(ada.join('; ')),q(tdk.join('; '))].join(',');
     }).join('\n');fn='RKA';
   }else if(TAB==='beli'){
     csv='ID,Waktu,MDS,Area,Toko,NS Rnc,HILO Rnc,Total Rnc,Kalkulasi,Nota,Selisih,Detail Item\n';
