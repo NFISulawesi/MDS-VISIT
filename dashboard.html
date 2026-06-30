@@ -798,8 +798,8 @@ function renderStockLog(stockF){
   }).join(''):'<tr><td colspan="9" style="text-align:center;color:var(--t3);padding:32px">Belum ada data stock ('+STOCK_ALL.length+' doc di Firestore, '+stockF.length+' setelah filter)</td></tr>';
   if(tf)tf.innerHTML=stockF.length?'<span style="color:var(--t3);font-size:11px">'+stockF.length+' entri · Total Nilai: <strong style="color:var(--amber)">'+rp(totalNilai)+'</strong></span>':'';
 }
+let _STOCK_ROWS=[];
 function renderStockItem(stockF){
-  // Aggregate items across all entries grouped by store + stockType
   const map={};
   stockF.forEach(r=>{
     const key=(r.store||'?')+' | '+(r.stockType==='awal'?'Awal':'Akhir');
@@ -811,27 +811,64 @@ function renderStockItem(stockF){
     });
     map[key].nilai+=(r.totalNilai||0);
   });
-  const rows=Object.values(map).sort((a,b)=>b.ts-a.ts);
+  _STOCK_ROWS=Object.values(map).sort((a,b)=>b.ts-a.ts);
   const th=document.getElementById('table-head-stock');
   const tb=document.getElementById('table-body-stock');
   const tf=document.getElementById('tfoot-stock');
   if(!th)return;
   th.innerHTML='<tr><th>Toko</th><th>Area</th><th>MDS/SPG</th><th>Tipe</th><th>Item Terisi</th><th>Total Nilai</th></tr>';
-  tb.innerHTML=rows.length?rows.map(r=>{
+  tb.innerHTML=_STOCK_ROWS.length?_STOCK_ROWS.map((r,i)=>{
     const cnt=Object.keys(r.items).length;
     const tipeTag=r.tipe==='awal'
       ?'<span class="tag" style="background:rgba(6,182,212,.15);color:var(--cyan);font-size:9px;padding:2px 8px;border-radius:10px">Awal</span>'
       :'<span class="tag" style="background:rgba(245,158,11,.15);color:var(--amber);font-size:9px;padding:2px 8px;border-radius:10px">Akhir</span>';
-    return '<tr>'+
-      '<td class="td-main">'+(r.store||'—')+'</td>'+
-      '<td class="td-dim">'+(r.area||'—')+'</td>'+
-      '<td class="td-dim">'+(r.nama||'—')+'</td>'+
-      '<td>'+tipeTag+'</td>'+
-      '<td><span class="tag b sm">'+cnt+' item</span></td>'+
-      '<td class="td-main" style="color:var(--amber)">'+(r.nilai?rp(r.nilai):'—')+'</td>'+
-    '</tr>';
+    return`<tr class="${cnt?'clickrow':''}" ${cnt?`onclick="toggleStockDetail(this,${i})"`:''}style="cursor:${cnt?'pointer':'default'}">
+      <td class="td-main">${r.store||'—'} ${cnt?'<span style="font-size:9px;color:var(--t3)">▾</span>':''}</td>
+      <td class="td-dim">${r.area||'—'}</td>
+      <td class="td-dim">${r.nama||'—'}</td>
+      <td>${tipeTag}</td>
+      <td><span class="tag b sm">${cnt} item</span></td>
+      <td class="td-main" style="color:var(--amber)">${r.nilai?rp(r.nilai):'—'}</td>
+    </tr>`;
   }).join(''):'<tr><td colspan="6" style="text-align:center;color:var(--t3);padding:32px">Belum ada data</td></tr>';
   if(tf)tf.innerHTML='';
+}
+function toggleStockDetail(tr, idx){
+  const next=tr.nextElementSibling;
+  if(next&&next.classList.contains('item-detail-row')){
+    next.style.display=next.style.display==='none'?'':'none';
+    const sp=tr.querySelector('span[style*="▾"]')||tr.querySelector('span[style*="▴"]');
+    if(sp)sp.textContent=next.style.display===''?'▴':'▾';
+    return;
+  }
+  const r=_STOCK_ROWS[idx]||{};
+  const items=r.items||{};
+  const groups={NS:[],HILO:[],TS:[],O:[]};
+  Object.entries(items).sort(([a],[b])=>a.localeCompare(b)).forEach(([nm,v])=>{
+    const b=brandOf(nm);(groups[b]||groups.O).push({nm,v});
+  });
+  let html='<td colspan="99" style="padding:8px 16px 14px;background:rgba(255,255,255,.015);border-top:none">';
+  ['NS','HILO','TS','O'].forEach(brand=>{
+    const list=groups[brand];if(!list.length)return;
+    const col=brand==='NS'?'var(--blue)':brand==='HILO'?'var(--gold)':brand==='TS'?'var(--t3)':'var(--t3)';
+    html+=`<div style="margin-bottom:8px"><div style="font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:${col};margin-bottom:4px">${brand==='O'?'LAINNYA':brand}</div>`;
+    html+='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:3px">';
+    list.forEach(({nm,v})=>{
+      const short=nm.replace(/^(NS|HI LO|HILO|TS)\s+/i,'').trim();
+      html+=`<div style="display:flex;justify-content:space-between;align-items:center;font-size:10px;padding:3px 8px;border-radius:5px;background:rgba(255,255,255,.04)">
+        <span style="color:var(--t2)">${short}</span>
+        <span style="color:${col};font-weight:700;white-space:nowrap;margin-left:8px">${v.krt||0} krt / ${v.rncg||0} rnc</span>
+      </div>`;
+    });
+    html+='</div></div>';
+  });
+  html+='</td>';
+  const det=document.createElement('tr');
+  det.className='item-detail-row';
+  det.innerHTML=html;
+  tr.parentNode.insertBefore(det,tr.nextSibling);
+  const sp=tr.querySelector('span[style*="▾"]');
+  if(sp)sp.textContent='▴';
 }
 
 // ── TAB: Visit RKA ─────────────────────────────────────────────────────────
