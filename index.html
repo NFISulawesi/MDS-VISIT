@@ -24607,11 +24607,12 @@ async function submitRka(){
   // save to Firestore
   try{
     if(typeof db==='undefined') throw new Error('db not initialized');
-    await db.collection('rka_logs').add({id,area:R.area,mds:R.mds,store:R.store,timestamp:firebase.firestore.FieldValue.serverTimestamp(),avail,unavail,items:Object.assign({},R.items),photoUrls});
+    const _tout=new Promise((_,r)=>setTimeout(()=>r(new Error('Timeout — cek koneksi & Firestore Rules')),12000));
+    await Promise.race([db.collection('rka_logs').add({id,area:R.area,mds:R.mds,store:R.store,timestamp:firebase.firestore.FieldValue.serverTimestamp(),avail,unavail,items:Object.assign({},R.items),photoUrls}),_tout]);
     document.getElementById('rka-sm-status').textContent='✅ Tersimpan ke server';
   }catch(e){
     console.warn('Firestore rka failed',e);
-    document.getElementById('rka-sm-status').textContent='❌ Gagal simpan: '+e.message;
+    document.getElementById('rka-sm-status').textContent='❌ '+e.message;
   }
 }
 
@@ -24796,11 +24797,12 @@ async function submitBeli(){
   try{
     if(typeof db==='undefined') throw new Error('db not initialized');
     const _iq={};BELI_FLAT.forEach((nm,ii)=>{if(B.qty[ii])_iq[nm]=B.qty[ii];});
-    await db.collection('beli_logs').add({id,area:B.area,mds:B.mds,store:B.store,timestamp:firebase.firestore.FieldValue.serverTimestamp(),nominal:Number(document.getElementById('beli-nominal').value),groupTotals:Object.assign({},groupTotals),totalRenceng,itemQty:_iq,photoUrl});
+    const _tout=new Promise((_,r)=>setTimeout(()=>r(new Error('Timeout — cek koneksi & Firestore Rules')),12000));
+    await Promise.race([db.collection('beli_logs').add({id,area:B.area,mds:B.mds,store:B.store,timestamp:firebase.firestore.FieldValue.serverTimestamp(),nominal:Number(document.getElementById('beli-nominal').value),groupTotals:Object.assign({},groupTotals),totalRenceng,itemQty:_iq,photoUrl}),_tout]);
     document.getElementById('beli-sm-status').textContent='✅ Tersimpan ke server';
   }catch(e){
     console.warn('Firestore beli failed',e);
-    document.getElementById('beli-sm-status').textContent='❌ Gagal simpan: '+e.message;
+    document.getElementById('beli-sm-status').textContent='❌ '+e.message;
   }
 }
 
