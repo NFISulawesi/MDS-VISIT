@@ -25283,12 +25283,20 @@ async function compressAndUpload(dataUrl,path){
   const c=document.createElement('canvas');c.width=w;c.height=h;
   c.getContext('2d').drawImage(img,0,0,w,h);
   const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',0.6));
-  const base64=await new Promise(r=>{const rd=new FileReader();rd.onload=()=>r(rd.result.split(',')[1]);rd.readAsDataURL(blob);});
+  console.log('uploading blob size:',blob.size,'bytes');
   const fd=new FormData();
-  fd.append('image',base64);
+  fd.append('image',blob,'photo.jpg');
   fd.append('name',path.replace(/\//g,'_'));
-  const res=await fetch('https://api.imgbb.com/1/upload?key=e74b36446c55e9795f157f0d25c0a983',{method:'POST',body:fd});
+  let res;
+  try{
+    res=await fetch('https://api.imgbb.com/1/upload?key=e74b36446c55e9795f157f0d25c0a983',{method:'POST',body:fd});
+  }catch(fetchErr){
+    console.error('fetch failed:',fetchErr);
+    throw new Error('network: '+fetchErr.message);
+  }
+  console.log('imgbb response status:',res.status);
   const json=await res.json();
+  console.log('imgbb json:',JSON.stringify(json).slice(0,200));
   if(!json.success)throw new Error(json.error?.message||'Upload gagal');
   return json.data.url;
 }
