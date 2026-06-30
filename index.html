@@ -24314,7 +24314,7 @@ const AREAS = Object.keys(MDS_BY_AREA).sort((a,b)=>a.localeCompare(b));
 const BELI_STORES_BY_AREA = {};
 
 /* ─────────── STATE ─────────── */
-const R = { step:0, area:'', mds:'', store:'', photos:{}, items:{}, photoUploads:{} };
+const R = { step:0, area:'', mds:'', store:'', photos:{}, items:{}, photoUploads:{}, uploadsDone:{} };
 const B = { step:0, area:'', mds:'', store:'', photo:null, qty:{}, photoUpload:null };
 const BELI_PRODUCTS = [
   {
@@ -24491,7 +24491,9 @@ function rkaCheck(step){
     const nw=document.getElementById('rka-store-new').value.trim();
     ok=sel!==''||(box.classList.contains('open')&&nw!=='');
   } else if(step===2){
-    ok=Object.values(R.photos).filter(v=>v!==null).length===3;
+    const taken=Object.values(R.photos).filter(v=>v!==null).length;
+    const done=Object.keys(R.uploadsDone).length;
+    ok=taken===3&&done===taken;
   } else if(step===3){
     const checked=Object.values(R.items).filter(v=>v!==null).length;
     ok=(checked===getStoreItems().length);
@@ -24625,7 +24627,7 @@ async function submitRka(){
 }
 
 function resetRka(){
-  Object.assign(R,{step:0,area:'',mds:'',store:'',photos:{},items:{},photoUploads:{}});
+  Object.assign(R,{step:0,area:'',mds:'',store:'',photos:{},items:{},photoUploads:{},uploadsDone:{}});
   // reset photos
   for(let i=0;i<3;i++){
     document.getElementById('rka-pzone'+i).classList.remove('shot');
@@ -24974,8 +24976,8 @@ function handleRkaPhoto(idx){
     const _st=document.getElementById('rka-upstatus'+idx);
     if(_st){_st.textContent='⬆ Uploading...';}
     R.photoUploads[idx]=compressAndUpload(src,`rka_${Date.now()}_${_lbl[idx]||idx}`)
-      .then(url=>{if(_st)_st.textContent='✅ Tersimpan';return url;})
-      .catch(e=>{if(_st)_st.textContent='⚠️ Gagal';throw e;});
+      .then(url=>{if(_st)_st.textContent='✅ Tersimpan';R.uploadsDone[idx]=true;rkaCheck(2);return url;})
+      .catch(e=>{if(_st)_st.textContent='⚠️ Gagal';R.uploadsDone[idx]=true;rkaCheck(2);throw e;});
   };
   reader.readAsDataURL(file);
 }
