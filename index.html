@@ -24591,7 +24591,9 @@ async function submitRka(){
   try{
     if(typeof db==='undefined') throw new Error('db not initialized');
     const _tout=new Promise((_,r)=>setTimeout(()=>r(new Error('Timeout — cek Firestore Rules')),15000));
-    rkaDocRef=await Promise.race([db.collection('rka_logs').add({id,area:R.area,mds:R.mds,store:R.store,timestamp:firebase.firestore.FieldValue.serverTimestamp(),avail,unavail,items:Object.assign({},R.items),photoUrls:{}}),_tout]);
+    const _SITEMS=getStoreItems();
+    const _namedItems={};Object.entries(R.items).forEach(([i,v])=>{const nm=_SITEMS[+i];if(nm)_namedItems[nm]=v;});
+    rkaDocRef=await Promise.race([db.collection('rka_logs').add({id,area:R.area,mds:R.mds,store:R.store,timestamp:firebase.firestore.FieldValue.serverTimestamp(),avail,unavail,items:_namedItems,photoUrls:{}}),_tout]);
     document.getElementById('rka-sm-status').textContent='✅ Tersimpan ke server';
   }catch(e){
     console.warn('Firestore rka failed',e);
