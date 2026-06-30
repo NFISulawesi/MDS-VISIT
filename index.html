@@ -24447,6 +24447,12 @@ function rkaGoTo(step){
   document.getElementById('rka-nb').textContent=step===3?'Submit':'Lanjut';
   // items init
   if(step===1){ rkaFillStore(); }
+  if(step===2){
+    const s=(R.store||'').toUpperCase();
+    const isRtd=s.includes('MIDI')||s.includes('HYPERMART')||s.includes('GELAEL');
+    const lbl=document.querySelector('#rka-s2 .nota-lbl:last-of-type');
+    if(lbl)lbl.textContent='3. Foto Pajangan '+(isRtd?'RTD':'NS DAN HILO POLOS');
+  }
   if(step===3){ renderItems(); document.getElementById('rka-store-chip').textContent=R.store; }
   rkaCheck(step);
 }
