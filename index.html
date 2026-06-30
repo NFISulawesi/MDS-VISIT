@@ -24586,42 +24586,32 @@ async function submitRka(){
   document.getElementById('rka-sm-mds').textContent=R.mds;
   document.getElementById('rka-sm-store').textContent=R.store;
   document.getElementById('rka-sm-date').textContent=ds;
+  // collect compressed photos (already done instantly when photo was taken)
+  const photoData={};let photoOk=0;
+  for(const [idx,promise] of Object.entries(R.photoUploads)){
+    try{photoData[idx]=await promise;photoOk++;}catch(e){console.warn('compress failed',idx,e);}
+  }
+
   document.getElementById('rka-sm-status').textContent='⏳ Menyimpan...';
-  document.getElementById('rka-sm-foto').textContent='⏳ Upload foto...';
+  document.getElementById('rka-sm-foto').textContent=photoOk>0?`⏳ ${photoOk} foto...`:'—';
   document.getElementById('rka-stepper').classList.add('hidden');
   document.getElementById('rka-wrap').classList.add('hidden');
   document.getElementById('rka-botbar').classList.add('hidden');
   document.getElementById('rka-back-hdr').classList.add('hidden');
   document.getElementById('rka-suc').classList.add('show');
 
-  // save to Firestore FIRST
-  let rkaDocRef=null;
+  // save to Firestore with photos included
   try{
     if(typeof db==='undefined') throw new Error('db not initialized');
     const _tout=new Promise((_,r)=>setTimeout(()=>r(new Error('Timeout — cek Firestore Rules')),15000));
     const _SITEMS=getStoreItems();
     const _namedItems={};Object.entries(R.items).forEach(([i,v])=>{const nm=_SITEMS[+i];if(nm)_namedItems[nm]=v;});
-    rkaDocRef=await Promise.race([db.collection('rka_logs').add({id,area:R.area,mds:R.mds,store:R.store,timestamp:firebase.firestore.FieldValue.serverTimestamp(),avail,unavail,items:_namedItems,photoUrls:{}}),_tout]);
+    await Promise.race([db.collection('rka_logs').add({id,area:R.area,mds:R.mds,store:R.store,timestamp:firebase.firestore.FieldValue.serverTimestamp(),avail,unavail,items:_namedItems,...(photoOk>0?{photoData}:{})}),_tout]);
     document.getElementById('rka-sm-status').textContent='✅ Tersimpan ke server';
+    document.getElementById('rka-sm-foto').textContent=photoOk>0?`✅ ${photoOk} foto`:'—';
   }catch(e){
     console.warn('Firestore rka failed',e);
     document.getElementById('rka-sm-status').textContent='❌ '+e.message;
-    return;
-  }
-
-  // use pre-uploaded photo URLs (upload started when photo was taken)
-  const photoCount=Object.values(R.photos).filter(Boolean).length;
-  if(photoCount>0&&rkaDocRef){
-    const photoUrls={};let photoOk=0;let lastErr='';
-    for(const [idx,promise] of Object.entries(R.photoUploads)){
-      try{
-        photoUrls[idx]=await Promise.race([promise,new Promise((_,r)=>setTimeout(()=>r(new Error('timeout')),30000))]);
-        photoOk++;
-      }catch(e){lastErr=e.message||String(e);console.warn('photo failed',idx,e);}
-    }
-    if(photoOk>0) await rkaDocRef.update({photoUrls});
-    document.getElementById('rka-sm-foto').textContent=photoOk===photoCount?`✅ ${photoOk} foto tersimpan`:`⚠️ ${photoOk}/${photoCount} foto — ${lastErr}`;
-  }else{
     document.getElementById('rka-sm-foto').textContent='—';
   }
 }
@@ -24783,38 +24773,33 @@ async function submitBeli(){
   document.getElementById('beli-sm-qty-hilo').textContent=(groupTotals['HILO']||0)+' renceng';
   document.getElementById('beli-sm-qty-ns').textContent=(groupTotals['NS']||0)+' renceng';
   document.getElementById('beli-sm-qty').textContent=totalRenceng+' renceng';
+
+  // collect compressed photo (already done instantly when photo was taken)
+  let photoData=null;
+  if(B.photo&&B.photoUpload){
+    try{photoData=await B.photoUpload;}catch(e){console.warn('compress beli failed',e);}
+  }
+
   document.getElementById('beli-sm-status').textContent='⏳ Menyimpan...';
-  document.getElementById('beli-sm-foto').textContent=B.photo?'⏳ Upload foto...':'—';
+  document.getElementById('beli-sm-foto').textContent=photoData?'⏳ Foto...':'—';
   document.getElementById('beli-stepper').classList.add('hidden');
   document.getElementById('beli-wrap').classList.add('hidden');
   document.getElementById('beli-botbar').classList.add('hidden');
   document.getElementById('beli-back-hdr').classList.add('hidden');
   document.getElementById('beli-suc').classList.add('show');
 
-  // save to Firestore FIRST (don't wait for photo)
-  let docRef=null;
+  // save to Firestore with photo included
   try{
     if(typeof db==='undefined') throw new Error('db not initialized');
     const _iq={};BELI_FLAT.forEach((nm,ii)=>{if(B.qty[ii])_iq[nm]=B.qty[ii];});
     const _tout=new Promise((_,r)=>setTimeout(()=>r(new Error('Timeout — cek Firestore Rules')),15000));
-    docRef=await Promise.race([db.collection('beli_logs').add({id,area:B.area,mds:B.mds,store:B.store,timestamp:firebase.firestore.FieldValue.serverTimestamp(),nominal:Number(document.getElementById('beli-nominal').value),groupTotals:Object.assign({},groupTotals),totalRenceng,itemQty:_iq,photoUrl:''}),_tout]);
+    await Promise.race([db.collection('beli_logs').add({id,area:B.area,mds:B.mds,store:B.store,timestamp:firebase.firestore.FieldValue.serverTimestamp(),nominal:Number(document.getElementById('beli-nominal').value),groupTotals:Object.assign({},groupTotals),totalRenceng,itemQty:_iq,...(photoData?{photoData}:{})}),_tout]);
     document.getElementById('beli-sm-status').textContent='✅ Tersimpan ke server';
+    document.getElementById('beli-sm-foto').textContent=photoData?'✅ Foto':'—';
   }catch(e){
     console.warn('Firestore beli failed',e);
     document.getElementById('beli-sm-status').textContent='❌ '+e.message;
-    return;
-  }
-
-  // upload photo after Firestore write succeeds
-  if(B.photo&&B.photoUpload&&docRef){
-    try{
-      const photoUrl=await Promise.race([B.photoUpload,new Promise((_,r)=>setTimeout(()=>r(new Error('timeout')),30000))]);
-      await docRef.update({photoUrl});
-      document.getElementById('beli-sm-foto').textContent='✅ Foto tersimpan';
-    }catch(e){
-      console.warn('beli photo failed',e);
-      document.getElementById('beli-sm-foto').textContent='⚠️ Gagal — '+(e.message||String(e));
-    }
+    document.getElementById('beli-sm-foto').textContent='—';
   }
 }
 
@@ -24972,11 +24957,10 @@ function handleRkaPhoto(idx){
       document.getElementById('rka-dt').classList.remove('hidden');
     }
     rkaCheck(2);
-    const _lbl=['ts-sweetener','hilo-box','ns-hilo-polos'];
     const _st=document.getElementById('rka-upstatus'+idx);
-    if(_st){_st.textContent='⬆ Uploading...';}
-    R.photoUploads[idx]=compressAndUpload(src,`rka_${Date.now()}_${_lbl[idx]||idx}`)
-      .then(url=>{if(_st)_st.textContent='✅ Tersimpan';R.uploadsDone[idx]=true;rkaCheck(2);return url;})
+    if(_st){_st.textContent='⬆ Kompres...';}
+    R.photoUploads[idx]=compressAndUpload(src)
+      .then(b64=>{if(_st)_st.textContent='✅ Siap';R.uploadsDone[idx]=true;rkaCheck(2);return b64;})
       .catch(e=>{if(_st)_st.textContent='⚠️ Gagal';R.uploadsDone[idx]=true;rkaCheck(2);throw e;});
   };
   reader.readAsDataURL(file);
@@ -24992,9 +24976,9 @@ function handlePhoto(mod){
     B.photo=src;
     beliCheck(2);
     const _bst=document.getElementById('beli-upstatus');
-    if(_bst){_bst.textContent='⬆ Uploading...';}
-    B.photoUpload=compressAndUpload(src,`beli_${Date.now()}_nota`)
-      .then(url=>{if(_bst)_bst.textContent='✅ Tersimpan';return url;})
+    if(_bst){_bst.textContent='⬆ Kompres...';}
+    B.photoUpload=compressAndUpload(src)
+      .then(b64=>{if(_bst)_bst.textContent='✅ Siap';return b64;})
       .catch(e=>{if(_bst)_bst.textContent='⚠️ Gagal';throw e;});
   };
   r.readAsDataURL(file);
@@ -25275,7 +25259,7 @@ try{
   window.storage=firebase.storage();
 }catch(e){console.warn('Firebase init failed',e);}
 
-async function compressAndUpload(dataUrl,path){
+async function compressAndUpload(dataUrl){
   const img=new Image();
   await new Promise(r=>{img.onload=r;img.src=dataUrl;});
   const MAX=800;let w=img.width,h=img.height;
@@ -25283,22 +25267,7 @@ async function compressAndUpload(dataUrl,path){
   const c=document.createElement('canvas');c.width=w;c.height=h;
   c.getContext('2d').drawImage(img,0,0,w,h);
   const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',0.6));
-  console.log('uploading blob size:',blob.size,'bytes');
-  const fd=new FormData();
-  fd.append('image',blob,'photo.jpg');
-  fd.append('name',path.replace(/\//g,'_'));
-  let res;
-  try{
-    res=await fetch('https://api.imgbb.com/1/upload?key=e74b36446c55e9795f157f0d25c0a983',{method:'POST',body:fd});
-  }catch(fetchErr){
-    console.error('fetch failed:',fetchErr);
-    throw new Error('network: '+fetchErr.message);
-  }
-  console.log('imgbb response status:',res.status);
-  const json=await res.json();
-  console.log('imgbb json:',JSON.stringify(json).slice(0,200));
-  if(!json.success)throw new Error(json.error?.message||'Upload gagal');
-  return json.data.url;
+  return await new Promise(r=>{const rd=new FileReader();rd.onload=()=>r(rd.result);rd.readAsDataURL(blob);});
 }
 </script>
 </body>
