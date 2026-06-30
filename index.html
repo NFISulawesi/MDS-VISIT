@@ -24586,33 +24586,35 @@ async function submitRka(){
   document.getElementById('rka-back-hdr').classList.add('hidden');
   document.getElementById('rka-suc').classList.add('show');
 
-  // upload photos
-  const photoUrls={};
-  const photoCount=Object.values(R.photos).filter(Boolean).length;
-  let photoOk=0;
-  if(window.storage && photoCount>0){
-    const labels=['ts-sweetener','hilo-box','ns-hilo-polos'];
-    for(const [idx,dataUrl] of Object.entries(R.photos)){
-      if(!dataUrl)continue;
-      try{
-        photoUrls[idx]=await compressAndUpload(dataUrl,`rka/${id}/photo${idx}_${labels[idx]||idx}.jpg`);
-        photoOk++;
-      }catch(e){ console.warn('photo upload failed',idx,e); }
-    }
-    document.getElementById('rka-sm-foto').textContent=photoOk===photoCount?`✅ ${photoOk} foto tersimpan`:`⚠️ ${photoOk}/${photoCount} foto (cek Storage Rules)`;
-  }else{
-    document.getElementById('rka-sm-foto').textContent=photoCount===0?'—':'⚠️ Storage belum terhubung';
-  }
-
-  // save to Firestore
+  // save to Firestore FIRST
+  let rkaDocRef=null;
   try{
     if(typeof db==='undefined') throw new Error('db not initialized');
-    const _tout=new Promise((_,r)=>setTimeout(()=>r(new Error('Timeout — cek koneksi & Firestore Rules')),12000));
-    await Promise.race([db.collection('rka_logs').add({id,area:R.area,mds:R.mds,store:R.store,timestamp:firebase.firestore.FieldValue.serverTimestamp(),avail,unavail,items:Object.assign({},R.items),photoUrls}),_tout]);
+    const _tout=new Promise((_,r)=>setTimeout(()=>r(new Error('Timeout — cek Firestore Rules')),15000));
+    rkaDocRef=await Promise.race([db.collection('rka_logs').add({id,area:R.area,mds:R.mds,store:R.store,timestamp:firebase.firestore.FieldValue.serverTimestamp(),avail,unavail,items:Object.assign({},R.items),photoUrls:{}}),_tout]);
     document.getElementById('rka-sm-status').textContent='✅ Tersimpan ke server';
   }catch(e){
     console.warn('Firestore rka failed',e);
     document.getElementById('rka-sm-status').textContent='❌ '+e.message;
+    return;
+  }
+
+  // upload photos after Firestore write succeeds
+  const photoCount=Object.values(R.photos).filter(Boolean).length;
+  if(window.storage&&photoCount>0&&rkaDocRef){
+    const labels=['ts-sweetener','hilo-box','ns-hilo-polos'];
+    const photoUrls={};let photoOk=0;
+    for(const [idx,dataUrl] of Object.entries(R.photos)){
+      if(!dataUrl)continue;
+      try{
+        photoUrls[idx]=await Promise.race([compressAndUpload(dataUrl,`rka/${id}/photo${idx}_${labels[idx]||idx}.jpg`),new Promise((_,r)=>setTimeout(()=>r(new Error('foto timeout')),20000))]);
+        photoOk++;
+      }catch(e){console.warn('photo upload failed',idx,e);}
+    }
+    if(photoOk>0) await rkaDocRef.update({photoUrls});
+    document.getElementById('rka-sm-foto').textContent=photoOk===photoCount?`✅ ${photoOk} foto tersimpan`:`⚠️ ${photoOk}/${photoCount} foto`;
+  }else{
+    document.getElementById('rka-sm-foto').textContent=photoCount===0?'—':'⚠️ Storage belum terhubung';
   }
 }
 
@@ -24781,28 +24783,30 @@ async function submitBeli(){
   document.getElementById('beli-back-hdr').classList.add('hidden');
   document.getElementById('beli-suc').classList.add('show');
 
-  // upload nota photo
-  let photoUrl='';
-  if(window.storage&&B.photo){
-    try{
-      photoUrl=await compressAndUpload(B.photo,`beli/${id}/nota.jpg`);
-      document.getElementById('beli-sm-foto').textContent='✅ Foto tersimpan';
-    }catch(e){
-      console.warn('beli photo upload failed',e);
-      document.getElementById('beli-sm-foto').textContent='⚠️ Foto gagal (cek Storage Rules)';
-    }
-  }
-
-  // save to Firestore
+  // save to Firestore FIRST (don't wait for photo)
+  let docRef=null;
   try{
     if(typeof db==='undefined') throw new Error('db not initialized');
     const _iq={};BELI_FLAT.forEach((nm,ii)=>{if(B.qty[ii])_iq[nm]=B.qty[ii];});
-    const _tout=new Promise((_,r)=>setTimeout(()=>r(new Error('Timeout — cek koneksi & Firestore Rules')),12000));
-    await Promise.race([db.collection('beli_logs').add({id,area:B.area,mds:B.mds,store:B.store,timestamp:firebase.firestore.FieldValue.serverTimestamp(),nominal:Number(document.getElementById('beli-nominal').value),groupTotals:Object.assign({},groupTotals),totalRenceng,itemQty:_iq,photoUrl}),_tout]);
+    const _tout=new Promise((_,r)=>setTimeout(()=>r(new Error('Timeout — cek Firestore Rules')),15000));
+    docRef=await Promise.race([db.collection('beli_logs').add({id,area:B.area,mds:B.mds,store:B.store,timestamp:firebase.firestore.FieldValue.serverTimestamp(),nominal:Number(document.getElementById('beli-nominal').value),groupTotals:Object.assign({},groupTotals),totalRenceng,itemQty:_iq,photoUrl:''}),_tout]);
     document.getElementById('beli-sm-status').textContent='✅ Tersimpan ke server';
   }catch(e){
     console.warn('Firestore beli failed',e);
     document.getElementById('beli-sm-status').textContent='❌ '+e.message;
+    return;
+  }
+
+  // upload photo after Firestore write succeeds
+  if(window.storage&&B.photo&&docRef){
+    try{
+      const photoUrl=await Promise.race([compressAndUpload(B.photo,`beli/${id}/nota.jpg`),new Promise((_,r)=>setTimeout(()=>r(new Error('foto timeout')),20000))]);
+      await docRef.update({photoUrl});
+      document.getElementById('beli-sm-foto').textContent='✅ Foto tersimpan';
+    }catch(e){
+      console.warn('beli photo failed',e);
+      document.getElementById('beli-sm-foto').textContent='⚠️ Foto gagal upload';
+    }
   }
 }
 
