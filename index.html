@@ -25258,6 +25258,7 @@ try{
   window.storage=firebase.storage();
 }catch(e){console.warn('Firebase init failed',e);}
 
+const GAS_UPLOAD_URL='https://script.google.com/macros/s/AKfycbybKzAP9rgDWQaWLX2caRjn9ZTdnHMQa_WkLKsaD3pmdsupnZNjMAzQW8lQ41BMCsvd_Q/exec';
 async function compressAndUpload(dataUrl,path){
   const img=new Image();
   await new Promise(r=>{img.onload=r;img.src=dataUrl;});
@@ -25266,9 +25267,12 @@ async function compressAndUpload(dataUrl,path){
   const c=document.createElement('canvas');c.width=w;c.height=h;
   c.getContext('2d').drawImage(img,0,0,w,h);
   const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',0.72));
-  const ref=window.storage.ref(path);
-  await ref.put(blob);
-  return await ref.getDownloadURL();
+  const base64=await new Promise(r=>{const rd=new FileReader();rd.onload=()=>r(rd.result.split(',')[1]);rd.readAsDataURL(blob);});
+  const name=path.replace(/\//g,'_')+'.jpg';
+  const res=await fetch(GAS_UPLOAD_URL,{method:'POST',body:JSON.stringify({image:base64,name})});
+  const json=await res.json();
+  if(!json.ok)throw new Error(json.error||'Upload gagal');
+  return json.url;
 }
 </script>
 </body>
