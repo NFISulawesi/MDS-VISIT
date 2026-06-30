@@ -24308,8 +24308,8 @@ const AREAS = Object.keys(MDS_BY_AREA).sort((a,b)=>a.localeCompare(b));
 const BELI_STORES_BY_AREA = {};
 
 /* ─────────── STATE ─────────── */
-const R = { step:0, area:'', mds:'', store:'', photos:{}, items:{} };
-const B = { step:0, area:'', mds:'', store:'', photo:null, qty:{} };
+const R = { step:0, area:'', mds:'', store:'', photos:{}, items:{}, photoUploads:{} };
+const B = { step:0, area:'', mds:'', store:'', photo:null, qty:{}, photoUpload:null };
 const BELI_PRODUCTS = [
   {
     "group": "HILO",
@@ -24601,27 +24601,25 @@ async function submitRka(){
     return;
   }
 
-  // upload photos after Firestore write succeeds
+  // use pre-uploaded photo URLs (upload started when photo was taken)
   const photoCount=Object.values(R.photos).filter(Boolean).length;
-  if(window.storage&&photoCount>0&&rkaDocRef){
-    const labels=['ts-sweetener','hilo-box','ns-hilo-polos'];
+  if(photoCount>0&&rkaDocRef){
     const photoUrls={};let photoOk=0;let lastErr='';
-    for(const [idx,dataUrl] of Object.entries(R.photos)){
-      if(!dataUrl)continue;
+    for(const [idx,promise] of Object.entries(R.photoUploads)){
       try{
-        photoUrls[idx]=await Promise.race([compressAndUpload(dataUrl,`rka/${id}/photo${idx}_${labels[idx]||idx}.jpg`),new Promise((_,r)=>setTimeout(()=>r(new Error('timeout')),20000))]);
+        photoUrls[idx]=await Promise.race([promise,new Promise((_,r)=>setTimeout(()=>r(new Error('timeout')),30000))]);
         photoOk++;
-      }catch(e){lastErr=e.message||String(e);console.warn('photo upload failed',idx,e);}
+      }catch(e){lastErr=e.message||String(e);console.warn('photo failed',idx,e);}
     }
     if(photoOk>0) await rkaDocRef.update({photoUrls});
     document.getElementById('rka-sm-foto').textContent=photoOk===photoCount?`✅ ${photoOk} foto tersimpan`:`⚠️ ${photoOk}/${photoCount} foto — ${lastErr}`;
   }else{
-    document.getElementById('rka-sm-foto').textContent=photoCount===0?'—':'⚠️ Storage belum terhubung';
+    document.getElementById('rka-sm-foto').textContent='—';
   }
 }
 
 function resetRka(){
-  Object.assign(R,{step:0,area:'',mds:'',store:'',photos:{},items:{}});
+  Object.assign(R,{step:0,area:'',mds:'',store:'',photos:{},items:{},photoUploads:{}});
   // reset photos
   for(let i=0;i<3;i++){
     document.getElementById('rka-pzone'+i).classList.remove('shot');
@@ -24800,9 +24798,9 @@ async function submitBeli(){
   }
 
   // upload photo after Firestore write succeeds
-  if(window.storage&&B.photo&&docRef){
+  if(B.photo&&B.photoUpload&&docRef){
     try{
-      const photoUrl=await Promise.race([compressAndUpload(B.photo,`beli/${id}/nota.jpg`),new Promise((_,r)=>setTimeout(()=>r(new Error('foto timeout')),20000))]);
+      const photoUrl=await Promise.race([B.photoUpload,new Promise((_,r)=>setTimeout(()=>r(new Error('timeout')),30000))]);
       await docRef.update({photoUrl});
       document.getElementById('beli-sm-foto').textContent='✅ Foto tersimpan';
     }catch(e){
@@ -24813,7 +24811,7 @@ async function submitBeli(){
 }
 
 function resetBeli(){
-  B.photo=null; B.area=''; B.mds=''; B.store=''; B.qty={};
+  B.photo=null; B.area=''; B.mds=''; B.store=''; B.qty={}; B.photoUpload=null;
   const pz=document.getElementById('beli-pzone');
   pz.classList.remove('shot');
   document.getElementById('beli-pview').src='';
@@ -24966,6 +24964,8 @@ function handleRkaPhoto(idx){
       document.getElementById('rka-dt').classList.remove('hidden');
     }
     rkaCheck(2);
+    const _lbl=['ts-sweetener','hilo-box','ns-hilo-polos'];
+    R.photoUploads[idx]=compressAndUpload(src,`rka_${Date.now()}_${_lbl[idx]||idx}`);
   };
   reader.readAsDataURL(file);
 }
@@ -24979,6 +24979,7 @@ function handlePhoto(mod){
     document.getElementById(mod+'-pzone').classList.add('shot');
     B.photo=src;
     beliCheck(2);
+    B.photoUpload=compressAndUpload(src,`beli_${Date.now()}_nota`);
   };
   r.readAsDataURL(file);
 }
