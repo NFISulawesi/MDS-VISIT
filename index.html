@@ -25116,7 +25116,7 @@ function renderStockItems(){
           '<div style="font-size:8px;color:var(--t3);margin-bottom:1px">Karton</div>'+
           '<div class="qty-ctrl" style="width:100%">'+
             '<button class="qty-btn" onclick="adjSK('+i+',\'krt\',-1)" style="width:20px;font-size:12px">−</button>'+
-            '<input type="number" class="qty-val" id="sk-krt-'+i+'" value="0" min="0" style="width:28px;font-size:11px" oninput="stockCalcTotal()">'+
+            '<input type="number" class="qty-val" id="sk-krt-'+i+'" value="0" min="0" style="width:28px;font-size:11px" oninput="stockCalcTotal()" onfocus="if(this.value==\'0\')this.value=\'\'" onblur="if(this.value===\'\')this.value=\'0\'">'+
             '<button class="qty-btn" onclick="adjSK('+i+',\'krt\',1)" style="width:20px;font-size:12px">+</button>'+
           '</div>'+
         '</div>'+
@@ -25124,7 +25124,7 @@ function renderStockItems(){
           '<div style="font-size:8px;color:var(--t3);margin-bottom:1px">Pcs/Rncg</div>'+
           '<div class="qty-ctrl" style="width:100%">'+
             '<button class="qty-btn" onclick="adjSK('+i+',\'rncg\',-1)" style="width:20px;font-size:12px">−</button>'+
-            '<input type="number" class="qty-val" id="sk-rncg-'+i+'" value="0" min="0" style="width:28px;font-size:11px" oninput="stockCalcTotal()">'+
+            '<input type="number" class="qty-val" id="sk-rncg-'+i+'" value="0" min="0" style="width:28px;font-size:11px" oninput="stockCalcTotal()" onfocus="if(this.value==\'0\')this.value=\'\'" onblur="if(this.value===\'\')this.value=\'0\'">'+
             '<button class="qty-btn" onclick="adjSK('+i+',\'rncg\',1)" style="width:20px;font-size:12px">+</button>'+
           '</div>'+
         '</div>';
