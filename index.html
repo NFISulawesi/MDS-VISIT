@@ -24460,7 +24460,8 @@ function rkaGoTo(step){
   if(step===2){
     const s=(R.store||'').toUpperCase();
     const isRtd=s.includes('MIDI')||s.includes('HYPERMART')||s.includes('GELAEL');
-    const lbl=document.querySelector('#rka-s2 .nota-lbl:last-of-type');
+    const lbls=document.querySelectorAll('#rka-s2 .nota-lbl');
+    const lbl=lbls[lbls.length-1];
     if(lbl)lbl.textContent='3. Foto Pajangan '+(isRtd?'RTD':'NS DAN HILO POLOS');
   }
   if(step===3){ renderItems(); document.getElementById('rka-store-chip').textContent=R.store; }
