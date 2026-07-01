@@ -24313,31 +24313,43 @@ function getStoreItems(){
 const AREAS = Object.keys(MDS_BY_AREA).sort((a,b)=>a.localeCompare(b));
 const BELI_STORES_BY_AREA = {};
 
-// Load persisted custom stores into both lookup tables
-(function(){
-  try{
-    const saved=JSON.parse(localStorage.getItem('mds_custom_stores')||'{}');
-    Object.entries(saved).forEach(([area,stores])=>{
-      if(!STORES_BY_AREA[area])STORES_BY_AREA[area]=[];
-      if(!BELI_STORES_BY_AREA[area])BELI_STORES_BY_AREA[area]=[];
-      stores.forEach(s=>{
-        if(!STORES_BY_AREA[area].includes(s))STORES_BY_AREA[area].push(s);
-        if(!BELI_STORES_BY_AREA[area].includes(s))BELI_STORES_BY_AREA[area].push(s);
-      });
-    });
-  }catch(e){}
-})();
-function saveCustomStore(area,name){
+// Merge stores from any source into both lookup tables + localStorage cache
+function _mergeStores(area,stores){
+  if(!Array.isArray(stores))return;
+  if(!STORES_BY_AREA[area])STORES_BY_AREA[area]=[];
+  if(!BELI_STORES_BY_AREA[area])BELI_STORES_BY_AREA[area]=[];
+  stores.forEach(s=>{
+    if(!STORES_BY_AREA[area].includes(s))STORES_BY_AREA[area].push(s);
+    if(!BELI_STORES_BY_AREA[area].includes(s))BELI_STORES_BY_AREA[area].push(s);
+  });
   try{
     const saved=JSON.parse(localStorage.getItem('mds_custom_stores')||'{}');
     if(!saved[area])saved[area]=[];
-    if(!saved[area].includes(name))saved[area].push(name);
+    stores.forEach(s=>{if(!saved[area].includes(s))saved[area].push(s);});
     localStorage.setItem('mds_custom_stores',JSON.stringify(saved));
   }catch(e){}
-  if(!STORES_BY_AREA[area])STORES_BY_AREA[area]=[];
-  if(!STORES_BY_AREA[area].includes(name))STORES_BY_AREA[area].push(name);
-  if(!BELI_STORES_BY_AREA[area])BELI_STORES_BY_AREA[area]=[];
-  if(!BELI_STORES_BY_AREA[area].includes(name))BELI_STORES_BY_AREA[area].push(name);
+}
+// Seed from localStorage immediately (fast, offline-safe)
+(function(){try{const s=JSON.parse(localStorage.getItem('mds_custom_stores')||'{}');Object.entries(s).forEach(([a,v])=>_mergeStores(a,v));}catch(e){}})();
+
+function saveCustomStore(area,name){
+  _mergeStores(area,[name]);
+  // Persist to Firestore for cross-device sync
+  try{
+    if(typeof db!=='undefined'){
+      db.collection('app_data').doc('stores').set(
+        {[area]:firebase.firestore.FieldValue.arrayUnion(name)},{merge:true}
+      ).catch(e=>console.warn('store save failed',e));
+    }
+  }catch(e){}
+}
+async function loadCustomStores(){
+  try{
+    if(typeof db==='undefined')return;
+    const doc=await db.collection('app_data').doc('stores').get();
+    if(!doc.exists)return;
+    Object.entries(doc.data()).forEach(([a,v])=>_mergeStores(a,v));
+  }catch(e){console.warn('loadCustomStores failed',e);}
 }
 
 /* ─────────── STATE ─────────── */
@@ -25282,6 +25294,7 @@ try{
   window.db=firebase.firestore();
   window.storage=firebase.storage();
 }catch(e){console.warn('Firebase init failed',e);}
+loadCustomStores();
 
 async function compressAndUpload(dataUrl){
   const img=new Image();
