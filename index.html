@@ -24313,6 +24313,33 @@ function getStoreItems(){
 const AREAS = Object.keys(MDS_BY_AREA).sort((a,b)=>a.localeCompare(b));
 const BELI_STORES_BY_AREA = {};
 
+// Load persisted custom stores into both lookup tables
+(function(){
+  try{
+    const saved=JSON.parse(localStorage.getItem('mds_custom_stores')||'{}');
+    Object.entries(saved).forEach(([area,stores])=>{
+      if(!STORES_BY_AREA[area])STORES_BY_AREA[area]=[];
+      if(!BELI_STORES_BY_AREA[area])BELI_STORES_BY_AREA[area]=[];
+      stores.forEach(s=>{
+        if(!STORES_BY_AREA[area].includes(s))STORES_BY_AREA[area].push(s);
+        if(!BELI_STORES_BY_AREA[area].includes(s))BELI_STORES_BY_AREA[area].push(s);
+      });
+    });
+  }catch(e){}
+})();
+function saveCustomStore(area,name){
+  try{
+    const saved=JSON.parse(localStorage.getItem('mds_custom_stores')||'{}');
+    if(!saved[area])saved[area]=[];
+    if(!saved[area].includes(name))saved[area].push(name);
+    localStorage.setItem('mds_custom_stores',JSON.stringify(saved));
+  }catch(e){}
+  if(!STORES_BY_AREA[area])STORES_BY_AREA[area]=[];
+  if(!STORES_BY_AREA[area].includes(name))STORES_BY_AREA[area].push(name);
+  if(!BELI_STORES_BY_AREA[area])BELI_STORES_BY_AREA[area]=[];
+  if(!BELI_STORES_BY_AREA[area].includes(name))BELI_STORES_BY_AREA[area].push(name);
+}
+
 /* ─────────── STATE ─────────── */
 const R = { step:0, area:'', mds:'', store:'', photos:{}, items:{}, photoUploads:{}, uploadsDone:{} };
 const B = { step:0, area:'', mds:'', store:'', photo:null, qty:{}, photoUpload:null };
@@ -24520,8 +24547,7 @@ function rkaNext(){
     const nw=document.getElementById('rka-store-new').value.trim();
     if(box.classList.contains('open')&&nw){
       R.store=nw;
-      if(!STORES_BY_AREA[R.area]) STORES_BY_AREA[R.area]=[];
-      if(!STORES_BY_AREA[R.area].includes(nw)){ STORES_BY_AREA[R.area].push(nw); const o=document.createElement('option'); o.value=nw; o.textContent=nw; document.getElementById('rka-store-sel').appendChild(o); }
+      if(!STORES_BY_AREA[R.area].includes(nw)){ saveCustomStore(R.area,nw); const o=document.createElement('option'); o.value=nw; o.textContent=nw; document.getElementById('rka-store-sel').appendChild(o); }
     } else { R.store=sel; }
   }
   if(R.step===3){ submitRka(); return; }
@@ -24729,8 +24755,7 @@ function beliNext(){
     const nw=document.getElementById('beli-store-new').value.trim();
     if(box.classList.contains('open')&&nw){
       B.store=nw;
-      if(!BELI_STORES_BY_AREA[B.area]) BELI_STORES_BY_AREA[B.area]=[];
-      if(!BELI_STORES_BY_AREA[B.area].includes(nw)){ BELI_STORES_BY_AREA[B.area].push(nw); const o=document.createElement('option'); o.value=nw; o.textContent=nw; document.getElementById('beli-store-sel').appendChild(o); }
+      if(!BELI_STORES_BY_AREA[B.area].includes(nw)){ saveCustomStore(B.area,nw); const o=document.createElement('option'); o.value=nw; o.textContent=nw; document.getElementById('beli-store-sel').appendChild(o); }
     } else {
       B.store=sel;
     }
@@ -25082,8 +25107,7 @@ function stockNext(step){
     const nw=document.getElementById('stock-store-new').value.trim();
     SK.store=(box.classList.contains('open')&&nw)?nw:document.getElementById('stock-store-sel').value;
     if(box.classList.contains('open')&&nw){
-      if(!BELI_STORES_BY_AREA[SK.area]) BELI_STORES_BY_AREA[SK.area]=[];
-      if(!BELI_STORES_BY_AREA[SK.area].includes(nw)){ BELI_STORES_BY_AREA[SK.area].push(nw); const o=document.createElement('option'); o.value=nw; o.textContent=nw; document.getElementById('stock-store-sel').appendChild(o); }
+      if(!BELI_STORES_BY_AREA[SK.area].includes(nw)){ saveCustomStore(SK.area,nw); const o=document.createElement('option'); o.value=nw; o.textContent=nw; document.getElementById('stock-store-sel').appendChild(o); }
     }
     SK.stockType=document.getElementById('stock-r-awal').checked?'awal':'akhir';
     document.getElementById('stock-input-title').textContent='Stock '+(SK.stockType==='awal'?'Awal':'Akhir')+' Bulan';
