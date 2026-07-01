@@ -266,6 +266,13 @@ body {
   background:var(--a-light);border-radius:15px;
   display:none;border:1px solid var(--a-mid);
 }
+.save-store-btn{
+  width:100%;padding:10px;border:none;border-radius:10px;
+  background:var(--accent);color:#050A06;
+  font-size:13px;font-weight:800;letter-spacing:.01em;
+  cursor:pointer;transition:opacity .15s;
+}
+.save-store-btn:active{opacity:.75;}
 .add-box.open{display:block;}
 .add-box .f-input{background:#fff;border-radius:11px;}
 .add-box .f-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--a-light);}
@@ -618,10 +625,11 @@ input[type="file"]{display:none;}
         </div>
         <div class="add-trigger" onclick="toggleBox('rka-store-box')"><span>+</span> Tambah toko baru</div>
         <div class="add-box" id="rka-store-box">
-          <div class="field" style="margin-bottom:0">
+          <div class="field" style="margin-bottom:8px">
             <label class="f-label">Nama Toko Baru</label>
             <input type="text" class="f-input" id="rka-store-new" placeholder="Ketik nama toko…" oninput="rkaCheck(1)">
           </div>
+          <button class="save-store-btn" onclick="addNewStore('rka')">✓ Simpan Toko</button>
         </div>
       </div>
 
@@ -771,10 +779,11 @@ input[type="file"]{display:none;}
         </div>
         <div class="add-trigger" onclick="toggleBox('beli-store-box')"><span>+</span> Tambah toko baru</div>
         <div class="add-box" id="beli-store-box">
-          <div class="field" style="margin-bottom:0">
+          <div class="field" style="margin-bottom:8px">
             <label class="f-label">Nama Toko Baru</label>
             <input type="text" class="f-input" id="beli-store-new" placeholder="Ketik nama toko…" oninput="beliCheck(1)">
           </div>
+          <button class="save-store-btn" onclick="addNewStore('beli')">✓ Simpan Toko</button>
         </div>
       </div>
 
@@ -913,10 +922,11 @@ input[type="file"]{display:none;}
         </div>
         <div class="add-trigger" onclick="toggleBox('stock-store-box')"><span>+</span> Tambah toko baru</div>
         <div class="add-box" id="stock-store-box">
-          <div class="field" style="margin-bottom:0">
+          <div class="field" style="margin-bottom:8px">
             <label class="f-label">Nama Toko Baru</label>
             <input type="text" class="f-input" id="stock-store-new" placeholder="Ketik nama toko…" oninput="stockCheck(1)">
           </div>
+          <button class="save-store-btn" onclick="addNewStore('stock')">✓ Simpan Toko</button>
         </div>
         <div class="field" style="margin-top:16px">
           <label class="f-label">Jenis Stock</label>
@@ -24332,6 +24342,25 @@ function _mergeStores(area,stores){
 // Seed from localStorage immediately (fast, offline-safe)
 (function(){try{const s=JSON.parse(localStorage.getItem('mds_custom_stores')||'{}');Object.entries(s).forEach(([a,v])=>_mergeStores(a,v));}catch(e){}})();
 
+function addNewStore(flow){
+  const inputId=flow+'-store-new', selId=flow+'-store-sel', boxId=flow+'-store-box';
+  const nw=document.getElementById(inputId).value.trim();
+  if(!nw)return;
+  const area=flow==='rka'?R.area:flow==='beli'?B.area:SK.area;
+  if(!area){alert('Pilih area dulu sebelum tambah toko.');return;}
+  const sel=document.getElementById(selId);
+  if(![...sel.options].some(o=>o.value===nw)){
+    saveCustomStore(area,nw);
+    const o=document.createElement('option');o.value=nw;o.textContent=nw;sel.appendChild(o);
+  }
+  sel.value=nw;
+  document.getElementById(inputId).value='';
+  document.getElementById(boxId).classList.remove('open');
+  document.getElementById(boxId).style.display='none';
+  if(flow==='rka')rkaCheck(1);
+  else if(flow==='beli')beliCheck(1);
+  else stockCheck(1);
+}
 function saveCustomStore(area,name){
   _mergeStores(area,[name]);
   // Persist to Firestore for cross-device sync
