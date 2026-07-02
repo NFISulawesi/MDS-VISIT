@@ -429,6 +429,20 @@ tr:hover td{background:rgba(255,255,255,.016);}
 (function(){const _g=document.getElementById.bind(document);document.getElementById=function(id){const T=typeof TAB!=='undefined'?TAB:'rka';if(id==='table-head')return _g(T==='beli'?'table-head-beli':'table-head-rka')||_g(id);if(id==='table-body')return _g(T==='beli'?'table-body-beli':'table-body-rka')||_g(id);if(id==='tfoot')return _g(T==='beli'?'tfoot-beli':T==='stock'?'tfoot-stock':'tfoot-rka')||_g(id);return _g(id);};})();
 
 const DASH_PIN='NFI2026';
+const MDS_BY_AREA={
+  'Bau Bau':['Rizal'],
+  'Bone':['A. Arwandi Amrah','Ernawaty'],
+  'Gorontalo':['Sri Rahayu Dongio','Aditya Hulopi','Mohammad Rahman Marwan','Abd. Rahman Lahay','Satrio Yusuf'],
+  'Kendari':['Laode Asrad Ilhamid','Abdul Rahman','Dwi Haryanto','Rosa Sasmita'],
+  'Luwuk':['Kadek Adi Merta Sastrawan'],
+  'Makassar':['Sulfiana Rusdy','A. Mappanyukki','M. Murdiono Arma','Andi Iswan Tenri Bau','Rahmat','Mutiara Ramadhani','Hasrar','Andi Muh. Nurfikrahturrahman','Nurul Ramadhani','Syafri'],
+  'Mamuju':['Muhammad Rizky Sandria','Sugiono'],
+  'Manado':['Sarwendah H. Roring','Melisa Pungky Mapaliey','Rivanti Gusti Husein','Ignacia Regina Naung','Ridlan Mangilong','Tesar','Meilani Watung'],
+  'Palopo':['Tio Setiawan Rappun','Hijrayanti Mahruddin','Firman'],
+  'Palu':['Muh Nasir K','Yuliana Rusli','Rafdi'],
+  'Pare-Pare':['Marwan'],
+  'Poso':[],
+};
 const NS_PRICE=11250, HILO_PRICE=16000, HILOPLS_PRICE=31500;
 // NS items to spotlight (partial match is fine)
 const NS_JP_KEY  = 'NS JERUK PERAS PLS';
@@ -996,12 +1010,10 @@ function renderBeli(beliF){
 
 // ── TAB: Analisis Beli MDS ──────────────────────────────────────────────────
 function renderAnalisis(rkaF,beliF){
-  // ── 1. MDS roster per area (from all-time RKA data) ──
+  // ── 1. MDS roster per area (from registered MDS_BY_AREA list) ──
   const rosterByArea={};
-  RKA_ALL.forEach(r=>{
-    const a=r.area||'—',m=r.mds||'—';
-    if(!rosterByArea[a])rosterByArea[a]=new Set();
-    rosterByArea[a].add(m);
+  Object.entries(MDS_BY_AREA).forEach(([a,list])=>{
+    if(list.length)rosterByArea[a]=new Set(list);
   });
 
   // ── 2. Who submitted beli in filtered period ──
