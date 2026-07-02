@@ -366,6 +366,7 @@ tr:hover td{background:rgba(255,255,255,.016);}
         <div class="sub-tab on beli" id="stab-beli-log" onclick="switchSubTab('beli','log')">🛒 Riwayat Pembelian</div>
         <div class="sub-tab beli" id="stab-beli-analisis" onclick="switchSubTab('beli','analisis')">📊 Analisis Beli MDS</div>
       </div>
+      <div id="beli-area-cards" style="display:none;margin-bottom:16px"></div>
       <div class="panel-shell"><div class="panel-body">
         <table><thead id="table-head-beli"></thead><tbody id="table-body-beli"></tbody></table>
         <div class="tfoot-row" id="tfoot-beli"></div>
@@ -953,6 +954,7 @@ function renderStore(rkaF){
 
 // ── TAB: Beli Barang ────────────────────────────────────────────────────────
 function renderBeli(beliF){
+  document.getElementById('beli-area-cards').style.display='none';
   const rows=doSort(beliF);
   document.getElementById('table-head-beli').innerHTML=`<tr>
     <th onclick="sortBy('id')">ID${ar('id')}</th>
@@ -994,58 +996,151 @@ function renderBeli(beliF){
 
 // ── TAB: Analisis Beli MDS ──────────────────────────────────────────────────
 function renderAnalisis(rkaF,beliF){
-  const mds={};
+  // ── 1. MDS roster per area (from all-time RKA data) ──
+  const rosterByArea={};
   RKA_ALL.forEach(r=>{
-    const m=r.mds||'—';
-    if(!mds[m])mds[m]={name:m,area:r.area||'—',fd:r.timestamp,visits:0,a:0,t:0,ns:0,hi:0,nom:0,beli:0,stores:new Set()};
-    if(r.timestamp<mds[m].fd)mds[m].fd=r.timestamp;
+    const a=r.area||'—',m=r.mds||'—';
+    if(!rosterByArea[a])rosterByArea[a]=new Set();
+    rosterByArea[a].add(m);
   });
-  rkaF.forEach(r=>{
-    const m=r.mds||'—';
-    if(!mds[m])mds[m]={name:m,area:r.area||'—',fd:r.timestamp,visits:0,a:0,t:0,ns:0,hi:0,nom:0,beli:0,stores:new Set()};
-    mds[m].visits++;mds[m].a+=(r.avail||0);mds[m].t+=(r.avail||0)+(r.unavail||0);
-    mds[m].stores.add(r.store||'?');
-  });
+
+  // ── 2. Who submitted beli in filtered period ──
+  const submittedByArea={};
   beliF.forEach(r=>{
-    const m=r.mds||'—';
-    if(!mds[m])mds[m]={name:m,area:r.area||'—',fd:new Date(),visits:0,a:0,t:0,ns:0,hi:0,nom:0,beli:0,stores:new Set()};
-    mds[m].ns+=(r.groupTotals&&r.groupTotals.NS||0);
-    mds[m].hi+=(r.groupTotals&&r.groupTotals.HILO||0);
-    mds[m].nom+=(r.nominal||0);mds[m].beli++;
-    mds[m].stores.add(r.store||'?');
+    const a=r.area||'—',m=r.mds||'—';
+    if(!submittedByArea[a])submittedByArea[a]=new Set();
+    submittedByArea[a].add(m);
   });
+
+  // ── 3. Variant aggregation from itemQty ──
+  const varTot={},nsRnc={},hiRnc={};
+  let totalNS=0,totalHILO=0,totalJPASO=0,nsVariants=0,hiVariants=0;
+  beliF.forEach(r=>{
+    if(!r.itemQty)return;
+    Object.entries(r.itemQty).forEach(([nm,qty])=>{
+      const q=Number(qty)||0; if(!q)return;
+      varTot[nm]=(varTot[nm]||0)+q;
+      const b=brandOf(nm);
+      if(b==='NS'||nm.toUpperCase().startsWith('NS ')){
+        nsRnc[nm]=(nsRnc[nm]||0)+q; totalNS+=q;
+        if(isJP(nm)||isASO(nm))totalJPASO+=q;
+      } else if(b==='HILO'||nm.toUpperCase().startsWith('HI LO ')||nm.toUpperCase().startsWith('HILO ')){
+        hiRnc[nm]=(hiRnc[nm]||0)+q; totalHILO+=q;
+      }
+    });
+  });
+  nsVariants=Object.keys(nsRnc).length;
+  hiVariants=Object.keys(hiRnc).length;
+  const top5=Object.entries(varTot).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const jpPct=totalNS?Math.round(totalJPASO/totalNS*100):0;
+
+  // ── 4. Area status cards ──
+  const areas=Object.keys(rosterByArea).sort();
+  const cardsEl=document.getElementById('beli-area-cards');
+  cardsEl.style.display='block';
+
+  let cardsHtml=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:16px">`;
+  areas.forEach(area=>{
+    const roster=[...rosterByArea[area]].sort();
+    const submitted=submittedByArea[area]||new Set();
+    const done=roster.filter(m=>submitted.has(m));
+    const missing=roster.filter(m=>!submitted.has(m));
+    const pct=roster.length?Math.round(done.length/roster.length*100):0;
+    const barCol=pct===100?'var(--accent)':pct>=60?'var(--gold)':'var(--red)';
+    cardsHtml+=`<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <span style="font-size:12px;font-weight:700;color:var(--t1)">${area}</span>
+        <span style="font-size:11px;font-weight:800;color:${barCol}">${done.length}/${roster.length}</span>
+      </div>
+      <div style="background:rgba(255,255,255,.06);border-radius:6px;height:6px;margin-bottom:10px;overflow:hidden">
+        <div style="width:${pct}%;height:100%;background:${barCol};border-radius:6px;transition:width .4s"></div>
+      </div>
+      ${done.length?`<div style="margin-bottom:6px"><div style="font-size:8px;color:var(--accent);font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px">Sudah isi (${done.length})</div><div style="display:flex;flex-wrap:wrap;gap:3px">${done.map(m=>`<span style="font-size:9px;padding:2px 7px;border-radius:5px;background:rgba(16,214,106,.1);color:var(--accent)">${sn(m)}</span>`).join('')}</div></div>`:''}
+      ${missing.length?`<div><div style="font-size:8px;color:var(--red);font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px">Belum isi (${missing.length})</div><div style="display:flex;flex-wrap:wrap;gap:3px">${missing.map(m=>`<span style="font-size:9px;padding:2px 7px;border-radius:5px;background:rgba(239,68,68,.1);color:var(--red)">${sn(m)}</span>`).join('')}</div></div>`:'<div style="font-size:9px;color:var(--accent)">✅ Semua MDS sudah isi</div>'}
+    </div>`;
+  });
+  cardsHtml+='</div>';
+
+  // ── 5. Variant analytics row ──
+  const totalRnc=totalNS+totalHILO;
+  cardsHtml+=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px">
+    <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:14px">
+      <div style="font-size:8px;color:var(--t3);font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Varian NS vs HILO</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-size:10px;color:var(--t2)">NS</span>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:9px;color:var(--t3)">${nsVariants} varian · ${totalNS} rnc</span>
+          <span style="font-size:11px;font-weight:800;color:var(--blue)">${totalRnc?Math.round(totalNS/totalRnc*100):0}%</span>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,.06);border-radius:4px;height:5px;margin-bottom:8px;overflow:hidden">
+        <div style="width:${totalRnc?Math.round(totalNS/totalRnc*100):0}%;height:100%;background:var(--blue);border-radius:4px"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-size:10px;color:var(--t2)">HILO</span>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:9px;color:var(--t3)">${hiVariants} varian · ${totalHILO} rnc</span>
+          <span style="font-size:11px;font-weight:800;color:var(--gold)">${totalRnc?Math.round(totalHILO/totalRnc*100):0}%</span>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,.06);border-radius:4px;height:5px;overflow:hidden">
+        <div style="width:${totalRnc?Math.round(totalHILO/totalRnc*100):0}%;height:100%;background:var(--gold);border-radius:4px"></div>
+      </div>
+    </div>
+
+    <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:14px">
+      <div style="font-size:8px;color:var(--t3);font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Jeruk Peras & ASO dari NS</div>
+      <div style="font-size:32px;font-weight:900;color:var(--accent);line-height:1;margin-bottom:4px">${jpPct}%</div>
+      <div style="font-size:9px;color:var(--t3);margin-bottom:10px">${totalJPASO} rnc dari ${totalNS} total NS rnc</div>
+      <div style="background:rgba(255,255,255,.06);border-radius:6px;height:6px;overflow:hidden">
+        <div style="width:${jpPct}%;height:100%;background:var(--accent);border-radius:6px"></div>
+      </div>
+    </div>
+
+    <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:14px">
+      <div style="font-size:8px;color:var(--t3);font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Top 5 Varian Terlaris</div>
+      ${top5.length?top5.map(([nm,qty],i)=>{
+        const short=nm.replace(/^(NS|HI LO|HILO)\s+/i,'').replace(/\s+PLS.*$/i,'').replace(/\s+\d+.*$/,'').trim().slice(0,28);
+        const col=brandOf(nm)==='NS'?'var(--blue)':brandOf(nm)==='HILO'?'var(--gold)':'var(--t3)';
+        const maxQty=top5[0][1];
+        return`<div style="margin-bottom:5px"><div style="display:flex;justify-content:space-between;font-size:9px;margin-bottom:2px"><span style="color:var(--t2)">${i+1}. ${short}</span><span style="font-weight:700;color:${col}">${qty} rnc</span></div><div style="background:rgba(255,255,255,.06);border-radius:3px;height:3px;overflow:hidden"><div style="width:${Math.round(qty/maxQty*100)}%;height:100%;background:${col};border-radius:3px"></div></div></div>`;
+      }).join(''):'<div style="color:var(--t3);font-size:10px">Belum ada data</div>'}
+    </div>
+  </div>`;
+
+  cardsEl.innerHTML=cardsHtml;
+
+  // ── 6. MDS summary table (existing) ──
+  const mds={};
+  RKA_ALL.forEach(r=>{const m=r.mds||'—';if(!mds[m])mds[m]={name:m,area:r.area||'—',fd:r.timestamp,visits:0,a:0,t:0,ns:0,hi:0,nom:0,beli:0,stores:new Set()};if(r.timestamp<mds[m].fd)mds[m].fd=r.timestamp;});
+  rkaF.forEach(r=>{const m=r.mds||'—';if(!mds[m])mds[m]={name:m,area:r.area||'—',fd:r.timestamp,visits:0,a:0,t:0,ns:0,hi:0,nom:0,beli:0,stores:new Set()};mds[m].visits++;mds[m].a+=(r.avail||0);mds[m].t+=(r.avail||0)+(r.unavail||0);mds[m].stores.add(r.store||'?');});
+  beliF.forEach(r=>{const m=r.mds||'—';if(!mds[m])mds[m]={name:m,area:r.area||'—',fd:new Date(),visits:0,a:0,t:0,ns:0,hi:0,nom:0,beli:0,stores:new Set()};mds[m].ns+=(r.groupTotals&&r.groupTotals.NS||0);mds[m].hi+=(r.groupTotals&&r.groupTotals.HILO||0);mds[m].nom+=(r.nominal||0);mds[m].beli++;mds[m].stores.add(r.store||'?');});
   let entries=Object.values(mds).map(v=>({...v,storesCnt:v.stores.size,av:v.t?Math.round(v.a/v.t*100):null,k:v.ns*NS_PRICE+v.hi*HILO_PRICE,tdays:Math.floor((new Date()-v.fd)/864e5)}));
   entries.sort((a,b)=>b.visits-a.visits);
 
   document.getElementById('table-head-beli').innerHTML=`<tr>
-    <th onclick="sortBy('name')">MDS${ar('name')}</th>
-    <th>Area</th>
+    <th onclick="sortBy('name')">MDS${ar('name')}</th><th>Area</th>
     <th onclick="sortBy('tdays')">Aktif Sejak${ar('tdays')}</th>
     <th onclick="sortBy('visits')">Visit${ar('visits')}</th>
     <th onclick="sortBy('av')">AV%${ar('av')}</th>
-    <th onclick="sortBy('ns')">NS Rnc${ar('ns')}</th>
-    <th onclick="sortBy('hi')">HILO Rnc${ar('hi')}</th>
-    <th onclick="sortBy('k')">Kalkulasi${ar('k')}</th>
-    <th onclick="sortBy('nom')">Nota${ar('nom')}</th>
-    <th>Selisih</th>
-    <th onclick="sortBy('beli')">Transaksi${ar('beli')}</th>
+    <th onclick="sortBy('ns')">NS Rnc${ar('ns')}</th><th onclick="sortBy('hi')">HILO Rnc${ar('hi')}</th>
+    <th onclick="sortBy('k')">Kalkulasi${ar('k')}</th><th onclick="sortBy('nom')">Nota${ar('nom')}</th>
+    <th>Selisih</th><th onclick="sortBy('beli')">Transaksi${ar('beli')}</th>
   </tr>`;
   document.getElementById('table-body-beli').innerHTML=entries.length?entries.map(e=>{
     const avL=e.av!==null?avTag(e.av,' sm'):'<span class="tag b sm">—</span>';
     const diff=e.k-e.nom;
     const dTag=diff===0?'<span class="tag t sm">0</span>':diff>0?`<span class="tag g sm">+${rp(diff)}</span>`:`<span class="tag r sm">${rp(diff)}</span>`;
     const sinceStr=e.fd.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'2-digit'});
+    const hasBeli=submittedByArea[e.area]&&submittedByArea[e.area].has(e.name);
     return`<tr class="clickrow" onclick="openMDS('${e.name.replace(/'/g,"\\'")}')">
-      <td class="td-main">${e.name}</td>
+      <td class="td-main">${e.name} ${hasBeli?'<span style="font-size:9px;color:var(--accent)">✓</span>':'<span style="font-size:9px;color:var(--red)">✗</span>'}</td>
       <td class="td-dim">${e.area}</td>
       <td><span class="tag t sm">${sinceStr}</span> <span style="font-size:9px;color:var(--t3)">${tenure(e.fd)}</span></td>
-      <td><span class="tag g sm">${e.visits}</span></td>
-      <td>${avL}</td>
-      <td><span class="tag b sm">${e.ns}</span></td>
-      <td><span class="tag au sm">${e.hi}</span></td>
+      <td><span class="tag g sm">${e.visits}</span></td><td>${avL}</td>
+      <td><span class="tag b sm">${e.ns}</span></td><td><span class="tag au sm">${e.hi}</span></td>
       <td style="color:var(--accent);font-weight:700;font-size:11px">${e.k?rp(e.k):'—'}</td>
-      <td class="td-dim">${e.nom?rp(e.nom):'—'}</td>
-      <td>${dTag}</td>
+      <td class="td-dim">${e.nom?rp(e.nom):'—'}</td><td>${dTag}</td>
       <td><span class="tag p sm">${e.beli}</span></td>
     </tr>`;
   }).join(''):`<tr><td colspan="11"><div class="empty-state">Tidak ada data MDS.</div></td></tr>`;
